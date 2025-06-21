@@ -1,0 +1,4 @@
+离线安装python2.7 pip
+python get-pip.py
+离线安装six
+pip install --no-index --find-links=./six-1.16.0-py2.py3-none-any.whlwhl six
