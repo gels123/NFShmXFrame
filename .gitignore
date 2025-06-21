@@ -1,5 +1,4 @@
 /Install/Bin
-/doc
 /vs2017
 /build64_release
 /Build
@@ -22,7 +21,15 @@
 /thirdparty/pkg/openssl-1.0.2n/
 /thirdparty/pkg/libevent-release-2.1.8-stable/
 
-/game/MMO/ExcelMMO/
 /.idea/leetcode/
 /vs/.vs
-/game/MMO/Excel/
+/.vs
+/out
+/thirdparty/pkg
+/.idea/inspectionProfiles/Project_Default.xml
+/game/MMO/NFLogicComm/ResStore/makefiles/excel_gen.makefile
+/game/MMO/NFLogicComm/ResStore/makefiles/resmetas_gen.makefile
+/Build_excelprocess
+/cmake-build-tools_release
+/cmake-build-build_tools
+/cmake-build-release-visual-studio

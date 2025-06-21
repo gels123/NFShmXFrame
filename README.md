@@ -1,198 +1,721 @@
-简体中文
+# NFShmXFrame 分布式游戏服务器框架
 
-<p align="right">当前版本: <strong>v1.0.0</strong></p>
-<p align="center"><img src="https://github.com/yigao/NFShmServer/blob/master/doc/logo.png" alt="nfshmserver" width="300"/></p>
-NFShmServer 是一个使用C++开发的轻量级,敏捷型,弹性的,分布式的插件开发框架, 共有三种主要使用模式:1.传统使用STL的纯C++开发;2.使用共享内存作为内存池进行热更的纯C++开发(腾讯系公司大量使用这种模式开发);3.使用lua,python脚本进行游戏逻辑开发。已经用共享内存模式和lua脚本模式各自实现一款unity3d捕鱼游戏，有兴趣的可以加群762414765学习
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/ketoo/NFShmXFrame)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg)](https://github.com/ketoo/NFShmXFrame)
+[![Language](https://img.shields.io/badge/language-C%2B%2B17-orange.svg)](https://github.com/ketoo/NFShmXFrame)
+
+## 🎯 项目概述
+
+**NFShmXFrame** = **NF** + **Shm** + **X** + **Frame**
+
+- **NF**：NoahFrame框架基础，提供稳定的插件化架构
+- **Shm**：Shared Memory共享内存技术，提供双内存池选择方案
+- **X**：eXtensible脚本扩展系统，支持多语言混合开发  
+- **Frame**：Framework框架，完整的游戏服务器解决方案
+
+### 🎯 两大核心特色
+
+#### 1. Shm共享内存技术
+- **技术选择**：提供NFShmPlugin和NFMemPlugin两种内存池方案
+- **开发自由**：完全基于开发者个人爱好和公司技术方案选择
+- **技术创新**：为共享内存开发提供现代化的STL容器库
+- **告别传统**：不再需要手写复杂的裸C数组数据结构
+
+#### 2. X脚本扩展系统  
+- **多语言支持**：当前支持Lua，未来支持Python、JavaScript
+- **混合开发**：C++底层框架 + 脚本业务逻辑的开发模式
+- **热更新**：脚本代码可实时更新，无需重启服务器
+- **开发效率**：快速迭代，降低开发和维护成本
+
+### 🚀 框架核心亮点
+
+**NFShmXFrame = NF + Shm + X + Frame**
+- **NF**：基于插件化的分布式游戏服务器框架
+- **Shm**：共享内存技术，实现数据持久化和代码热更新
+- **X**：脚本扩展系统，支持Lua等多种脚本语言
+- **Frame**：完整的服务器框架解决方案
+
+目前已实现单线程Lua脚本插件，后续将支持多线程Actor Lua系统（类似Skynet架构）、Python、JavaScript等更多脚本语言。
+
+### 🏗️ 核心特色
+
+- **🔌 插件化架构**：所有功能以插件形式实现，支持动态加载/卸载
+- **🧠 Shm共享内存技术**：支持数据持久化、崩溃恢复、代码热更新的革命性内存管理
+- **📜 X脚本扩展系统**：支持Lua等多种脚本语言，C++底层+脚本业务逻辑混合开发
+- **🔥 双模式热更新**：配置重载、Lua脚本热更、C++代码热重启三重保障
+- **🌐 分布式设计**：支持多服务器、多物理机部署，类IP地址的服务器标识
+- **⚡ 高性能驱动**：固定30帧/秒驱动模式，支持性能监控和调优
+- **🛡️ 稳定性保障**：崩溃恢复、信号处理、异常捕获、分阶段初始化
+- **🔧 运维友好**：完善的启动参数、监控工具、HTTP管理接口
+
+## 📋 目录结构
+
+```
+NFShmXFrame/
+├── src/                    # 核心源代码
+│   ├── NFrame/            # 框架底层 - 核心框架层
+│   │   ├── NFComm/        # 通信与工具模块
+│   │   ├── NFPluginManager/ # 插件管理器
+│   │   └── NFCommPlugin/  # 通用插件
+│   ├── NFServer/          # 服务器架构层 - 各种服务器实现
+│   │   ├── NFMasterServer/    # 主控服务器
+│   │   ├── NFProxyServer/     # 代理服务器
+│   │   ├── NFGameServer/      # 游戏服务器
+│   │   ├── NFLogicServer/     # 逻辑服务器
+│   │   ├── NFWorldServer/     # 世界服务器
+│   │   └── NFStoreServer/     # 存储服务器
+│   └── NFTools/           # 工具集
+├── game/                  # 游戏逻辑层
+│   ├── Other/            # 手游项目示例
+│   └── NFGameCommon/     # 游戏公共模块
+├── doc/                   # 详细文档
+├── thirdparty/           # 第三方库
+├── tools/                # 构建和管理工具
+└── Install/              # 安装目录
+```
+
+## 🚀 快速开始
+
+### 环境要求
+
+- **操作系统**：Windows 10/11, Ubuntu 18.04+, CentOS 7+
+- **编译器**：Visual Studio 2019+, GCC 8+, Clang 10+
+- **依赖库**：CMake 3.16+, Git
+
+### 编译和安装
+
+```bash
+# 1. 克隆项目
+git clone https://github.com/yigao/NFShmXFrame.git
+cd NFShmXFrame
+
+# 2. 编译（支持Linux/Windows）
+mkdir build && cd build
+cmake ..
+make -j4
+
+# 3. 安装
+make install
+```
+
+### 启动服务器
+
+```bash
+# 1. 单一服务器模式启动
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin
+
+# 2. 多服务器模式启动（每种服务器一个实例）
+./NFPluginLoader --Server=AllServer --ID=1.13.1.1 --Plugin=LieRenPlugin
+
+# 3. 调试模式启动（便于跨服务器调试，每种服务器可多个实例）
+./NFPluginLoader --Server=AllMoreServer --ID=1.13.1.1 --Plugin=LieRenPlugin
+
+# 4. 生产环境守护进程模式
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin --Start --Daemon
+```
+
+### 常用启动参数
+
+| 参数 | 描述 | 示例 | 必需 |
+|------|------|------|------|
+| `--Server` | 服务器类型 | `GameServer`, `AllServer`, `AllMoreServer` | ✅ |
+| `--ID` | 服务器唯一标识 | `1.13.10.1` (世界.区服.类型.索引) | ✅ |
+| `--Plugin` | 插件配置目录 | `LieRenPlugin`, `MMOPlugin` | ✅ |
+| `--Start` | 启动服务器 | 无需参数值 | ❌ |
+| `--Stop` | 停止服务器 | 无需参数值 | ❌ |
+| `--Reload` | 重载配置 | 无需参数值 | ❌ |
+| `--Restart` | 热重启 | 无需参数值 | ❌ |
+| `--Daemon` | 守护进程模式 | 无需参数值 | ❌ |
+
+### 三种启动模式对比
+
+| 启动模式 | 参数示例 | 进程数 | 插件管理器数 | 服务器实例数 | 适用场景 |
+|----------|----------|--------|--------------|--------------|----------|
+| **单一服务器** | `--Server=GameServer` | 1 | 1 | 1 | 生产环境单服务器部署 |
+| **AllServer** | `--Server=AllServer` | 1 | 1 | 多个（每种类型1个） | 开发调试，功能测试 |
+| **AllMoreServer** | `--Server=AllMoreServer` | 1 | 多个 | 多个（每种类型可多个） | 开发调试，跨服务器调试优化 |
+
+## 🏛️ 架构设计
+
+### 三层架构
+
+```
+游戏逻辑层 (Game)
+    ↓
+服务器架构层 (NFServer)  
+    ↓
+框架基础层 (NFrame)
+```
+
+### 插件系统三大核心组件
+
+1. **NFPluginManager（插件管理器）**：系统的核心控制器，负责整个插件生态的管理
+2. **NFPlugin（插件基类）**：功能模块的逻辑容器，组织和管理相关模块  
+3. **NFIModule（模块接口）**：最小功能单元，实现具体的业务逻辑
+
+### 初始化任务系统
+
+NFShmXFrame采用基于任务组的分阶段初始化机制，确保服务器按正确顺序启动：
+
+```cpp
+enum APP_INIT_TASK_GROUP
+{
+    APP_INIT_TASK_GROUP_SERVER_CONNECT = 1,          // 服务器连接任务组
+    APP_INIT_TASK_GROUP_SERVER_LOAD_DESC_STORE = 2,  // 配置数据加载任务组
+    APP_INIT_TASK_GROUP_SERVER_LOAD_OBJ_FROM_DB = 3, // 数据库数据加载任务组
+    APP_INIT_TASK_GROUP_SERVER_REGISTER = 4,         // 服务器注册任务组
+};
+```
+
+**初始化流程**：
+1. **服务器连接**：建立与其他服务器的连接
+2. **配置加载**：加载Lua配置和描述存储
+3. **数据库加载**：从数据库加载全局数据
+4. **服务器注册**：完成服务器间注册和认证
+
+### 完整生命周期管理
+
+框架提供15个不同的生命周期阶段，确保组件按正确顺序初始化：
+
+```cpp
+// 启动初始化阶段
+AfterLoadAllPlugin()    → 所有插件加载完成
+AfterInitShmMem()       → 共享内存初始化完成
+Awake()                 → 模块唤醒
+Init()                  → 模块初始化
+CheckConfig()           → 配置检查
+ReadyExecute()          → 准备执行
+
+// 运行执行阶段
+Execute()               → 主循环（30FPS）
+
+// 服务器特定初始化阶段
+AfterAllConnectFinish()    → 所有服务器连接建立完成
+AfterAllDescStoreLoaded()  → 所有配置数据加载完成
+AfterObjFromDBLoaded()     → 数据库数据加载完成
+AfterServerRegisterFinish() → 服务器注册完成
+AfterAppInitFinish()       → 应用初始化完成
+
+// 关闭清理阶段
+BeforeShut() → Shut() → Finalize()
+```
+
+### 🧠 双内存池机制
+
+**灵活的内存管理方案**：
+- **NFShmPlugin**：共享内存池 + 共享内存STL容器
+  - 适合腾讯系技术栈的团队
+  - 支持进程崩溃后数据恢复
+  - 提供现代化的STL容器接口，告别裸C数组时代
+- **NFMemPlugin**：传统进程内存池
+  - 适合传统服务器开发团队
+  - 开发简单，性能优异
+  - 可自由使用标准C++ STL容器
+
+**技术创新点**：
+- 提供完整的共享内存STL容器库（vector、map、set、string等）
+- 解决传统共享内存开发中手写复杂数据结构的痛点
+- API与标准STL高度兼容，降低学习成本
+
+## 🎮 主要功能
+
+### 🔧 服务器管理
+
+- **启动模式**：支持单服务器、AllServer、AllMoreServer三种启动模式
+- **热重启**：`--restart` 参数实现零停机代码更新
+- **配置重载**：`--reload` 参数实现配置文件热重载
+- **守护进程**：`--daemon` 参数支持后台运行
+- **信号控制**：支持优雅停服、强制终止等信号操作
+
+### 🔥 热更新系统
+
+**三种热更新方式**：
+1. **配置重载（--reload）**：
+   - 重载Lua配置文件
+   - 重载Lua脚本
+   - 重载游戏数据
+   - 支持HTTP接口和信号触发
+
+2. **代码热重启（--restart）**：
+   - 杀死旧进程，启动新进程
+   - 通过共享内存保持数据状态
+   - 支持零停机更新
+   - PID文件管理和信号通信
+
+3. **Lua脚本热更新**：
+   - 实时更新业务逻辑
+   - 无需重启服务器
+   - 支持单文件或批量更新
+
+### ⚙️ 初始化任务系统
+
+**分阶段初始化保证**：
+- **任务分组管理**：按功能将初始化任务分为4个主要组
+- **依赖关系控制**：确保任务按正确的依赖顺序执行
+- **状态实时跟踪**：可以实时查看初始化进度和状态
+- **超时监控**：自动检测和报告超时任务
+- **事件驱动**：基于事件机制实现模块间解耦
+
+**任务组类型**：
+```bash
+1. 服务器连接任务组 → 建立服务器间连接
+2. 配置数据加载任务组 → 加载Lua配置和描述存储  
+3. 数据库数据加载任务组 → 从数据库加载全局数据
+4. 服务器注册任务组 → 完成服务器间注册认证
+```
+
+### 🌐 分布式架构
+
+- **服务器ID机制**：类似IP地址的服务器标识（如1.11.1.1）
+- **路由代理**：RouteAgent处理同机通信，RouteServer处理跨机通信
+- **服务发现**：Master服务器作为注册中心
+- **负载均衡**：支持多实例负载分担
+
+### 📜 X脚本扩展系统
+
+NFShmXFrame的"X"核心特色：强大的多语言脚本扩展能力
+
+**当前支持**：
+- **🌙 Lua脚本引擎**：
+  - ✅ 单线程Lua插件（已实现）
+  - 🔥 Lua脚本实时热更新
+  - 🔗 C++与Lua无缝互调
+  - 📦 完整的Lua业务逻辑支持
+
+**未来规划**：
+- **🌟 多线程Actor Lua系统**（类似Skynet架构）
+- **🐍 Python脚本插件**：支持Python业务逻辑
+- **🌐 JavaScript脚本插件**：前后端统一语言
+
+**X脚本系统优势**：
+- 🎯 **混合开发模式**：C++负责性能关键部分，脚本处理业务逻辑
+- ⚡ **快速迭代**：脚本修改无需重新编译，大幅提升开发效率
+- 🔄 **热更新支持**：业务逻辑可以实时更新，无需停服
+- 🛠️ **多语言选择**：根据团队技能栈选择最适合的脚本语言
+
+### 🛠️ 开发工具
+
+- **Excel工具**：Excel配置自动生成代码和数据库
+- **Lua配置系统**：采用Lua作为配置语言，支持灵活的配置管理
+- **协议生成**：基于Protobuf的协议自动生成
+- **服务器控制器**：NFServerController统一管理工具
+- **性能分析**：内置性能监控和分析系统
+
+## 📚 详细文档
+
+### 核心架构文档
+- [📖 插件框架架构详解](doc/NFShmXFrame插件框架架构详解.md) - 深入理解框架设计原理
+- [🔧 插件系统三大核心组件详解](doc/NFShmXFrame插件系统三大核心组件详解.md) - 掌握插件开发
+- [🏗️ 服务器代码组织结构分析](doc/NFShmXFrame服务器代码组织结构分析.md) - 了解项目结构
+
+### 启动和运行文档
+- [🚀 服务器启动参数与执行流程详解](doc/NFShmXFrame服务器启动参数与执行流程详解.md) - 掌握启动配置
+- [⚙️ 服务器初始化启动任务系统详解](doc/NFShmXFrame服务器初始化启动任务系统详解.md) - 理解启动流程
+- [🔄 服务器运行流程详解](doc/NFShmXFrame服务器运行流程详解.md) - 了解运行机制
+
+### 运维和管理文档
+- [🔥 服务器热更重启详解](doc/NFShmXFrame服务器热更重启详解.md) - 实现零停机更新
+- [🔄 服务器重载配置详解](doc/NFShmXFrame服务器重载配置详解.md) - 配置热重载技术
+- [🔨 编译指南](doc/NFShmXFrame编译指南.md) - 详细编译说明
+
+## 💡 使用示例
+
+### 基础模块开发
+
+```cpp
+// 定义模块接口
+class IMyGameModule : public NFIModule
+{
+public:
+    virtual bool ProcessPlayerLogin(uint64_t playerId) = 0;
+};
+
+// 实现具体模块
+class MyGameModule : public IMyGameModule
+{
+public:
+    MyGameModule(NFIPluginManager* p) : IMyGameModule(p) {}
+    
+    virtual bool Init() override
+    {
+        // 获取依赖模块
+        m_pLogModule = FindModule<NFILogModule>();
+        return true;
+    }
+    
+    virtual bool ProcessPlayerLogin(uint64_t playerId) override
+    {
+        m_pLogModule->LogInfo(NF_LOG_DEFAULT, 0, "Player {} login", playerId);
+        return true;
+    }
+    
+private:
+    NFILogModule* m_pLogModule = nullptr;
+};
+```
+
+### 插件开发
+
+```cpp
+class MyGamePlugin : public NFIPlugin
+{
+public:
+    explicit MyGamePlugin(NFIPluginManager* p) : NFIPlugin(p) {}
+    
+    virtual int GetPluginVersion() override { return 1000; }
+    virtual std::string GetPluginName() override { return "MyGamePlugin"; }
+    
+    virtual void Install() override
+    {
+        // 注册模块
+        REGISTER_MODULE(pPluginManager, IMyGameModule, MyGameModule);
+    }
+    
+    virtual void Uninstall() override
+    {
+        // 卸载模块
+        UNREGISTER_MODULE(pPluginManager, IMyGameModule, MyGameModule);
+    }
+};
+```
+
+### 初始化任务系统使用
+
+```cpp
+// 注册初始化任务
+bool MyGameModule::Awake()
+{
+    // 注册连接Store服务器任务
+    RegisterAppTask(NF_ST_LOGIC_SERVER, APP_INIT_CONNECT_STORE,
+                   "Connect to Store Server", 
+                   APP_INIT_TASK_GROUP_SERVER_CONNECT);
+                   
+    // 注册数据库加载任务
+    RegisterAppTask(NF_ST_LOGIC_SERVER, APP_INIT_LOAD_GLOBAL_DATA_DB,
+                   "Load Global Data From Store Server", 
+                   APP_INIT_TASK_GROUP_SERVER_LOAD_OBJ_FROM_DB);
+    
+    // 订阅任务组完成事件
+    Subscribe(NF_ST_LOGIC_SERVER, NFrame::NF_EVENT_SERVER_TASK_GROUP_FINISH, 
+             NFrame::NF_EVENT_SERVER_TYPE, APP_INIT_TASK_GROUP_SERVER_CONNECT,
+             __FUNCTION__);
+    
+    return true;
+}
+
+// 在适当时机标记任务完成
+void MyGameModule::OnConnectSuccess()
+{
+    FinishAppTask(NF_ST_LOGIC_SERVER, APP_INIT_CONNECT_STORE,
+                 APP_INIT_TASK_GROUP_SERVER_CONNECT);
+}
+
+// 处理任务组完成事件
+int MyGameModule::OnExecute(uint32_t serverType, uint32_t nEventID, 
+                           uint32_t bySrcType, uint64_t nSrcID, 
+                           const google::protobuf::Message *pMessage)
+{
+    if (nEventID == NFrame::NF_EVENT_SERVER_TASK_GROUP_FINISH && 
+        bySrcType == NFrame::NF_EVENT_SERVER_TYPE &&
+        nSrcID == APP_INIT_TASK_GROUP_SERVER_CONNECT)
+    {
+        // 连接任务组完成，可以开始后续初始化
+        StartLoadingData();
+    }
+    return 0;
+}
+
+### 服务器控制
+
+```bash
+# 启动服务器
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin --Start --Daemon
+
+# 重载配置
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin --Reload
+
+# 热重启
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin --Restart --Daemon
+
+# 停止服务器
+./NFPluginLoader --Server=GameServer --ID=1.13.10.1 --Plugin=LieRenPlugin --Stop
+```
+
+### HTTP管理接口
+
+```bash
+# 重启指定服务器
+curl "http://127.0.0.1:6011/restart?Server=GameServer&ID=1.13.10.1"
+
+# 重载所有服务器配置
+curl "http://127.0.0.1:6011/reloadall"
+
+# 查看服务器状态
+curl "http://127.0.0.1:6011/status" | jq '.'
+```
+
+## 🔧 配置示例
+
+### 插件配置（Plugin.lua）
+
+```lua
+-- Install/LieRenPlugin/Plugin.lua
+-- 插件和服务器配置示例
+
+require "Common"
+
+LoadPlugin = {
+    -- AllServer模式配置
+    AllServer = {
+        -- 框架插件（底层引擎）
+        FramePlugins = {
+            "NFKernelPlugin",
+            "NFNetPlugin", 
+            "NFShmPlugin",      -- 共享内存插件
+            -- "NFMemPlugin",   -- 普通内存插件（二选一）
+            "NFDBPlugin",
+        },
+
+        -- 服务器插件
+        ServerPlugins = {
+            "NFServerCommonPlugin",
+            "NFDescStorePlugin",
+            "NFMasterServerPlugin",
+            "NFRouteServerPlugin",
+            "NFRouteAgentServerPlugin", 
+            "NFStoreServerPlugin",
+            "NFProxyServerPlugin",
+            "NFGameServerPlugin",
+            "NFLogicServerPlugin",
+            "NFWorldServerPlugin",
+            -- 其他服务器插件...
+        },
+
+        -- 业务工作插件
+        WorkPlugins = {
+            "NFMMOCommonPlugin",
+            "NFMMOProxyPlayerPlugin",
+            "NFMMOLogicPlayerPlugin",
+            "NFMMOGamePlayerPlugin",
+            -- 其他业务插件...
+        },
+
+        -- 服务器列表配置
+        ServerType = NF_ST_NONE,
+        ServerList = {
+            {Server="MasterServer", ID="1.13.1.1", ServerType=NF_ST_MASTER_SERVER},
+            {Server="ProxyServer", ID="1.13.4.1", ServerType=NF_ST_PROXY_SERVER},
+            {Server="GameServer", ID="1.13.10.1", ServerType=NF_ST_GAME_SERVER},
+            {Server="LogicServer", ID="1.13.9.1", ServerType=NF_ST_LOGIC_SERVER},
+            {Server="StoreServer", ID="1.13.6.1", ServerType=NF_ST_STORE_SERVER},
+            -- 更多服务器配置...
+        }
+    },
+
+    -- AllMoreServer模式配置
+    AllMoreServer = {
+        ServerList = {
+            {Server="AllServer", ID="1.13.1.1"},
+            {Server="CrossAllServer", ID="1.20.1.1"},
+            -- 可以添加更多服务器实例用于调试
+            -- {Server="LogicServer", ID="1.13.9.2"},
+            -- {Server="GameServer", ID="1.13.10.2"},
+        }
+    }
+}
+```
+
+### 单个服务器配置（GameServer.lua）
+
+```lua
+-- Install/LieRenPlugin/GameServer.lua
+-- 单个服务器详细配置示例
+
+require "Common"
+
+GameServer = {
+    GameServer_1 = {
+        ServerName = "GameServer_1",
+        ServerType = NF_ST_GAME_SERVER,
+        ServerId = "1.13.10.1",                    -- 服务器唯一ID
+        LinkMode = "bus",                          -- 通信模式：bus/tcp
+        BusLength = 20971520,                      -- 20M共享内存
+        IdleSleepUS = 1000,                        -- 空闲睡眠时间(微秒)
+        ServerIp = "127.0.0.1",                    -- 服务器IP
+        ServerPort = 6601,                         -- 服务器端口
+        MaxConnectNum = 100,                       -- 最大连接数
+        NetThreadNum = 1,                          -- 网络线程数
+        WorkThreadNum = 1,                         -- 工作线程数
+        MaxOnlinePlayerNum = 100,                  -- 最大在线玩家数
+        DefaultDBName = "proto_ff_cgzone13",       -- 默认数据库名
+        HandleMsgNumPerFrame = 2000,               -- 每帧处理消息数
+        
+        -- 路由配置
+        RouteConfig = {
+            RouteAgent = "1.13.3.1",              -- 路由代理ID
+            MasterIp = "127.0.0.1",               -- Master服务器IP
+            MasterPort = 6511,                     -- Master服务器端口
+        }
+    }
+}
+```
+
+### 通用配置（Common.lua）
+
+```lua
+-- Install/LieRenPlugin/Common.lua
+-- 通用配置和常量定义
+
+-- 服务器类型定义
+NF_ST_MASTER_SERVER = 1
+NF_ST_ROUTE_SERVER = 2
+NF_ST_ROUTE_AGENT_SERVER = 3
+NF_ST_PROXY_SERVER = 4
+NF_ST_STORE_SERVER = 6
+NF_ST_LOGIN_SERVER = 7
+NF_ST_WORLD_SERVER = 8
+NF_ST_LOGIC_SERVER = 9
+NF_ST_GAME_SERVER = 10
+-- 更多服务器类型...
+
+-- 服务器ID组成规则
+-- ServerId = "世界ID.区服ID.服务器类型.服务器索引"
+-- 例如: "1.13.10.1" = 世界1.区服13.GameServer.实例1
+NF_ST_WORLD_ID = 1                    -- 世界服务ID(1-15)
+NF_ST_ZONE_ID = 13                    -- 区服务ID(1-4095) 
+NF_ST_CROSS_ZONE_ID = 20              -- 跨服区ID
+
+-- 网络配置
+NF_INTER_SERVER_IP = "127.0.0.1"     -- 内网服务器IP
+NF_EXTER_SERVER_IP = "127.0.0.1"     -- 外网服务器IP
+NF_LINK_MODE = "bus"                  -- 通信模式：bus/tcp
+NF_COMMON_BUS_LENGTH = 20971520       -- 20M共享内存
+
+-- 数据库配置
+NF_MYSQL_IP = "127.0.0.1"
+NF_MYSQL_PORT = 3306
+NF_MYSQL_DB_NAME = "proto_ff_cgzone13"
+NF_MYSQL_USER = "root"
+NF_MYSQL_PASSWORD = "password"
+```
+
+### 配置文件组织结构
+
+```
+Install/LieRenPlugin/
+├── Plugin.lua              # 主配置文件（插件加载和服务器列表）
+├── Common.lua               # 通用配置和常量定义
+├── AllMoreServer.lua        # AllMoreServer模式配置
+├── MasterServer.lua         # Master服务器配置
+├── ProxyServer.lua          # Proxy服务器配置
+├── GameServer.lua           # Game服务器配置
+├── LogicServer.lua          # Logic服务器配置
+├── StoreServer.lua          # Store服务器配置
+├── WorldServer.lua          # World服务器配置
+├── LoginServer.lua          # Login服务器配置
+├── RouteServer.lua          # Route服务器配置
+├── RouteAgentServer.lua     # RouteAgent服务器配置
+├── CenterServer.lua         # Center服务器配置
+├── WebServer.lua            # Web服务器配置
+├── SnsServer.lua            # SNS服务器配置
+└── LogConfig.lua            # 日志配置
+```
+
+### 配置文件使用说明
+
+1. **Plugin.lua**：主配置文件，定义不同启动模式下的插件加载和服务器列表
+2. **Common.lua**：通用配置，包含服务器类型、网络配置、数据库配置等常量
+3. **单个服务器配置文件**：每种服务器类型的详细配置，包含多个实例配置
+4. **AllMoreServer.lua**：调试模式下的服务器组合配置
+
+## 🎯 应用场景
+
+### 游戏类型支持
+- **MMO游戏**：大型多人在线游戏
+- **手机游戏**：移动端游戏后端
+- **实时对战**：MOBA、吃鸡类游戏
+- **卡牌游戏**：回合制策略游戏
+- **社交游戏**：休闲社交类游戏
+
+### 部署模式
+- **开发调试**：AllServer或AllMoreServer模式，快速开发测试和跨服务器调试
+- **小规模生产**：同一台物理机部署完整分布式架构，节省硬件资源
+- **大规模生产**：多台物理机分布式部署，高可用高性能
+- **混合云部署**：支持公有云、私有云、混合云部署
+
+## 🤝 贡献指南
+
+我们欢迎任何形式的贡献！
+
+### 贡献方式
+1. **提交Issue**：报告bug、提出功能需求
+2. **提交PR**：修复bug、添加新功能
+3. **完善文档**：改进文档、添加示例
+4. **分享经验**：分享使用经验、最佳实践
+
+### 开发流程
+1. Fork项目到个人仓库
+2. 创建功能分支：`git checkout -b feature/your-feature`
+3. 提交更改：`git commit -am 'Add some feature'`
+4. 推送分支：`git push origin feature/your-feature`
+5. 创建Pull Request
+
+## 📄 许可证
+
+本项目采用 [Apache License 2.0](LICENSE) 开源许可证。
+
+## 🙏 致谢
+
+感谢所有为NFShmXFrame项目做出贡献的开发者和用户！
+
+### 主要贡献者
+- [gaoyi](https://github.com/yigao) - 项目创始人和主要维护者
+
+### 第三方库
+- [Google Protobuf](https://github.com/protocolbuffers/protobuf) - 序列化
+- [spdlog](https://github.com/gabime/spdlog) - 日志系统
+- [Lua](https://www.lua.org/) - 脚本引擎
+- [libevent](https://libevent.org/) - 网络库
+- [MySQL](https://www.mysql.com/) - 数据库
+
+## 📞 联系我们
+
+- **项目主页**：https://github.com/ketoo/NFShmXFrame
+- **问题反馈**：https://github.com/ketoo/NFShmXFrame/issues
+- **讨论交流**：https://github.com/ketoo/NFShmXFrame/discussions
+
 ---
 
-[![License](https://img.shields.io/github/license/yigao/NFShmServer.svg?colorB=f48041&style=flat-square)](https://opensource.org/licenses/Apache-2.0)
-![GitHub stars](https://img.shields.io/github/stars/yigao/NFShmServer.svg?style=flat-square&label=Stars&style=flat-square)
-![GitHub issues](https://img.shields.io/github/issues-raw/yigao/NFShmServer.svg?style=flat-square)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/yigao/NFShmServer.svg?style=flat-square)  
-[![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=ark&metric=alert_status)](https://sonarcloud.io/dashboard/index/ark)
-[![codecov](https://codecov.io/gh/OpenArkStudio/ARK/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenArkStudio/ARK)
-[![QQ Group](https://img.shields.io/badge/Chat%20on-QQ%20Group-orange.svg?longCache=true&style=flat-square)](https://shang.qq.com/wpa/qunwpa?idkey=1b8394bd9a42ba46606200a44911c1c6161235a38aecce95158ca646c2bafd81)
-[![Discord](https://img.shields.io/discord/471890201124536320.svg?label=Discord&style=flat-square)](https://discord.gg/GmyBbcv)
-[![996.icu](https://img.shields.io/badge/Link-996.icu-red.svg?&style=flat-square)](https://996.icu)
+⭐ 如果这个项目对你有帮助，请给我们一个Star！
 
-</center>
+🚀 开始你的游戏服务器开发之旅吧！
 
-**Copyright © [NFShmServer]**  
-GitHub: https://github.com/yigao/NFShmServer
+## 📖 技术背景说明
 
-码云: https://gitee.com/xiaoyi445_admin/NFShmServer
+### 共享内存技术的行业使用情况
 
-QQ 群: [点击加群762414765](https://shang.qq.com/wpa/qunwpa?idkey=3dShwRu-nyiWUWLw3iWzCyn-3ZU8EFfi)  
+**腾讯系技术栈**：
+- **使用范围**：腾讯以及从腾讯出来的员工创建的公司普遍采用共享内存技术
+- **技术特点**：这些公司技术方案相对保守，常年使用裸C数组编写复杂业务逻辑
+- **更新缓慢**：技术栈更新较慢，长期停留在传统的C语言开发模式
 
+**传统开发痛点**：
+- **手动内存管理**：需要手写复杂的数据结构管理代码
+- **开发效率低**：大量时间花费在底层内存操作上
+- **维护困难**：裸C数组代码可读性差，维护成本高
+- **容错性差**：手动管理容易出现内存泄漏和越界问题
 
-| CI             | master分支                                                                                                                | develop分支                                                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Github Actions | [![Github Action](https://github.com/yigao/NFShmServer/workflows/Github-CI/badge.svg)](https://github.com/yigao/NFShmServer/actions)      | [![Github Action](https://github.com/yigao/NFShmServer/workflows/Github-CI/badge.svg?branch=develop)](https://github.com/yigao/NFShmServer/actions) |
+### NFShmXFrame的技术创新
 
-## SAST Tools
+**现代化共享内存开发**：
+- **STL容器库**：提供完整的共享内存版本STL容器
+- **API兼容性**：接口与标准STL高度一致，学习成本极低
+- **开发体验**：像使用标准STL一样简单，告别手写数据结构
+- **功能完整**：支持vector、map、set、string、list等常用容器
 
-[PVS-Studio](https://pvs-studio.com/pvs-studio/?utm_source=website&utm_medium=github&utm_campaign=open_source) - static analyzer for C, C++, C#, and Java code.
-
-# Use case
-
-### 若您的项目使用了NFShmServer，欢迎联系作者，作者很乐意把您的作品展示出来.
-
-  * 中青龙图(网友联系的，貌似项目后来被砍了)
-
-## 为什么要写NFShmFrame开源服务器
-* 最近参加了一下面试，面试官问为什么要写开源服务器，你写的和别人的开源有什么区别。我说因为兴趣所以写，要写世界最屌的服务器.
-* 这个服务器和别人的服务器有什么区别呢！如果写的东西，别人也可以立马写出来，或者和别人的差不多，那就只是练练手脚，价值不大。
-## NFShmFrame开源服务器的与众不同之处
-- 由游戏服务器开发过程中遇到的问题来展开NFShmFrame不同于别的服务器之处，在近10年的游戏开发中，常常遇到一些开发中的问题，为了解决遇到的这些服务器难题，我往往会在NFShmFrame上先实现解决方案，久而久之，6年的积累，慢慢就形成了NFShmFrame这个开源服务器
-1. 问题一：C++服务器开发谁都避不过去的问题，C++服务器崩溃。不管是指针导致的，还是memcpy,memset等函数导致的，还是数组越界，栈空间越界导致的，最终C++服务器崩溃，内存数据全部丢失。
-2. 问题二：C++难以实现像LUA那样的热更功能
-3. 问题三：一般的分布式游戏服务器，基本都是由很多不同功能的进程组成，这些进程使用Tcp或共享内存相互链接，难以配置。
-4. 问题四：多进程的分布式服务器，需要同时开启多个进程。即使在windows系统上使用vs调试，也需要开启很多窗口，太多的话，关闭或启动服务器麻烦。在linux，如果使用gdb调试多个服务器的话，那简直就是人道灾难
-5. 问题五：在实现游戏服务器系统的DB存储过程中，大量手写sql语句。写的蛋痛，看的蛋痛，维护蛋痛，特别容易写错，还难写。玩转mysql服务器，storeserver利用protobuf反射，自动创建数据库，创建表，新加列,  通过加载pb， 动态更新storeserver服务，无需你手写任何mysql语句，统一实现游戏服务器的数据拉去，存取，更新
-6. 问题六：C++多线程，不管是要实现tcp网络的多线程，还是db系统的多线程，并不好写。
-7. 问题七：有些游戏服务器，比如从腾讯等公司拿出来的，同时使用共享内存和TCP来实现服务器与服务器之间的通讯以及服务器和客户端的通讯。TCP和共享内存之间接口难以统一，相互替换麻烦。
-8. 问题八：大部分游戏公司的服务器代码各个模块耦合度太高，难以分开，难以替换升级。 
-9. 问题九：部分公司，主要是腾讯出来创业搞出来的公司，使用共享内存来解决C++服务器崩溃后数据丢失和C++热更问题。但是使用共享内存创建类，缺乏stl之类的容器支持。导致使用共享内存成本太高。 
-## 特性
-
-- 可以做到分布式架构不需要修改任何源码的情况下，做到单进程运行整套分布式系统(对于滚服服务器，可同时运行多个服务器，便于调试跨服)，加快平时的服务器开发。 同时还能做到在开发运行的时候最大可能的节约内存， 方便调试开发。分布式运行只需要程序启动时参数修改即可
-- C++热更，服务器实现了共享内存C++热更(对于纯粹C++来说，也是唯一热更的有效可用的方案，当然热更的前提是没有修改共享内存类的结构大小)。
-- 服务器崩溃不丢失数据，对于热门的赚钱的游戏这点还是很重要的。 服务器崩溃后重启，不丢任何物理数据，甚至连内网协议数据都不会有丢失。
-- 游戏数据均放在共享内存里，共享内存架构经过很多MMO大项目验证无问题，内网通讯采用共享内存通讯的话，服务器异常时，玩家协议数据不会丢失。
-- (2022.9-2023.9已完成)实现一套可以放心用在共享内存里的仿sgi-stl数据结构, 极大的解决了使用共享内存写代码难度搞得问题(见过好几套从腾讯流出来的游戏的共享内存架构，大部分仅仅是实现了一个简单的哈希表，其余的业务就需要使用C语言的原始数组啥的了)。除了事先需要定义好需要的内存大小外，其余使用方法都与stl一样.  NFShmVector -- std::vecotr       使用:NFShmVector<int, 5> -- std::vector<int> 除了要定义5这个最大内存容量外，其余使用方法NFShmVector和std::vector完全一样，包过使用他们的迭代器以及stl算法
-  
-        
-- (2022.9-2023.9已完成)服务器游戏配置数据，从excel到共享内存代码，到sql语句，只需定义一个protobuf结构，就可以生成大量有用代码，你可以用这个protobuf结构去读取excel数据，生成对应的共享内存结构类，来存放数据，也可以生成sql数据，把excel表导入到数据库，不需要修改源码，可以从本地文件读取excel数据，可以直接从数据库读取配置。
-- (2022.9-2023.9已完成)玩家个人数据，只需定义一个protobuf结构，自动生成共享内存数据，sql数据，通过protobuf发射来完成mysql数据的存取，无需你自己写sql语句。
-- 类似腾讯内部服务器，每一个服务器进程都有一个独立的类似网络IP的ID，来代表这个服务器，你不需要知道任何一个服务器进程部署在哪里，只要知道这个服务器的独立ID，就可以相互通讯
-- (2022.9-2023.9已完成)多进程单线程lua热更，实现了lua插件。可以用lua写业务代码，热更服务器。
-- (未完成)多进程actor多线程lua热更, 目前还是构思中。有点类似skynet, 但是C++底层还是nf, 架构主C++，业务主lua.
-- (2022.9-2023.9已完成)友好的协程RPC系统，实现了一个使用游戏服务器的RPC系统，简单好用，同时非常适配游戏服务器的协议系统。
-- 高并发和高性能的通信模块， 跨物理机器以及对外采用libevent+evpp实现的多线程网络tcp,udp,http， 同一个物理机通信可采用单线程共享内存bus系统，也可采用前面的多线程网络。同时实现了网络和bus系统的接口配置统一， 只需要稍微修改配置，就可方便切换.
-- 高可用的系统架构。架构采用分成架构，系统分为架构层,服务器层，具体的游戏业务层。具体的层次具体的目录，上层不会依赖下层，结构清晰。架构层,服务器层通用，不同的游戏分不同的目录.
-- (2020.1-2023.9已完成)可复用的db系统，db系统采用protobuf反射机制来实现。不需要手动撸sql语句，不需要定义mysql表。只需要一个protobuf结构体，db系统会自动创建数据库，创建表格，新加列。数据库的查询，插入，保存，也仅需要使用这个protobuf结构体调用系统结构即可。
-- (2022.9-2023.9已完成)redis缓存系统，使用protobuf反射来实现，不需要手写任何代码。只需要配置好storeserver系统的简单的缓存机制即可。
-- (2022.9-2023.9已完成)统一的配置加载机制，无论你是从excel加载配置，还是从数据库表格里加载配置。无需大量修改代码，仅仅该一个标志即可。
-- (2022.9-2023.9已完成)邮箱以及企业微信通知机制，实现了启动服务器以及服务器崩溃，服务器结构会把启动的信息以及服务器崩溃的dump信息发送至邮箱或你的企业微信里。
-- 友好的日志控制，你可以单独控制，一个小模块的日志，甚至一个玩家的日志
-- 配套的 U3D 客户端，一个捕鱼项目 https://github.com/yigao/NFShmFrame_FishClient.git
-- 跨平台(Windows, Linux)
- 
-## unity3d捕鱼demo游戏 [点击加群762414765](https://shang.qq.com/wpa/qunwpa?idkey=3dShwRu-nyiWUWLw3iWzCyn-3ZU8EFfi)，群里提供apk下载
-![}OXI`%2KDC3509YEVE Z00K](https://github.com/yigao/NFShmServer/assets/5827943/1624b292-871d-46da-a446-1755efb4bae8)
-![0 ZK~FM1IBM0{E%LI8 %)AJ](https://github.com/yigao/NFShmServer/assets/5827943/fc137349-de2b-4519-9b8b-325ea220251a)
-**unity3d捕鱼demo游戏**:
-
-* [**Tutorial 1: Compile NFShmServer 编译捕鱼demo服务器**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-CompileNF)
-
-* [**Tutorial 2: Import Mysql 导入捕鱼demo数据库**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-ImportMysql)
-
-* [**Tutorial 3: Start NFShmServer 开启捕鱼demo服务器**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-StartServer)
-  
-## 后期开发目标
-- 使用C++重写excel的加载，验证，导出代码机制(python,lua的导出，在大型项目里太慢)(2023.8-2023.9已完成)
-- redis缓存系统(2023.9.18已完成)
-- 完善excel导出sql语句，从db系统加载配置(2023.9.1已完成)
-- 实现actor的多线程Lua系统(类似skynet, 区别lua只负责逻辑，系统架构主要由C++实现)
-- 实现单线程python系统
-- 实现单线程js系统
-- 实现单线程php系统
-- 实现单线程c#系统
-- 实现actor的多线程python系统(类似skynet, 区别python只负责逻辑，系统架构主要由C++实现)
-- 继续完善excel到db系统机制，自动导出代码, 实现网页端的配置更新
-- 将平台升级到C++17
-- 将db系统由mysql到libzdb, 兼容市场上大部分数据库(MySQL, PostgreSQL, SQLite and Oracle)
-- 完善捕鱼逻辑(9.23已完成)
-- 实现一个MMO游戏的逻辑
-- 重写最后一战的服务器
-- 重写魔兽世界的服务器
-
-## Dependencies
-
-- libevent
-- spdlog
-- google protobuf
-- hiredis
-- rapidjson
-- concurrentqueue
-- RapidXML
-- LuaIntf
-- navigation
-- lua
-- mysql
-- mysqlpp
-- curl
-- evpp
-- openssl
-- theron
-  
-**教程文档 Tutorial Chapters**:
-* [**Tutorial 1: 初步认识NFShmFrame架构**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-LearnFrame)
-* [**Tutorial 2: 初步使用NFShmFrame架构**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-UseFrame)
-* [**Tutorial 3: 添加新的so文件**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-AddNewSo)
-* [**Tutorial 4: 添加module开发功能，并执行so热更**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-AddModule)
-* [**Tutorial 5: 添加共享内存代码，并热更**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-AddShmCode)
-* [**Tutorial 6: 添加lua代码，并热更**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-AddLuaCode)
-  
-## unity3d捕鱼demo && Documents
-
-**unity3d捕鱼demo游戏**:
-
-* [**Tutorial 1: Compile NFShmServer 编译捕鱼demo服务器**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-CompileNF)
-
-* [**Tutorial 2: Import Mysql 导入捕鱼demo数据库**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-ImportMysql)
-
-* [**Tutorial 3: Start NFShmServer 开启捕鱼demo服务器**](https://github.com/yigao/NFShmServer/wiki/Tutorial:-StartServer)
-
-**Concept Chapters**:
-
-* [**Chapter 1: NFPluginLoader核心类**](https://github.com/yigao/NFShmServer/wiki/Chapter-1:NFPluginLoader,Plugin,Module)
-* [**Chapter 2: 单个服务器进程的启动管理**](https://github.com/yigao/NFShmServer/wiki/Chapter-2:NFPluginLoader-main)
-* [**Chapter 3: 服务器启动参数介绍**](https://github.com/yigao/NFShmServer/wiki/Chapter-3:ProcessParameter)
-* [**Chapter 4: 服务器循环介绍**](https://github.com/yigao/NFShmServer/wiki/Chapter-4:Execute)
-* [**Chapter 5: NFKernelPlugin基础核心引擎介绍**](https://github.com/yigao/NFShmServer/wiki/Chapter-5:NFKernelPlugin)
-* [**Chapter 6: NFNetPlugin网络引擎介绍**](https://github.com/yigao/NFShmServer/wiki/Chapter-6:NFNetPlugin)
-* [**Chapter 10: 共享内存创建以及初始化**](https://github.com/yigao/NFShmServer/wiki/Chapter-10:Shm-Init)
-* [**Chapter 11: 创建共享内存**](https://github.com/yigao/NFShmServer/wiki/Chapter-11:CreateShareMem)
-* [**Chapter 12: 共享内存单个类的创建初始化**](https://github.com/yigao/NFShmServer/wiki/Chapter-12:SetAndInitObj)
-* [**Chapter 13: 共享内存几个核心类**](https://github.com/yigao/NFShmServer/wiki/Chapter-13:NFGlobalID,NFShmTimerManager,NFTransMng,NFDBObjMgr)
-* [**Chapter 14: 加载Excel配置的共享内存类**](https://github.com/yigao/NFShmServer/wiki/Chapter-14:NFCDescStoreModule)
-* [**Chapter 20: 日志系统**](https://github.com/yigao/NFShmServer/wiki/Chapter-20:NFCLogModule)
-* [**Chapter 21: 服务器配置加载系统**](https://github.com/yigao/NFShmServer/wiki/Chapter-21:NFCConfigModule)
-* [**Chapter 22: 定时器系统**](https://github.com/yigao/NFShmServer/wiki/Chapter-22:NFCTimerModule)
-* [**Chapter 23: 事件系统**](https://github.com/yigao/NFShmServer/wiki/Chapter-23:NFCEventModule)
-
-
-## 服务器架构
-
-### 进程架构:
-![App Architecture](https://github.com/yigao/NFShmServer/blob/master/doc/app_arch.png)
-
-### 单物理机服务器架构:
-![单物理机服务器架构](https://github.com/yigao/NFShmServer/blob/master/doc/single_server_arch.png)
-### 多物理机服务器架构:
-![多物理机服务器架构](https://github.com/yigao/NFShmServer/blob/master/doc/server_arch.png)
-### 服务器架构说明:
-- 所有的服务器都要链接master服务器，可以选择使用master服务器作为命名服务器，只需修改下配置即可
-- 每一个服务器都有一个类似IP地址的ID，作为唯一ID，比如master服务器ID是1.1.1.1， worldserver服务器ID是15.100.3.1， 服务器之间相互通讯，不需要知道对方部署在哪一台物理机上，只需要知道对方的唯一ID，就可以相互通讯
-- 每一个单独的物理机上都有一个NFRouteAgentServer路由代理服务器,用来在这个物理机上实现内网通讯以及和别的物理机通讯，一个NFProxyAgentServer网关代理服务器，用来链接网关，实现对外部（客户端）通讯
-- 物理机
-- 逻辑服务器比如LoginServer,LogicServer,GameServer,WorldServer,SnsServer,StoreServer, 相互之间不连接，同一个物理机上全部链接同一个NFRouteAgentServer路由代理服务器，并把自己的唯一ID注册到这个NFRouteAgentServer上， 来实现相互通讯，比如LoginServer发消息给WorldServer, LoginServer和WorldServer之间相互不连接，LoginServer需要把消息先发给NFRouteAgentServer, NFRouteAgentServer再把消息转发给WorldServer。
-- NFRouteAgentServer路由代理服务器通过链接NFRouteServer服务器来实现相互链接，NFRouteAgentServer路由代理服务器会把自己下面的逻辑服务器信息发给NFRouteServer服务器，来实现分布跨物理机通讯。在不同物理机之间的服务器通讯需要NFRouteServer服务器，比如LoginServer给不在同一个物理机上的WorldServer发消息，LoginServer需要把消息先发给同一台物理机上的NFRouteAgentServer, NFRouteAgentServer再把消息转发给NFRouteServer, NFRouteServer在吧消息转发给和WorldServer同一个物理机的NFRouteAgentServer, NFRouteAgentServer再把消息转发给WorldServer
-- 客户端只链接NFProxyServer， 发消息给逻辑服务器，NFProxyServer会把消息转发给逻辑服务器链接的NFProxyAgentServer代理服务器，NFProxyAgentServer代理服务器在吧消息转发给逻辑服务器, 同理逻辑服务器发消息给客户端，需要先通过NFProxyAgentServer代理服务器, NFProxyAgentServer代理服务器在发消息转发给NFProxyServer, NFProxyServer在发给客户端
-#### 一些很赞的项目
-
-[PSS](https://github.com/freeeyes/PSS)
-
-- 作者: freeeyes
-- 描述: 基于插件的跨平台网络服务器框架
-
-[ARK](https://github.com/OpenArkStudio/ARK.git)
-
-- 作者: NickYang1988
-- 描述: 基于插件的跨平台网络服务器框架
-
-[NoahGameFrame](https://github.com/ketoo/NoahGameFrame.git)
-
-- 作者: ketoo
-- 描述: 基于插件的跨平台网络服务器框架
+**技术选择的自由度**：
+- **不强制使用**：开发者可以完全基于个人爱好和公司技术方案选择
+- **双重方案**：NFShmPlugin（共享内存）和NFMemPlugin（普通内存）并存
+- **平滑切换**：可以根据项目需求在两种模式间灵活切换
+- **团队适配**：适合不同技术背景的开发团队
