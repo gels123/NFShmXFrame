@@ -18,20 +18,20 @@ bool InitSSL() {
     OpenSSL_add_all_algorithms();
     int r = RAND_poll();
     if (r == 0) {
-        LOG_ERROR << "RAND_poll failed";
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "RAND_poll failed");
+        EVPP_LOG_ERROR << "RAND_poll failed";
+        NFLogError(NF_LOG_DEFAULT, 0, "RAND_poll failed");
         return false;
     }
     g_ssl_ctx = SSL_CTX_new(SSLv23_method());
     if (!g_ssl_ctx) {
-        LOG_ERROR << "SSL_CTX_new failed";
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SSL_CTX_new failed");
+        EVPP_LOG_ERROR << "SSL_CTX_new failed";
+        NFLogError(NF_LOG_DEFAULT, 0, "SSL_CTX_new failed");
         return false;
     }
     X509_STORE* store = SSL_CTX_get_cert_store(g_ssl_ctx);
     if (X509_STORE_load_locations(store, "./cacert.pem", NULL) != 1) {
-        LOG_ERROR << "X509_STORE_set_default_paths failed";
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "X509_STORE_set_default_paths failed");
+        EVPP_LOG_ERROR << "X509_STORE_set_default_paths failed";
+        NFLogError(NF_LOG_DEFAULT, 0, "X509_STORE_set_default_paths failed");
         return false;
     }
     return true;

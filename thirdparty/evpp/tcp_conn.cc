@@ -29,11 +29,11 @@ TCPConn::TCPConn(EventLoop* l,
         chan_->SetWriteCallback(std::bind(&TCPConn::HandleWrite, this));
     }
 
-    DLOG_TRACE << "TCPConn::[" << name_ << "] channel=" << chan_.get() << " fd=" << sockfd << " addr=" << AddrToString();
+    DEVPP_LOG_TRACE << "TCPConn::[" << name_ << "] channel=" << chan_.get() << " fd=" << sockfd << " addr=" << AddrToString();
 }
 
 TCPConn::~TCPConn() {
-    DLOG_TRACE << "name=" << name()
+    DEVPP_LOG_TRACE << "name=" << name()
         << " channel=" << chan_.get()
         << " fd=" << fd_ << " type=" << int(type())
         << " status=" << StatusToString() << " addr=" << AddrToString();
@@ -51,7 +51,7 @@ TCPConn::~TCPConn() {
 }
 
 void TCPConn::Close() {
-    DLOG_TRACE << "fd=" << fd_ << " status=" << StatusToString() << " addr=" << AddrToString();
+    DEVPP_LOG_TRACE << "fd=" << fd_ << " status=" << StatusToString() << " addr=" << AddrToString();
     status_ = kDisconnecting;
     auto c = shared_from_this();
     auto f = [c]() {
@@ -120,7 +120,7 @@ void TCPConn::SendInLoop(const void* data, size_t len) {
     assert(loop_->IsInLoopThread());
 
     if (status_ == kDisconnected) {
-        LOG_WARN << "disconnected, give up writing";
+        EVPP_LOG_WARN << "disconnected, give up writing";
         return;
     }
 
@@ -140,7 +140,7 @@ void TCPConn::SendInLoop(const void* data, size_t len) {
             int serrno = errno;
             nwritten = 0;
             if (!EVUTIL_ERR_RW_RETRIABLE(serrno)) {
-                LOG_ERROR << "SendInLoop write failed errno=" << serrno << " " << strerror(serrno);
+                EVPP_LOG_ERROR << "SendInLoop write failed errno=" << serrno << " " << strerror(serrno);
                 if (serrno == EPIPE || serrno == ECONNRESET) {
                     write_error = true;
                 }
@@ -181,7 +181,7 @@ void TCPConn::HandleRead() {
     } else if (n == 0) {
         if (type() == kOutgoing) {
             // This is an outgoing connection, we own it and it's done. so close it
-            DLOG_TRACE << "fd=" << fd_ << ". We read 0 bytes and close the socket.";
+            DEVPP_LOG_TRACE << "fd=" << fd_ << ". We read 0 bytes and close the socket.";
             status_ = kDisconnecting;
             HandleClose();
         } else {
@@ -189,21 +189,21 @@ void TCPConn::HandleRead() {
 
             chan_->DisableReadEvent();
             if (close_delay_.IsZero()) {
-                DLOG_TRACE << "channel (fd=" << chan_->fd() << ") DisableReadEvent. delay time " << close_delay_.Seconds() << "s. We close this connection immediately";
+                DEVPP_LOG_TRACE << "channel (fd=" << chan_->fd() << ") DisableReadEvent. delay time " << close_delay_.Seconds() << "s. We close this connection immediately";
                 DelayClose();
             } else {
                 // This is an incoming connection, we need to preserve the
                 // connection for a while so that we can reply to it.
                 // And we set a timer to close the connection eventually.
-                DLOG_TRACE << "channel (fd=" << chan_->fd() << ") DisableReadEvent. And set a timer to delay close this TCPConn, delay time " << close_delay_.Seconds() << "s";
+                DEVPP_LOG_TRACE << "channel (fd=" << chan_->fd() << ") DisableReadEvent. And set a timer to delay close this TCPConn, delay time " << close_delay_.Seconds() << "s";
                 delay_close_timer_ = loop_->RunAfter(close_delay_, std::bind(&TCPConn::DelayClose, shared_from_this())); // TODO leave it to user layer close.
             }
         }
     } else {
         if (EVUTIL_ERR_RW_RETRIABLE(serrno)) {
-            DLOG_TRACE << "errno=" << serrno << " " << strerror(serrno);
+            DEVPP_LOG_TRACE << "errno=" << serrno << " " << strerror(serrno);
         } else {
-            DLOG_TRACE << "errno=" << serrno << " " << strerror(serrno) << " We are closing this connection now.";
+            DEVPP_LOG_TRACE << "errno=" << serrno << " " << strerror(serrno) << " We are closing this connection now.";
             HandleError();
         }
     }
@@ -228,7 +228,7 @@ void TCPConn::HandleWrite() {
         int serrno = errno;
 
         if (EVUTIL_ERR_RW_RETRIABLE(serrno)) {
-            LOG_WARN << "this=" << this << " TCPConn::HandleWrite errno=" << serrno << " " << strerror(serrno);
+            EVPP_LOG_WARN << "this=" << this << " TCPConn::HandleWrite errno=" << serrno << " " << strerror(serrno);
         } else {
             HandleError();
         }
@@ -237,14 +237,14 @@ void TCPConn::HandleWrite() {
 
 void TCPConn::DelayClose() {
     assert(loop_->IsInLoopThread());
-    DLOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString();
+    DEVPP_LOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString();
     status_ = kDisconnecting;
     delay_close_timer_.reset();
     HandleClose();
 }
 
 void TCPConn::HandleClose() {
-    DLOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString();
+    DEVPP_LOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString();
 
     // Avoid multi calling
     if (status_ == kDisconnected) {
@@ -263,7 +263,7 @@ void TCPConn::HandleClose() {
     TCPConnPtr conn(shared_from_this());
 
     if (delay_close_timer_) {
-        DLOG_TRACE << "loop=" << loop_ << " Cancel the delay closing timer.";
+        DEVPP_LOG_TRACE << "loop=" << loop_ << " Cancel the delay closing timer.";
         delay_close_timer_->Cancel();
         delay_close_timer_.reset();
     }
@@ -279,12 +279,12 @@ void TCPConn::HandleClose() {
     if (close_fn_) {
         close_fn_(conn);
     }
-    DLOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString() << " use_count=" << conn.use_count();
+    DEVPP_LOG_TRACE << "addr=" << AddrToString() << " fd=" << fd_ << " status_=" << StatusToString() << " use_count=" << conn.use_count();
     status_ = kDisconnected;
 }
 
 void TCPConn::HandleError() {
-    DLOG_TRACE << "fd=" << fd_ << " status=" << StatusToString();
+    DEVPP_LOG_TRACE << "fd=" << fd_ << " status=" << StatusToString();
     status_ = kDisconnecting;
     HandleClose();
 }

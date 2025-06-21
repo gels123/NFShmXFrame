@@ -1,0 +1,265 @@
+// Custom options for defining:
+// - Maximum size of string/bytes
+// - Maximum number of elements in array
+//
+// These are used by nanopb to generate statically allocable structures
+// for memory-limited environments.
+
+syntax = "proto2";
+import "google/protobuf/descriptor.proto";
+
+option java_package = "fi.kapsi.koti.jpa.nanopb";
+
+enum FieldType {
+    FT_DEFAULT = 0; // Automatically decide field type, generate static field if possible.
+    FT_CALLBACK = 1; // Always generate a callback field.
+    FT_POINTER = 4; // Always generate a dynamically allocated field.
+    FT_STATIC = 2; // Generate a static field or raise an exception if not possible.
+    FT_IGNORE = 3; // Ignore the field completely.
+    FT_INLINE = 5; // Legacy option, use the separate 'fixed_length' option instead
+}
+
+enum IntSize {
+    IS_DEFAULT = 0; // Default, 32/64bit based on type in .proto
+    IS_8 = 8;
+    IS_16 = 16;
+    IS_32 = 32;
+    IS_64 = 64;
+}
+
+enum StlType {
+    STL_VECTOR = 0;
+    STL_LIST = 1;
+    STL_UNORDERED_MAP = 2;
+    STL_MULTI_UNORDERED_MAP = 3;
+  STL_UNORDERED_MAP_LIST = 4;
+  STL_MULTI_UNORDERED_MAP_LIST = 5;
+  STL_UNORDERED_SET = 6;
+  STL_MULTI_UNORDERED_SET = 7;
+  STL_UNORDERED_SET_LIST = 8;
+  STL_MULTI_UNORDERED_SET_LIST = 9;
+  STL_MAP = 10;
+  STL_MULTI_MAP = 11;
+  STL_SET = 12;
+  STL_MULTI_SET = 13;
+}
+
+enum FrameEnum
+{
+	option allow_alias = true;
+	FRAME_ENUM_NONE = 0;
+
+	JSON_DESC_KEY_LEN = 64;//json描述 key长度
+    JSON_DESC_CONTENT_LEN = 1024;//json描述 content长度
+
+	MAX_STRING_LEN_DEFAULT = 32; // 如果string默认没有使用max_size/max_size_enum, 默认使用这个
+	MAX_STRING_LEN_16 = 16; // 字串16长度
+	MAX_STRING_LEN_32 = 32; // 字串32长度
+	MAX_STRING_LEN_64 = 64; // 字串16长度
+	MAX_STRING_LEN_128 = 128; // 字串128长度
+	MAX_STRING_LEN_256 = 256; // 字串256长度
+	MAX_STRING_LEN_512 = 512; // 字串512长度
+	MAX_STRING_LEN_1024 = 1024;//字符串1024长度
+	MAX_STRING_LEN_2048 = 2048;//字符串2048长度
+	MAX_STRING_LEN_4096 = 4096; //字符串4096长度
+
+	MAX_REPEATED_DEFAULT_COUNT = 1; //如果repeated默认没有使用max_count/max_count_enum, 默认使用这个
+}
+
+enum FieldParseType
+{
+  FPT_DEFAULT = 0;
+  FPT_JSON = 1;
+  FPT_XML = 2;
+  FPT_LUA = 3;
+}
+
+/*
+mysql数据类型      <-------------->		PROTOBUF数据类型
+UNSIGNED								u
+INT			 							int32
+BIGINT									int64
+FLOAT									float
+DOUBLE									double
+VARCHAR									string
+BLOB									bytes
+
+这里要说明下，libzdb其实只支持从数据集中获取如下类型的数据
+ResultSet_getString
+ResultSet_getInt
+ResultSet_getLLong
+ResultSet_getDouble
+ResultSet_getBlob
+
+这中间不是类型完完全全对应
+
+2014.12.3 对象field如果作为primarykey，其数据类型有限制，肯定不能使bytes，各种浮点数值，基本就是数值+字符串作为key已做查询用
+*/
+
+enum enum_field_type {
+    E_FIELD_TYPE_NORMAL 			= 1;
+    E_FIELD_TYPE_PRIMARYKEY 		= 2; // 这个字段是主键或主key, 唯一, 切必须存在
+    E_FIELD_TYPE_UNIQUE_INDEX     = 3; // 这个字段为唯一索引
+    E_FIELD_TYPE_INDEX           = 4; // 这个字段为索引,可以包含多个一样的
+}
+
+// This is the inner options message, which basically defines options for
+// a field. When it is used in message or file scope, it applies to all
+// fields.
+message NanoPBOptions {
+  // Allocated size for 'bytes' and 'string' fields.
+  // For string fields, this should include the space for null terminator.
+  optional int32 max_size = 1;
+  
+  // Maximum length for 'string' fields. Setting this is equivalent
+  // to setting max_size to a value of length+1.
+  optional int32 max_length = 14;
+  
+  // Allocated number of entries in arrays ('repeated' fields)
+  optional int32 max_count = 2;
+  
+  // Size of integer fields. Can save some memory if you don't need
+  // full 32 bits for the value.
+  optional IntSize int_size = 7 [default = IS_DEFAULT];
+
+  // Force type of field (callback or static allocation)
+  optional FieldType type = 3 [default = FT_DEFAULT];
+  
+    // change-begin default short names
+    optional bool long_names = 4 [default = false];
+    // change-end
+  
+  // Add 'packed' attribute to generated structs.
+  // Note: this cannot be used on CPUs that break on unaligned
+  // accesses to variables.
+  optional bool packed_struct = 5 [default = false];
+  
+  // Add 'packed' attribute to generated enums.
+  optional bool packed_enum = 10 [default = false];
+  
+  // Skip this message
+  optional bool skip_message = 6 [default = false];
+
+  // Generate oneof fields as normal optional fields instead of union.
+  optional bool no_unions = 8 [default = false];
+
+  // integer type tag for a message
+  optional uint32 msgid = 9;
+
+  // decode oneof as anonymous union
+  optional bool anonymous_oneof = 11 [default = false];
+
+  // Proto3 singular field does not generate a "has_" flag
+  optional bool proto3 = 12 [default = false];
+
+  // Generate an enum->string mapping function (can take up lots of space).
+  optional bool enum_to_string = 13 [default = false];
+
+	// change-begin enum_to_string with name
+	optional string enum_name = 23;
+    // change-end
+
+
+  // Generate bytes arrays with fixed length
+  optional bool fixed_length = 15 [default = false];
+
+    // Generate repeated field with fixed count
+    optional bool fixed_count = 16 [default = false];
+
+    // change-begin max_count with enum
+    optional string max_count_enum = 17;
+    // change-end
+
+    // change-begin max_count with enum
+    optional string max_size_enum = 18;
+    // change-end
+
+    // field macro type
+    optional string macro_type = 19;
+
+    // field macro_cname
+    optional string macro_name = 20;
+
+    // field chinese name
+    optional string field_cname = 24;
+
+    // change-begin
+    // option (nanopb_fileopt).include_files = "ReplicateMacros.h <ReplicateMacros2.h>  <ReplicateMacros3.h>   <ReplicateMacros4.h>";
+    optional string include_files = 21;
+    // change-end
+
+    // change-begin
+    // option (nanopb_msgopt).insert_msg_last = "REGISTER_RTTR_PB_STRUCT";
+    optional string insert_msg_last = 22;
+    // change-end
+
+	// change-begin
+	//stl shm/mem data struct
+    optional int32 use_stl = 30;
+    optional string use_stl_enum = 31; //vector list hashmap map
+    optional bool use_stl_string = 32;
+    optional string use_stl_key = 33;
+    optional bool is_stl_key = 34[default=false];
+	  optional bool is_std_stl = 35;
+    optional bool is_c_std = 36[default=false];
+    optional FieldParseType parse_type = 37[default=FPT_DEFAULT];
+	// change-end
+
+	// change-begin
+	optional bool time_to_int = 40;
+	optional bool time_to_str = 41; //bev log need, show the time to str[格式 YYYY-MM-DD HH:MM:SS ]
+	// change-end
+
+    // pb---->sql
+    optional enum_field_type db_type		= 50[default = E_FIELD_TYPE_NORMAL];
+    optional int32 db_max_size                          = 51;					// string字段的长度 例如这个VARCHAR(32)
+    optional string db_max_size_enum                     = 52;					// string字段的长度 例如这个VARCHAR(32)
+    optional bool db_not_null				            = 53[default = false];	// 字段是否为not null
+    optional bool db_auto_increment                     = 54[default = false];  // 是否是自增字段
+    optional int32 db_max_count                         = 55;	// 数组长度，在string bytes repeated 类型时要填写该选项, 给mysql建表用的
+    optional string db_max_count_enum                    = 56;	// 数组长度，在string bytes repeated 类型时要填写该选项, 给mysql建表用的
+    optional int32 db_auto_increment_value              = 57[default = 0];  // 是否是自增字段
+    optional bool db_no_field                           = 58[default = false]; //不搞到DB中
+    optional string db_comment                          = 59;
+    optional bool to_db_sql                             = 60[default = false]; //是否生成sql
+    optional bool db_message_expand                     = 61[default = false]; //message 展开
+
+    // pb -----> desc load
+    optional enum_field_type res_type = 70[default = E_FIELD_TYPE_NORMAL]; //field 选项, excel/res 主key, 唯一
+    optional string res_unique_ndex = 71; //message 选项，多个field做成的唯一key
+    optional string res_multi_index = 72; //message 选项，多个field做成的可重复key
+    optional string res_relation = 73; //field 选项, 列表格关联, 表示这一列关联一个表的主key, 生成检查代码，检查这个key是否存在
+}
+
+// Extensions to protoc 'Descriptor' type in order to define options
+// inside a .proto file.
+//
+// Protocol Buffers extension number registry
+// --------------------------------
+// Project:  Nanopb
+// Contact:  Petteri Aimonen <jpa@kapsi.fi>
+// Web site: http://kapsi.fi/~jpa/nanopb
+// Extensions: 1010 (all types)
+// --------------------------------
+
+extend google.protobuf.FileOptions {
+    optional NanoPBOptions nanopb_fileopt = 1010;
+}
+
+extend google.protobuf.MessageOptions {
+    optional NanoPBOptions nanopb_msgopt = 1010;
+}
+
+extend google.protobuf.EnumOptions {
+    optional NanoPBOptions nanopb_enumopt = 1010;
+}
+
+extend google.protobuf.EnumValueOptions {
+    optional NanoPBOptions nanopb_enumvopt = 1010;
+}
+
+extend google.protobuf.FieldOptions {
+    optional NanoPBOptions nanopb = 1010;
+}
+
+

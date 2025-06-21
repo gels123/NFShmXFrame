@@ -44,38 +44,38 @@ public:
 #ifdef GOOGLE_STRIP_LOG
 
 #if GOOGLE_STRIP_LOG == 0
-#define LOG_TRACE LOG(INFO)
-#define LOG_DEBUG LOG(INFO)
-#define LOG_INFO  LOG(INFO)
-#define DLOG_TRACE LOG(INFO) << __PRETTY_FUNCTION__ << " this=" << this << " "
+#define EVPP_LOG_TRACE LOG(INFO)
+#define EVPP_LOG_DEBUG LOG(INFO)
+#define EVPP_LOG_INFO  LOG(INFO)
+#define DEVPP_LOG_TRACE LOG(INFO) << __PRETTY_FUNCTION__ << " this=" << this << " "
 #else
-#define LOG_TRACE if (false) LOG(INFO)
-#define LOG_DEBUG if (false) LOG(INFO)
-#define LOG_INFO  if (false) LOG(INFO)
-#define DLOG_TRACE if (false) LOG(INFO)
+#define EVPP_LOG_TRACE if (false) LOG(INFO)
+#define EVPP_LOG_DEBUG if (false) LOG(INFO)
+#define EVPP_LOG_INFO  if (false) LOG(INFO)
+#define DEVPP_LOG_TRACE if (false) LOG(INFO)
 #endif
 
 #if GOOGLE_STRIP_LOG <= 1
-#define LOG_WARN  LOG(WARNING)
-#define DLOG_WARN LOG(WARNING) << __PRETTY_FUNCTION__ << " this=" << this << " "
+#define EVPP_LOG_WARN  LOG(WARNING)
+#define DEVPP_LOG_WARN LOG(WARNING) << __PRETTY_FUNCTION__ << " this=" << this << " "
 #else
-#define LOG_WARN  if (false) LOG(WARNING)
-#define DLOG_WARN if (false) LOG(WARNING)
+#define EVPP_LOG_WARN  if (false) LOG(WARNING)
+#define DEVPP_LOG_WARN if (false) LOG(WARNING)
 #endif
 
-#define LOG_ERROR LOG(ERROR)
-#define LOG_FATAL LOG(FATAL)
+#define EVPP_LOG_ERROR LOG(ERROR)
+#define EVPP_LOG_FATAL LOG(FATAL)
 
 #else
-#define LOG_TRACE EvppLog::GetSingletonRef()
-#define LOG_DEBUG EvppLog::GetSingletonRef()
-#define LOG_INFO  EvppLog::GetSingletonRef()
-#define LOG_WARN  EvppLog::GetSingletonRef()
-#define LOG_ERROR EvppLog::GetSingletonRef()
-#define LOG_FATAL EvppLog::GetSingletonRef()
-#define DLOG_TRACE EvppLog::GetSingletonRef()
-#define DLOG_WARN EvppLog::GetSingletonRef()
-#define CHECK_NOTnullptr(val) LOG_ERROR << "'" #val "' Must be non nullptr";
+#define EVPP_LOG_TRACE EvppLog::GetSingletonRef()
+#define EVPP_LOG_DEBUG EvppLog::GetSingletonRef()
+#define EVPP_LOG_INFO  EvppLog::GetSingletonRef()
+#define EVPP_LOG_WARN  EvppLog::GetSingletonRef()
+#define EVPP_LOG_ERROR EvppLog::GetSingletonRef()
+#define EVPP_LOG_FATAL EvppLog::GetSingletonRef()
+#define DEVPP_LOG_TRACE EvppLog::GetSingletonRef()
+#define DEVPP_LOG_WARN EvppLog::GetSingletonRef()
+#define CHECK_NOTnullptr(val) EVPP_LOG_ERROR << "'" #val "' Must be non nullptr";
 #endif
 #endif // end of define __cplusplus
 
@@ -83,5 +83,5 @@ public:
 //#ifdef assert
 //#undef assert
 //#endif
-//#define assert(expr)  { if (!(expr)) { LOG_FATAL << #expr ;} }
+//#define assert(expr)  { if (!(expr)) { EVPP_LOG_FATAL << #expr ;} }
 //#endif

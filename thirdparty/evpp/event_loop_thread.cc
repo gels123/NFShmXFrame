@@ -7,17 +7,17 @@ namespace evpp {
 
 EventLoopThread::EventLoopThread()
     : event_loop_(new EventLoop) {
-    DLOG_TRACE << "loop=" << event_loop_;
+    DEVPP_LOG_TRACE << "loop=" << event_loop_;
 }
 
 EventLoopThread::~EventLoopThread() {
-    DLOG_TRACE << "loop=" << event_loop_;
+    DEVPP_LOG_TRACE << "loop=" << event_loop_;
     assert(IsStopped());
     Join();
 }
 
 bool EventLoopThread::Start(bool wait_thread_started, Functor pre, Functor post) {
-    DLOG_TRACE;
+    DEVPP_LOG_TRACE;
     status_ = kStarting;
 
     assert(thread_.get() == nullptr);
@@ -32,7 +32,7 @@ bool EventLoopThread::Start(bool wait_thread_started, Functor pre, Functor post)
 }
 
 void EventLoopThread::Run(const Functor& pre, const Functor& post) {
-    DLOG_TRACE << "loop=" << event_loop_;
+    DEVPP_LOG_TRACE << "loop=" << event_loop_;
     if (name_.empty()) {
         std::ostringstream os;
         os << "thread-" << std::this_thread::get_id();
@@ -40,7 +40,7 @@ void EventLoopThread::Run(const Functor& pre, const Functor& post) {
     }
 
 
-    DLOG_TRACE << "loop=" << event_loop_ << " execute pre functor.";
+    DEVPP_LOG_TRACE << "loop=" << event_loop_ << " execute pre functor.";
     auto fn = [this, pre]() {
         status_ = kRunning;
         if (pre) {
@@ -53,18 +53,18 @@ void EventLoopThread::Run(const Functor& pre, const Functor& post) {
     event_loop_->QueueInLoop(std::move(fn));
     event_loop_->Run();
 
-    DLOG_TRACE << "loop=" << event_loop_ << " execute post functor.";
+    DEVPP_LOG_TRACE << "loop=" << event_loop_ << " execute post functor.";
     if (post) {
         post();
     }
 
     assert(event_loop_->IsStopped());
-    DLOG_TRACE << "loop=" << event_loop_ << " EventLoopThread stopped";
+    DEVPP_LOG_TRACE << "loop=" << event_loop_ << " EventLoopThread stopped";
     status_ = kStopped;
 }
 
 void EventLoopThread::Stop(bool wait_thread_exit) {
-    DLOG_TRACE << "loop=" << event_loop_ << " wait_thread_exit=" << wait_thread_exit;
+    DEVPP_LOG_TRACE << "loop=" << event_loop_ << " wait_thread_exit=" << wait_thread_exit;
     assert(status_ == kRunning && IsRunning());
     status_ = kStopping;
     event_loop_->Stop();
@@ -74,22 +74,22 @@ void EventLoopThread::Stop(bool wait_thread_exit) {
             usleep(1);
         }
 
-        DLOG_TRACE << "loop=" << event_loop_ << " thread stopped.";
+        DEVPP_LOG_TRACE << "loop=" << event_loop_ << " thread stopped.";
         Join();
-        DLOG_TRACE << "loop=" << event_loop_ << " thread totally stopped.";
+        DEVPP_LOG_TRACE << "loop=" << event_loop_ << " thread totally stopped.";
     }
-    DLOG_TRACE << "loop=" << event_loop_;
+    DEVPP_LOG_TRACE << "loop=" << event_loop_;
 }
 
 void EventLoopThread::Join() {
     // To avoid multi other threads call Join simultaneously
     std::lock_guard<std::mutex> guard(mutex_);
     if (thread_ && thread_->joinable()) {
-        DLOG_TRACE << "loop=" << event_loop_ << " thread=" << thread_ << " joinable";
+        DEVPP_LOG_TRACE << "loop=" << event_loop_ << " thread=" << thread_ << " joinable";
         try {
             thread_->join();
         } catch (const std::system_error& e) {
-            LOG_ERROR << "Caught a system_error:" << e.what() << " code=" << e.code();
+            EVPP_LOG_ERROR << "Caught a system_error:" << e.what() << " code=" << e.code();
         }
         thread_.reset();
     }

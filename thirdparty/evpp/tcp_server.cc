@@ -17,12 +17,12 @@ TCPServer::TCPServer(EventLoop* loop,
     , msg_fn_(&internal::DefaultMessageCallback)
     , next_conn_id_(0)
     , max_conn_count(maxConnectNum) {
-    DLOG_TRACE << "name=" << name << " listening addr " << laddr << " thread_num=" << thread_num;
+    DEVPP_LOG_TRACE << "name=" << name << " listening addr " << laddr << " thread_num=" << thread_num;
     tpool_.reset(new EventLoopThreadPool(loop_, thread_num));
 }
 
 TCPServer::~TCPServer() {
-    DLOG_TRACE;
+    DEVPP_LOG_TRACE;
     assert(connections_.empty());
     assert(!listener_);
     if (tpool_) {
@@ -32,7 +32,7 @@ TCPServer::~TCPServer() {
 }
 
 bool TCPServer::Init() {
-    DLOG_TRACE;
+    DEVPP_LOG_TRACE;
     assert(status_ == kNull);
     listener_.reset(new Listener(loop_, listen_addr_));
     if (!listener_->Listen())
@@ -48,7 +48,7 @@ void TCPServer::AfterFork() {
 }
 
 bool TCPServer::Start() {
-    DLOG_TRACE;
+    DEVPP_LOG_TRACE;
     assert(status_ == kInitialized);
     status_.store(kStarting);
     assert(listener_.get());
@@ -76,7 +76,7 @@ bool TCPServer::Start() {
 }
 
 void TCPServer::Stop(DoneCallback on_stopped_cb) {
-    DLOG_TRACE << "Entering ...";
+    DEVPP_LOG_TRACE << "Entering ...";
     assert(status_ == kRunning);
     status_.store(kStopping);
     substatus_.store(kStoppingListener);
@@ -84,14 +84,14 @@ void TCPServer::Stop(DoneCallback on_stopped_cb) {
 }
 
 void TCPServer::StopInLoop(DoneCallback on_stopped_cb) {
-    DLOG_TRACE << "Entering ...";
+    DEVPP_LOG_TRACE << "Entering ...";
     assert(loop_->IsInLoopThread());
     listener_->Stop();
     listener_.reset();
 
     if (connections_.empty()) {
         // Stop all the working threads now.
-        DLOG_TRACE << "no connections";
+        DEVPP_LOG_TRACE << "no connections";
         StopThreadPool();
         if (on_stopped_cb) {
             on_stopped_cb();
@@ -99,13 +99,13 @@ void TCPServer::StopInLoop(DoneCallback on_stopped_cb) {
         }
         status_.store(kStopped);
     } else {
-        DLOG_TRACE << "close connections";
+        DEVPP_LOG_TRACE << "close connections";
         for (auto& c : connections_) {
             if (c.second->IsConnected()) {
-                DLOG_TRACE << "close connection id=" << c.second->id() << " fd=" << c.second->fd();
+                DEVPP_LOG_TRACE << "close connection id=" << c.second->id() << " fd=" << c.second->fd();
                 c.second->Close();
             } else {
-                DLOG_TRACE << "Do not need to call Close for this TCPConn it may be doing disconnecting. TCPConn=" << c.second.get() << " fd=" << c.second->fd() << " status=" << StatusToString();
+                DEVPP_LOG_TRACE << "Do not need to call Close for this TCPConn it may be doing disconnecting. TCPConn=" << c.second.get() << " fd=" << c.second->fd() << " status=" << StatusToString();
             }
         }
 
@@ -114,11 +114,11 @@ void TCPServer::StopInLoop(DoneCallback on_stopped_cb) {
         // The working threads will be stopped after all the connections closed.
     }
 
-    DLOG_TRACE << "exited, status=" << StatusToString();
+    DEVPP_LOG_TRACE << "exited, status=" << StatusToString();
 }
 
 void TCPServer::StopThreadPool() {
-    DLOG_TRACE << "pool=" << tpool_.get();
+    DEVPP_LOG_TRACE << "pool=" << tpool_.get();
     assert(loop_->IsInLoopThread());
     assert(IsStopping());
     substatus_.store(kStoppingThreadPool);
@@ -135,11 +135,11 @@ void TCPServer::StopThreadPool() {
 void TCPServer::HandleNewConn(evpp_socket_t sockfd,
                               const std::string& remote_addr/*ip:port*/,
                               const struct sockaddr_in* raddr) {
-    DLOG_TRACE << "fd=" << sockfd;
+    DEVPP_LOG_TRACE << "fd=" << sockfd;
     assert(loop_->IsInLoopThread());
     if (IsStopping()) {
-        LOG_WARN << "this=" << this << " The server is at stopping status. Discard this socket fd=" << sockfd << " remote_addr=" << remote_addr;
-        NFLogWarning(NF_LOG_SYSTEMLOG, 0, " The server is at stopping status. Discard this socket fd={} remote_addr={}", sockfd, remote_addr);
+        EVPP_LOG_WARN << "this=" << this << " The server is at stopping status. Discard this socket fd=" << sockfd << " remote_addr=" << remote_addr;
+        NFLogWarning(NF_LOG_DEFAULT, 0, " The server is at stopping status. Discard this socket fd={} remote_addr={}", sockfd, remote_addr);
         EVUTIL_CLOSESOCKET(sockfd);
         return;
     }
@@ -148,8 +148,8 @@ void TCPServer::HandleNewConn(evpp_socket_t sockfd,
     {
         if (connections_.size() >= max_conn_count)
         {
-            LOG_WARN << "this=" << this << " the conn count than max connect count. Discard this socket fd=" << sockfd << " remote_addr=" << remote_addr;
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0, " the conn count than max connect count. Discard this socket fd={} remote_addr={}", sockfd, remote_addr);
+            EVPP_LOG_WARN << "this=" << this << " the conn count than max connect count. Discard this socket fd=" << sockfd << " remote_addr=" << remote_addr;
+            NFLogWarning(NF_LOG_DEFAULT, 0, " the conn count than max connect count. Discard this socket fd={} remote_addr={}", sockfd, remote_addr);
             EVUTIL_CLOSESOCKET(sockfd);
             return;
         }
@@ -181,15 +181,15 @@ EventLoop* TCPServer::GetNextLoop(const struct sockaddr_in* raddr) {
 }
 
 void TCPServer::RemoveConnection(const TCPConnPtr& conn) {
-    DLOG_TRACE << "conn=" << conn.get() << " fd="<< conn->fd() << " connections_.size()=" << connections_.size();
+    DEVPP_LOG_TRACE << "conn=" << conn.get() << " fd="<< conn->fd() << " connections_.size()=" << connections_.size();
     auto f = [this, conn]() {
         // Remove the connection in the listening EventLoop
-        DLOG_TRACE << "conn=" << conn.get() << " fd="<< conn->fd() << " connections_.size()=" << connections_.size();
+        DEVPP_LOG_TRACE << "conn=" << conn.get() << " fd="<< conn->fd() << " connections_.size()=" << connections_.size();
         assert(this->loop_->IsInLoopThread());
         this->connections_.erase(conn->id());
         if (IsStopping() && this->connections_.empty()) {
             // At last, we stop all the working threads
-            DLOG_TRACE << "stop thread pool";
+            DEVPP_LOG_TRACE << "stop thread pool";
             assert(substatus_.load() == kStoppingListener);
             StopThreadPool();
             if (stopped_cb_) {

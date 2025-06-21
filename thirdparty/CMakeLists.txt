@@ -8,3 +8,12 @@ ADD_SUBDIRECTORY("mysqlpp")
 
 PROJECT(sqlite3)
 ADD_SUBDIRECTORY("sqlite3")
+
+PROJECT(nanopb)
+ADD_SUBDIRECTORY("nanopb/win_cmake")
+
+PROJECT(NF3rdCommon)
+ADD_SUBDIRECTORY("common")
+
+PROJECT(NFLuaBind)
+ADD_SUBDIRECTORY("LuaBind")
