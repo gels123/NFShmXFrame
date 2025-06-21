@@ -29,23 +29,27 @@
 
 #pragma once
 
-#include "../NFIConnection.h"
+#include <evpp/event_loop_thread.h>
+#include <evpp/tcp_server.h>
+
+#include "NFIConnection.h"
 
 
-class NFEvppServer : public NFIConnection
+class NFEvppServer final : public NFIConnection
 {
 public:
-	NFEvppServer(NFIPluginManager* p, NF_SERVER_TYPES serverType, const NFMessageFlag& flag):NFIConnection(p, serverType, flag)
+	NFEvppServer(NFIPluginManager* p, NF_SERVER_TYPE serverType, const NFMessageFlag& flag):NFIConnection(p, serverType, flag)
 	{
-		m_eventLoop = NULL;
-		m_tcpServer = NULL;
+		m_eventLoop = nullptr;
+		m_tcpServer = nullptr;
 	}
 
-	virtual bool Init() override;
+	bool Init() override;
 
-	virtual bool Shut() override;
+	bool Shut() override;
 
-	virtual bool Finalize() override;
+	bool Finalize() override;
+
 private:
     std::unique_ptr<evpp::EventLoopThread> m_eventLoop;
     std::unique_ptr<evpp::TCPServer> m_tcpServer;

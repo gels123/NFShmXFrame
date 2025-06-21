@@ -11,11 +11,11 @@
 
 
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFComm/NFShmCore/NFShmObj.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
+#include "NFComm/NFObjCommon/NFObject.h"
+#include "NFComm/NFObjCommon/NFShmMgr.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
 
-class NFIDescStoreEx : public NFShmObj
+class NFIDescStoreEx : public NFObject
 {
 public:
     NFIDescStoreEx();

@@ -41,6 +41,7 @@ std::string NFMasterServerPlugin::GetPluginName()
 
 void NFMasterServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_MASTER_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIMasterServerModule, NFCMasterServerModule)
 }
 

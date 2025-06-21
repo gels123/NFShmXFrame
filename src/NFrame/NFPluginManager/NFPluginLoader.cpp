@@ -6,17 +6,12 @@
 //
 // -------------------------------------------------------------------------
 
-//#include <crtdbg.h>
-#include <time.h>
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <utility>
-#include <thread>
-#include <chrono>
-#include <future>
 #include <functional>
 #include <atomic>
 
+#include "NFCrashHandlerMgr.h"
 #include "NFPluginManager/NFCPluginManager.h"
 #include "NFComm/NFCore/NFPlatform.h"
 #include "NFPluginManager/NFProcessParameter.h"
@@ -28,119 +23,134 @@
 #endif
 
 
-int __c_main(int argc, char* argv[])
+int c_main(int argc, char* argv[])
 {
+    // 平台相关初始化
 #if NF_PLATFORM == NF_PLATFORM_WIN
-	//SetConsoleOutputCP(CP_UTF8);
-	SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)ApplicationCrashHandler);
+    // 设置未处理异常过滤器（Windows专用崩溃处理）
+    SetUnhandledExceptionFilter(ApplicationCrashHandler);
 #elif NF_PLATFORM == NF_PLATFORM_LINUX
+    // Linux平台预留初始化位置（未来可扩展系统信号处理等）
 #endif
 
-	ProcessParameter(argc, argv);
+    // 处理命令行参数（解析服务器ID、配置文件路径等关键参数）
+    ProcessParameter(argc, argv);
 
-	std::vector<NFIPluginManager*> vecPluginManager = NFGlobalSystem::Instance()->GetPluginManagerList();
+    // 从全局系统获取所有插件管理器实例
+    std::vector<NFIPluginManager*> vecPluginManager = NFGlobalSystem::Instance()->GetPluginManagerList();
 
-	for(int i = 0; i < (int)vecPluginManager.size(); i++)
+    // 初始化所有插件管理器
+    for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
     {
         NFIPluginManager* pPluginManager = vecPluginManager[i];
-        pPluginManager->Begin();
+        pPluginManager->Begin(); // 执行插件管理器的初始化流程
     }
 
-	while (true)
-	{
-        for(int i = 0; i < (int)vecPluginManager.size(); i++)
+    // 主服务循环
+    while (true)
+    {
+        // 执行所有插件管理器的每帧逻辑
+        for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
         {
-            NFIPluginManager *pPluginManager = vecPluginManager[i];
-            pPluginManager->Execute();
+            NFIPluginManager* pPluginManager = vecPluginManager[i];
+            pPluginManager->Execute(); // 驱动插件模块的主逻辑
         }
 
+        // 配置重载处理
         if (NFGlobalSystem::Instance()->IsReloadApp())
         {
-            for(int i = 0; i < (int)vecPluginManager.size(); i++)
+            for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
             {
-                NFIPluginManager *pPluginManager = vecPluginManager[i];
+                NFIPluginManager* pPluginManager = vecPluginManager[i];
+                // 配置重载三部曲：设置标记->执行重载->清理标记
                 pPluginManager->SetReloadServer(true);
-                pPluginManager->OnReloadConfig();
+                pPluginManager->OnReloadConfig(); // 加载新配置
                 pPluginManager->SetReloadServer(false);
-                pPluginManager->AfterOnReloadConfig();
+                pPluginManager->AfterOnReloadConfig(); // 重载后处理
             }
-            NFGlobalSystem::Instance()->SetReloadServer(false);
+            NFGlobalSystem::Instance()->SetReloadServer(false); // 重置全局重载标记
         }
 
-        /*
-         * stop server，停服，意味着需要保存该保存的数据，共享内存可能后面会被清理，服务器会走正常的停服流程
-         * */
+        // 服务停止处理（正常停服流程）
         if (NFGlobalSystem::Instance()->IsServerStopping() || NFGlobalSystem::Instance()->IsServerKilling())
         {
-            NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "Main Stop Server................");
-
             bool bExit = true;
-            for(int i = 0; i < (int)vecPluginManager.size(); i++)
+            // 正常停止流程
+            if (NFGlobalSystem::Instance()->IsServerStopping())
             {
-                NFIPluginManager *pPluginManager = vecPluginManager[i];
-                pPluginManager->SetServerStopping(true);
-                if (pPluginManager->StopServer() == false)
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Stop Server................");
+                for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
                 {
-                    bExit = false;
+                    NFIPluginManager* pPluginManager = vecPluginManager[i];
+                    pPluginManager->SetServerStopping(true);
+                    if (!pPluginManager->StopServer())
+                    {
+                        // 执行停服逻辑
+                        bExit = false; // 存在未完成停服的插件管理器
+                    }
                 }
             }
-
-            if (bExit)
+            // 强制终止流程
+            else
             {
-                NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "Main Stop Server To Stop Server................");
-                if (NFGlobalSystem::Instance()->IsServerStopping() && !NFGlobalSystem::Instance()->IsServerKilling())
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Kill Server................");
+                if (NFGlobalSystem::Instance()->IsServerKilling())
                 {
-                    for(int i = 0; i < (int)vecPluginManager.size(); i++)
+                    for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
                     {
-                        NFIPluginManager *pPluginManager = vecPluginManager[i];
-                        if (pPluginManager->SaveDB() == false)
+                        NFIPluginManager* pPluginManager = vecPluginManager[i];
+                        if (!pPluginManager->OnServerKilling())
                         {
+                            // 执行强制终止
                             bExit = false;
                         }
                     }
                 }
+            }
 
-                if (bExit)
-                {
-                    NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "Main Stop Server To Save DB................");
-                    break;
-                }
+            // 全部插件管理器完成停服后退出循环
+            if (bExit)
+            {
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Stop Server To Stop Server................");
+                break;
             }
         }
 
-        /*
-         * 热更退出app, 用于服务器需要热更app代码的情况，这时候会杀掉正在运行的的的app,重启新的服务器app
-         * */
+        // 热更新处理（动态代码替换）
         if (NFGlobalSystem::Instance()->IsHotfixServer())
         {
-            NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "Main Hotfix Server................");
+            NFLogInfo(NF_LOG_DEFAULT, 0, "Main Hotfix Server................");
             bool bHotFail = false;
-            for(int i = 0; i < (int)vecPluginManager.size(); i++)
+            for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
             {
-                NFIPluginManager *pPluginManager = vecPluginManager[i];
+                NFIPluginManager* pPluginManager = vecPluginManager[i];
                 pPluginManager->SetHotfixServer(true);
-                if (pPluginManager->HotfixServer() == false)
+                if (!pPluginManager->HotfixServer())
                 {
-                    bHotFail = true;
+                    // 执行热更新操作
+                    bHotFail = true; // 记录热更新失败
                 }
             }
 
+            // 热更新失败时触发停服流程
             if (bHotFail)
             {
-                NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "Main Hotfix Fail To Stop Server................");
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Hotfix Fail To Stop Server................");
                 NFGlobalSystem::Instance()->SetServerStopping(true);
             }
         }
-	}
-
-    for(int i = 0; i < (int)vecPluginManager.size(); i++)
-    {
-        NFIPluginManager* pPluginManager = vecPluginManager[i];
-        pPluginManager->End();
-        NF_SAFE_DELETE(pPluginManager);
     }
 
+    // 清理资源
+    for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
+    {
+        NFIPluginManager* pPluginManager = vecPluginManager[i];
+        pPluginManager->End(); // 执行插件管理器终止逻辑
+        NF_SAFE_DELETE(pPluginManager); // 安全删除插件管理器实例
+    }
+
+    // 释放全局系统单例
     NFGlobalSystem::Instance()->ReleaseSingleton();
 
-	return 0;
+    return 0;
 }

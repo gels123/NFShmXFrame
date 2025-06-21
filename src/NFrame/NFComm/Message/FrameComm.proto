@@ -1,0 +1,185 @@
+syntax = "proto3";
+package NFrame;
+
+import "nanopb.proto";
+import "FrameEnum.proto";
+
+message tbServerMgr
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint64 id			= 1;
+	string contract = 2;
+	string machine_addr = 3;
+	string ip = 4;
+	string bus_name = 5;
+	string server_desc = 6;
+	uint32 cur_count = 7;
+	uint64 last_login_time = 8;
+	uint64 last_logout_time = 9;
+	uint64 create_time = 10;
+}
+
+message pbMysqlConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string MysqlIp = 1;
+	uint32	MysqlPort = 2;
+	string MysqlDbName = 3;
+	string MysqlUser = 4;
+	string MysqlPassword = 5;
+	repeated pbTableConfig TBConfList = 6;
+}
+
+message pbRedisConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string RedisIp = 1;
+	uint32	RedisPort = 2;
+	string RedisPass = 3;
+}
+
+message pbRouteConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string MasterIp = 1;
+	uint32 MasterPort = 2;
+	string NamingHost = 3;
+	string NamingPath = 4;
+	string RouteAgent = 5;
+}
+
+message pbPluginConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint32 ServerType = 1;
+	repeated string FramePlugins = 2;
+	repeated string ServerPlugins = 3;
+	repeated string WorkPlugins = 4;
+	repeated pbAllServerConfig ServerList = 5;
+}
+
+message pbAllServerConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string Server = 1;
+	string ID = 2;
+	uint32 ServerType = 3;
+}
+
+message pbTableConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string TableName = 1;
+	uint32 TableCount = 2;
+	bool Cache = 3; //redis cache
+}
+
+message pbEncryptConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string PublicAuthEncryptkey = 1; //握手协议的公共加密密钥
+	uint32 EncryptPolicy = 10; //加密策略
+	uint32 CompressPolicy = 11; //压缩策略
+	string EncrypyKey = 12;
+}
+
+message pbNFServerConfig
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string ServerId = 1; //服务器唯一ID like:1.1.1.1
+	uint32 ServerType = 2; //服务器类型
+	string ServerName = 3;
+	uint32 BusId = 4;
+	uint32 BusLength = 5; //NFBUS/TBUS共享内存通信大小
+	string LinkMode = 7;  //
+	string Url = 8;
+	uint32 IdleSleepUS = 9; //服务器类型
+	uint32 HandleMsgNumPerFrame = 10; //服务器每一帧处理的消息数
+	uint64 ServerOpenTime = 11; //服务器开服世界
+	string LoadProtoDs = 12; //需要加载的pb文件
+	bool CrossServer = 13; //是否是跨服服务器
+
+////////////////////////////////////////net//////////////////////////////////////////////////////////
+	string ServerIp = 20; //服务器监听IP
+	uint32 ServerPort = 21; //服务器监听端口
+	string ExternalServerIp = 22; //服务器对外监听IP
+	uint32 ExternalServerPort = 23; //服务器对外监听端口
+	uint32 HttpPort = 24;		//服务器http监听ip
+	uint32 MaxConnectNum = 25;	//最大连接数目
+	uint32 WorkThreadNum = 26;	//work线程数目 actor线程数目
+	uint32 NetThreadNum = 27;   //tcp线程数目
+	bool Security = 28;				//false 不加密 true 加密
+	bool WebSocket = 29;				//
+	uint32 ParseType = 30;  //协议解析方式, 默认值0，是标准内网协议
+
+////////////////////////////////////route/////////////////////////////////////////////
+	pbRouteConfig RouteConfig = 50;
+////////////////////////////////////mysql//////////////////////////////////////
+	pbMysqlConfig MysqlConfig = 70; //主要给NFStoreServer服务器使用
+	string DefaultDBName = 75;	//主要非NFStoreServer服务器使用
+	string CrossDBName = 76;   //主要非NFStoreServer服务器使用
+	/////////////////////////////////////redis//////////////////////////////////////
+	pbRedisConfig RedisConfig = 80;
+
+////////////////////////////////////other//////////////////////////////////////////////
+	string sendEmail = 91; //发生邮箱 QQ邮箱不行，163可用
+	string sendEmailPass = 92;  //发生邮箱POP3密码
+	string sendEmailUrl = 93; //smtp.163.com
+	string sendEmailPort = 94; //465
+	string recvEmail = 95; //可用用QQ邮箱，163，不限制
+	string wxWorkdRobot = 96; //企业微信机器人Webhook地址, 给企业微信群发消息
+
+///////////////////////////////////client////////////////////////////////////////////////////
+	uint32 MaxOnlinePlayerNum = 100;
+	uint32 HeartBeatTimeout = 101;
+	uint32 ClientKeepAliveTimeout = 102;
+	uint32 ClientVersion = 103;
+	bool IsNoToken = 104;
+	/////////////////////////////pbEncryptConfig///////////////////////
+	pbEncryptConfig EncryptConfig = 110;
+}
+
+message wxWorkRobotText
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string content = 1;
+	repeated string mentioned_list = 2;
+	repeated string mentioned_mobile_list = 3;
+}
+
+message wxWorkRobotHttpPost
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string msgtype = 1;
+	wxWorkRobotText text = 2;
+}
+
+message ExcelSheetInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string name = 1;
+	string unique_index = 2;
+	string multi_index = 3;
+	string relation = 4;
+	bool createSql = 5;
+	string field_enum = 6;
+	string import_proto = 7;
+	string colMessageType = 8;
+	string add_field = 9;
+	string otherName = 10;
+	string sheetMsgName = 11;
+	string protoMsgName = 12;
+}
+
+message ExcelPbInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string name = 1;
+	repeated ExcelSheetInfo sheet = 2[(nanopb).use_stl_enum = "STL_UNORDERED_MAP", (nanopb).use_stl_key="name"];
+}
+
+message ExcelParseInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	repeated ExcelPbInfo excel = 1[(nanopb).use_stl_enum = "STL_UNORDERED_MAP", (nanopb).use_stl_key="name"];
+}

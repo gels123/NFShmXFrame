@@ -25,16 +25,16 @@ public:
 	virtual int AddNosqlServer(const std::string& strID, const std::string& strIP, const int nPort);
 	virtual int AddNosqlServer(const std::string& strID, const std::string& strIP, const int nPort, const std::string& strPass);
 public:
-    virtual int SelectObj(const std::string& strID, const storesvr_sqldata::storesvr_selobj &select, storesvr_sqldata::storesvr_selobj_res &select_res);
-    virtual int SaveObj(const std::string& strID, const storesvr_sqldata::storesvr_selobj &select,
-                        storesvr_sqldata::storesvr_selobj_res &select_res);
-    virtual int SaveObj(const std::string& strID, const storesvr_sqldata::storesvr_insertobj &select, storesvr_sqldata::storesvr_insertobj_res &select_res);
-    virtual int SaveObj(const std::string& strID, const storesvr_sqldata::storesvr_modobj &select, storesvr_sqldata::storesvr_modobj_res &select_res);
-    virtual int SaveObj(const std::string& strID, const storesvr_sqldata::storesvr_updateobj &select, storesvr_sqldata::storesvr_updateobj_res &select_res);
+    virtual int SelectObj(const std::string& strID, const NFrame::storesvr_selobj &select, NFrame::storesvr_selobj_res &select_res);
+    virtual int SaveObj(const std::string& strID, const NFrame::storesvr_selobj &select,
+                        NFrame::storesvr_selobj_res &select_res);
+    virtual int SaveObj(const std::string& strID, const NFrame::storesvr_insertobj &select, NFrame::storesvr_insertobj_res &select_res);
+    virtual int SaveObj(const std::string& strID, const NFrame::storesvr_modobj &select, NFrame::storesvr_modobj_res &select_res);
+    virtual int SaveObj(const std::string& strID, const NFrame::storesvr_updateobj &select, NFrame::storesvr_updateobj_res &select_res);
 
-    virtual int DeleteObj(const std::string& strID, const storesvr_sqldata::storesvr_delobj &select);
-    virtual int DeleteObj(const std::string& strID, const storesvr_sqldata::storesvr_insertobj &select);
-    virtual int DeleteObj(const std::string& strID, const storesvr_sqldata::storesvr_modobj &select);
+    virtual int DeleteObj(const std::string& strID, const NFrame::storesvr_delobj &select);
+    virtual int DeleteObj(const std::string& strID, const NFrame::storesvr_insertobj &select);
+    virtual int DeleteObj(const std::string& strID, const NFrame::storesvr_modobj &select);
 public:
     virtual bool Connect(const std::string& strIP, const int nPort, const std::string& strPass) { return false; };
     virtual bool Enable();

@@ -8,11 +8,11 @@
 // -------------------------------------------------------------------------
 
 #include "NFIDescStore.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
+#include "NFComm/NFObjCommon/NFShmMgr.h"
 #include "NFIDescStoreModule.h"
 #include "NFComm/NFCore/NFRandom.hpp"
 
-NFIDescStore::NFIDescStore():NFShmObj()
+NFIDescStore::NFIDescStore():NFObject()
 {
     if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode()) {
         CreateInit();

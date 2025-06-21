@@ -3,6 +3,8 @@
 //
 
 #include "NFGlobalSystem.h"
+
+#include "NFCheck.h"
 #include "NFIPluginManager.h"
 #include "NFComm/NFCore/NFFileUtility.h"
 #include "NFProtobufCommon.h"
@@ -11,7 +13,7 @@
 #include "NFComm/NFPluginModule/NFLogMgr.h"
 #include "NFComm/NFPluginModule/NFMemTracker.h"
 #include "NFComm/NFPluginModule/NFNetPackagePool.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
+#include "NFComm/NFObjCommon/NFShmMgr.h"
 
 NFGlobalSystem::NFGlobalSystem() : m_gIsMoreServer(false), m_reloadApp(false), m_serverStopping(false), m_serverKilling(false), m_hotfixServer(false)
 {
@@ -21,16 +23,15 @@ NFGlobalSystem::NFGlobalSystem() : m_gIsMoreServer(false), m_reloadApp(false), m
     {
         mSpecialMsgMap[i].resize(NF_NET_MAX_MSG_ID);
     }
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_HEART_BEAT);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_HEART_BEAT_RSP);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_BUS_CONNECT_REQ);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_BUS_CONNECT_RSP);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_MASTER_SERVER_SEND_OTHERS_TO_SERVER);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_MASTER_SERVER_SEND_OTHERS_TO_SERVER);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_MASTER_SERVER_REPORT);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_REGISTER);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_REGISTER_RSP);
-    RegisterSpecialMsg(NF_MODULE_SERVER, proto_ff::NF_SERVER_TO_SERVER_REGISTER);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_HEART_BEAT);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_HEART_BEAT_RSP);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_BUS_CONNECT_REQ);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_BUS_CONNECT_RSP);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_MASTER_SERVER_SEND_OTHERS_TO_SERVER);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_MASTER_SERVER_SEND_OTHERS_TO_SERVER);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_MASTER_SERVER_REPORT);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_REGISTER);
+    RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_REGISTER_RSP);
 }
 
 NFGlobalSystem::~NFGlobalSystem()
@@ -149,4 +150,9 @@ bool NFGlobalSystem::IsSpecialMsg(uint32_t moduleId, uint32_t msgId)
         return mSpecialMsgMap[moduleId][msgId];
     }
     return false;
+}
+
+NFIModule *NFGlobalSystem::FindModule(const std::string &strModuleName)
+{
+    return m_gGlobalPluginManager->FindModule(strModuleName);
 }

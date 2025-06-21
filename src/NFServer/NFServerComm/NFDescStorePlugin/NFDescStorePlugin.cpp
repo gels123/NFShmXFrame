@@ -56,15 +56,6 @@ void NFDescStorePlugin::Uninstall()
 
 bool NFDescStorePlugin::InitShmObjectRegister()
 {
-    uint32_t maxOnlinePlayerNum = 100;
-    if (!m_pObjPluginManager->IsLoadAllServer())
-    {
-        NFServerConfig* pConfig = FindModule<NFIConfigModule>()->GetAppConfig(NF_ST_NONE);
-        NF_ASSERT(pConfig);
-
-        maxOnlinePlayerNum = pConfig->MaxOnlinePlayerNum;
-    }
-
     REGISTER_SHM_OBJ(NFBaseDBObj, 0);
     REGISTER_SHM_OBJ(NFDBObjTrans, 100);
     REGISTER_SINGLETON_SHM_OBJ(NFDBObjMgr);

@@ -7,19 +7,12 @@
 // -------------------------------------------------------------------------
 
 #include "NFSignalHandleMgr.h"
-#include "NFComm/NFPluginModule/NFCheck.h"
-#include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFComm/NFPluginModule/NFGlobalSystem.h"
-#include "NFComm/NFCore/NFFileUtility.h"
-#include "NFCPluginManager.h"
-#include <signal.h>
-#include <time.h>
-#include <algorithm>
-#include <string.h>
-
-#include "demangle.h"
 
 #if NF_PLATFORM != NF_PLATFORM_WIN
+#include <NFComm/NFCore/NFFileUtility.h>
+#include <NFComm/NFPluginModule/NFCheck.h>
+#include "demangle.h"
+
 #include <ucontext.h>
 #include <sys/ucontext.h>
 #include <execinfo.h>
@@ -262,7 +255,7 @@ bool GetSectionHeaderByName(int fd, const char *name, size_t name_len,
         char header_name[kMaxSectionNameLen];
         if (sizeof(header_name) < name_len)
         {
-            //NFLogError(NF_LOG_SYSTEMLOG, 0, "Section name '%s' is too long (%" PRIuS "); "
+            //NFLogError(NF_LOG_DEFAULT, 0, "Section name '%s' is too long (%" PRIuS "); "
             //        "section will not be found (even if present).", name, name_len);
             // No point in even trying.
             return false;
@@ -1043,7 +1036,7 @@ std::string DumpTimeInfo()
     formatter.AppendString("\" if you are using GNU date ***\n");
 
     std::string str = std::string(buf, formatter.num_bytes_written());
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "{}", str);
+    NFLogError(NF_LOG_DEFAULT, 0, "{}", str);
     return str;
 }
 
@@ -1097,7 +1090,7 @@ std::string DumpSignalInfo(int signal_number, siginfo_t *siginfo)
     formatter.AppendString("stack trace: ***\n");
 
     std::string str = std::string(buf, formatter.num_bytes_written());
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "{}", str);
+    NFLogError(NF_LOG_DEFAULT, 0, "{}", str);
     return str;
 }
 
@@ -1127,7 +1120,7 @@ std::string DumpStackFrameInfo(const char *prefix, void *pc)
     formatter.AppendString("\n");
 
     std::string str = std::string(buf, formatter.num_bytes_written());
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "{}", str);
+    NFLogError(NF_LOG_DEFAULT, 0, "{}", str);
     return str;
 }
 
@@ -1189,8 +1182,8 @@ void FailureSignalHandler(int signal_number,
         std::vector<NFIPluginManager*> vecPluginManager = NFGlobalSystem::Instance()->GetPluginManagerList();
         for(int i = 0; i < (int)vecPluginManager.size(); i++)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "FailureSignalHandler--the server crash, Save DB before kill the server");
-            vecPluginManager[i]->SaveDB();
+            NFLogError(NF_LOG_DEFAULT, 0, "FailureSignalHandler--the server crash, OnServerKilling before kill the server");
+            vecPluginManager[i]->OnServerKilling();
         }
     }
 
@@ -1286,7 +1279,7 @@ void HandleSignal(int signo)
          * kill server, quit server， 杀掉当前的服务器进程，不会保存数据，如果是共享内存服务器，数据仍然在。
          * */
         case SIGUNUSED:
-            NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "HandleSignal SetServerKilling(true)................");
+            NFLogInfo(NF_LOG_DEFAULT, 0, "HandleSignal SetServerKilling(true)................");
             NFGlobalSystem::Instance()->SetServerStopping(true);
             NFGlobalSystem::Instance()->SetServerKilling(true);
             break;
@@ -1295,7 +1288,7 @@ void HandleSignal(int signo)
          * */
         case SIGTERM:
         case SIGUSR1:
-            NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "HandleSignal SetServerStopping(true)................");
+            NFLogInfo(NF_LOG_DEFAULT, 0, "HandleSignal SetServerStopping(true)................");
             NFGlobalSystem::Instance()->SetServerStopping(true);
             break;
 

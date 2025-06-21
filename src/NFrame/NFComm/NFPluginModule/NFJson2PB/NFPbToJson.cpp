@@ -304,6 +304,8 @@ bool ProtoMessageToJson(const google::protobuf::Message& message,
 
 bool ProtoMessageToJson(const google::protobuf::Message& message,
                         std::string* json, std::string* error) {
+    Pb2JsonOptions options;
+    options.pretty_json = true;
     return ProtoMessageToJson(message, json, Pb2JsonOptions(), error);
 }
 

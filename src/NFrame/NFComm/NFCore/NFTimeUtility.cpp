@@ -550,19 +550,19 @@ uint64_t NFTimeUtility::GetTimeByWeekDay(uint64_t ullWeek, int iDay) {
 // 获取时差，秒数
 uint32_t NFTimeUtility::GetGMTSec()
 {
-    return NFTime::GetCurTimeZone();
+    return NFTime::GetCurTimeZone()*3600;
 }
 
 // 获取本地时间（经过的秒数）
 uint32_t NFTimeUtility::GetLocalTime()
 {
-    return NFTime::Now().UnixSec() + GetGMTSec();
+    return NF_ADJUST_TIMENOW() + GetGMTSec();
 }
 
 // 起始日：1970年1月1日 星期四 为第0天
 uint32_t NFTimeUtility::GetLocalDay()
 {
-    return GetLocalDay(NFTime::Now().UnixSec());
+    return GetLocalDay(NF_ADJUST_TIMENOW());
 }
 
 uint32_t NFTimeUtility::GetLocalDay(uint64_t unixSec)
@@ -575,7 +575,7 @@ uint32_t NFTimeUtility::GetLocalDay(uint64_t unixSec)
 // 1970年1月5日 星期一 返回1
 uint32_t NFTimeUtility::GetLocalWeek()
 {
-    return GetLocalWeek(NFTime::Now().UnixSec());
+    return GetLocalWeek(NF_ADJUST_TIMENOW());
 }
 
 uint32_t NFTimeUtility::GetLocalWeek(uint64_t unixSec)

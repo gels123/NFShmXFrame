@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "NFComm/NFShmCore/NFResDb.h"
+#include "NFComm/NFObjCommon/NFResDb.h"
 #include <unordered_map>
 
 const int C_READBUFFSIZE_MAX = 1024 * 1024 * 50;
@@ -31,7 +31,7 @@ private:
 	NFFileResDB* m_pFileResDB;
 };
 
-class NFFileResDB : public NFResDB
+class NFFileResDB : public NFResDb
 {
 public:
 	NFFileResDB(NFIPluginManager* p, const std::string& szResFilePath);

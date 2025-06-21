@@ -9,6 +9,6 @@
 
 #pragma once
 
-//先用简单的处理吧，后续看有没需要加其它算法
-void Encryption(char * pChar, int lenth);
-void Decryption(char * pChar, int lenth);
+//鍏堢敤绠�鍗曠殑澶勭悊鍚э紝鍚庣画鐪嬫湁娌￠渶瑕佸姞鍏跺畠绠楁硶
+void Encryption(char* pChar, int length);
+void Decryption(char* pChar, int length);

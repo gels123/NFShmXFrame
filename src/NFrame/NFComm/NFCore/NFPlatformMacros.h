@@ -131,6 +131,10 @@
 #  define NF_UNICODE_SUPPORT 1
 #endif
 
+#ifndef __attribute__
+#define __attribute__(x)
+#endif
+
 #endif // NF_PLATFORM == NF_PLATFORM_WIN
 
 
@@ -214,3 +218,9 @@
 #    define NF_ENDIAN NF_ENDIAN_LITTLE
 #endif
 
+
+#if defined(__GNUC__) || defined(__clang__)
+#define PRINTF_FORMAT_ATTR __attribute__((format(printf, 1, 2)))
+#else
+    #define PRINTF_FORMAT_ATTR
+#endif

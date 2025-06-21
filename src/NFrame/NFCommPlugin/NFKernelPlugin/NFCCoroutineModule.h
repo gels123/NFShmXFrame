@@ -29,10 +29,7 @@ public:
 
     void UpdateUser();
 
-    /*
-     * 停服之前，做一些操作，满足停服条件
-     * */
-    virtual bool OnStopServer() override;
+    virtual bool CheckStopServer() override;
 
     virtual bool Shut() override;
 

@@ -25,13 +25,13 @@ NFIDynamicModule::~NFIDynamicModule()
 
 int NFIDynamicModule::OnTimer(uint32_t nTimerID)
 {
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "nTimerID:({}) not handle", nTimerID);
+    NFLogError(NF_LOG_DEFAULT, 0, "nTimerID:({}) not handle", nTimerID);
     return 0;
 }
 
 int NFIDynamicModule::OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message* pMessage)
 {
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "Event msg:(evnetId:{} nSrcID:{} bySrcType:{}) not handle, message:{}", nEventID, nSrcID, bySrcType, pMessage->DebugString());
+    NFLogError(NF_LOG_DEFAULT, 0, "Event msg:(evnetId:{} nSrcID:{} bySrcType:{}) not handle, message:{}", nEventID, nSrcID, bySrcType, pMessage->DebugString());
     return 0;
 }
 
@@ -47,19 +47,19 @@ int NFIDynamicModule::OnHandleServerMessage(uint64_t unLinkId, NFDataPackage& pa
 
 int NFIDynamicModule::OnHandleClientMessage(uint32_t msgId, NFDataPackage& packet, uint64_t param1, uint64_t param2)
 {
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "client msg:({}) not handle", packet.ToString());
+    NFLogError(NF_LOG_DEFAULT, 0, "client msg:({}) not handle", packet.ToString());
     return 0;
 }
 
 int NFIDynamicModule::OnHandleServerMessage(uint32_t msgId, NFDataPackage& packet, uint64_t param1, uint64_t param2)
 {
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "server msg:({}) not handle", packet.ToString());
+    NFLogError(NF_LOG_DEFAULT, 0, "server msg:({}) not handle", packet.ToString());
     return 0;
 }
 
 int NFIDynamicModule::OnHandleRpcMessage(uint32_t msgId, google::protobuf::Message& request, google::protobuf::Message& respone, uint64_t param1, uint64_t param2)
 {
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "server rpc msgId:{} param1:{} param2:{} not handle", msgId, param1, param2);
+    NFLogError(NF_LOG_DEFAULT, 0, "server rpc msgId:{} param1:{} param2:{} not handle", msgId, param1, param2);
     return 0;
 }
 
@@ -69,10 +69,16 @@ int NFIDynamicModule::OnHandleRpcMessage(uint32_t msgId, google::protobuf::Messa
  * @param nMsgID
  * @return
  */
-bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPES eType, uint32_t nMsgID, bool createCo)
+bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo)
 {
     NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))(&NFIDynamicModule::OnHandleClientMessage), this, std::placeholders::_1, std::placeholders::_2);
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, NF_MODULE_CLIENT, nMsgID, this, functor, createCo);
+}
+
+bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModleId, uint32_t nMsgID, bool createCo)
+{
+    NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))(&NFIDynamicModule::OnHandleClientMessage), this, std::placeholders::_1, std::placeholders::_2);
+    return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, nModleId, nMsgID, this, functor, createCo);
 }
 
 /**
@@ -81,8 +87,14 @@ bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPES eType, uint32_t nMs
  * @param nMsgID
  * @return
  */
-bool NFIDynamicModule::RegisterServerMessage(NF_SERVER_TYPES eType, uint32_t nMsgID, bool createCo)
+bool NFIDynamicModule::RegisterServerMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo)
 {
     NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))&NFIDynamicModule::OnHandleServerMessage, this, std::placeholders::_1, std::placeholders::_2);
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, NF_MODULE_SERVER, nMsgID, this, functor, createCo);
+}
+
+bool NFIDynamicModule::RegisterServerMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo)
+{
+    NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))&NFIDynamicModule::OnHandleServerMessage, this, std::placeholders::_1, std::placeholders::_2);
+    return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, nModuleId, nMsgID, this, functor, createCo);
 }

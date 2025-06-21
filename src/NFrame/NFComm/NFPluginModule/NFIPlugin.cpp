@@ -20,7 +20,7 @@ bool NFIPlugin::AfterLoadAllPlugin()
             bool bRet = pModule->AfterLoadAllPlugin();
             if (!bRet)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "{} AfterLoadAllPlugin failed!", pModule->m_strName);
+                NFLogError(NF_LOG_DEFAULT, 0, "{} AfterLoadAllPlugin failed!", pModule->m_strName);
                 assert(0);
             }
         }
@@ -38,7 +38,7 @@ bool NFIPlugin::AfterInitShmMem()
             bool bRet = pModule->AfterInitShmMem();
             if (!bRet)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "{} AfterInitShmMem failed!", pModule->m_strName);
+                NFLogError(NF_LOG_DEFAULT, 0, "{} AfterInitShmMem failed!", pModule->m_strName);
                 assert(0);
             }
         }
@@ -56,7 +56,7 @@ bool NFIPlugin::Awake()
 			bool bRet = pModule->Awake();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} Awake failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} Awake failed!", pModule->m_strName);
 				assert(0);
 			}
 		}
@@ -74,7 +74,7 @@ bool NFIPlugin::Init()
 			bool bRet = pModule->Init();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} Init failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} Init failed!", pModule->m_strName);
 				assert(0);
 			}
 		}
@@ -92,7 +92,7 @@ bool NFIPlugin::CheckConfig()
 			bool bRet = pModule->CheckConfig();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} CheckConfig failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} CheckConfig failed!", pModule->m_strName);
 				assert(0);
 			}
 		}
@@ -111,7 +111,7 @@ bool NFIPlugin::ReadyExecute()
 			bool bRet = pModule->ReadyExecute();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} ReadyExecute failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} ReadyExecute failed!", pModule->m_strName);
 				assert(0);
 			}
 		}
@@ -131,14 +131,14 @@ bool NFIPlugin::Execute()
             bool bRet = pModule->Execute();
             if (!bRet)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "{} Execute failed!", pModule->m_strName);
+                NFLogError(NF_LOG_DEFAULT, 0, "{} Execute failed!", pModule->m_strName);
             }
             uint64_t useTime = m_pObjPluginManager->EndProfiler();
             if (useTime >= 30000) //>= 10毫秒
             {
                 if (!m_pObjPluginManager->IsLoadAllServer())
                 {
-                    NFLogError(NF_LOG_PLUGIN_MANAGER, 0, "mainthread:{} use time:{} ms", pModule->m_strName + "--Loop", useTime / 1000);
+                    NFLogError(NF_LOG_DEFAULT, 0, "mainthread:{} use time:{} ms", pModule->m_strName + "--Loop", useTime / 1000);
                 }
             }
 
@@ -156,11 +156,11 @@ bool NFIPlugin::BeforeShut()
 		NFIModule* pModule = m_vecModule[i];
 		if (pModule)
 		{
-			NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "{} BeforeShut................", pModule->m_strName);
+			NFLogInfo(NF_LOG_DEFAULT, 0, "{} BeforeShut................", pModule->m_strName);
 			bool bRet = pModule->BeforeShut();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} BeforeShut failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} BeforeShut failed!", pModule->m_strName);
 			}
 		}
 	}
@@ -174,11 +174,11 @@ bool NFIPlugin::Shut()
 		NFIModule* pModule = m_vecModule[i];
 		if (pModule)
 		{
-			NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "{} Shut................", pModule->m_strName);
+			NFLogInfo(NF_LOG_DEFAULT, 0, "{} Shut................", pModule->m_strName);
 			bool bRet = pModule->Shut();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} Shut failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} Shut failed!", pModule->m_strName);
 			}
 		}
 	}
@@ -193,11 +193,11 @@ bool NFIPlugin::Finalize()
 		NFIModule* pModule = m_vecModule[i];
 		if (pModule)
 		{
-			NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "{} Finalize................", pModule->m_strName);
+			NFLogInfo(NF_LOG_DEFAULT, 0, "{} Finalize................", pModule->m_strName);
 			bool bRet = pModule->Finalize();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} Finalize failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} Finalize failed!", pModule->m_strName);
 			}
 		}
 	}
@@ -215,7 +215,7 @@ bool NFIPlugin::OnReloadConfig()
 			bool bRet = pModule->OnReloadConfig();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} OnReloadConfig failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} OnReloadConfig failed!", pModule->m_strName);
 			}
 		}
 	}
@@ -233,7 +233,7 @@ bool NFIPlugin::AfterOnReloadConfig()
             bool bRet = pModule->AfterOnReloadConfig();
             if (!bRet)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "{} AfterOnReloadConfig failed!", pModule->m_strName);
+                NFLogError(NF_LOG_DEFAULT, 0, "{} AfterOnReloadConfig failed!", pModule->m_strName);
             }
         }
     }
@@ -290,7 +290,7 @@ bool NFIPlugin::OnDynamicPlugin()
 			bool bRet = pModule->OnDynamicPlugin();
 			if (!bRet)
 			{
-				NFLogError(NF_LOG_SYSTEMLOG, 0, "{} OnDynamicPlugin failed!", pModule->m_strName);
+				NFLogError(NF_LOG_DEFAULT, 0, "{} OnDynamicPlugin failed!", pModule->m_strName);
 			}
 		}
 	}
@@ -308,7 +308,7 @@ bool NFIPlugin::HotfixServer()
             bool bRet = pModule->HotfixServer();
             if (!bRet)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "{} OnDynamicPlugin failed!", pModule->m_strName);
+                NFLogError(NF_LOG_DEFAULT, 0, "{} OnDynamicPlugin failed!", pModule->m_strName);
             }
         }
     }
@@ -316,7 +316,7 @@ bool NFIPlugin::HotfixServer()
     return true;
 }
 
-bool NFIPlugin::SaveDB()
+bool NFIPlugin::OnServerKilling()
 {
     bool bRet = true;
     for (size_t i = 0; i < m_vecModule.size(); i++)
@@ -324,7 +324,7 @@ bool NFIPlugin::SaveDB()
         NFIModule* pModule = m_vecModule[i];
         if (pModule)
         {
-            if (pModule->SaveDB() == false)
+            if (pModule->OnServerKilling() == false)
             {
                 bRet = false;
             }
@@ -352,7 +352,7 @@ bool NFIPlugin::CheckStopServer()
     return bRet;
 }
 
-bool NFIPlugin::OnStopServer()
+bool NFIPlugin::StopServer()
 {
     bool bRet = true;
     for (size_t i = 0; i < m_vecModule.size(); i++)
@@ -360,7 +360,7 @@ bool NFIPlugin::OnStopServer()
         NFIModule* pModule = m_vecModule[i];
         if (pModule)
         {
-            if (pModule->OnStopServer() == false)
+            if (pModule->StopServer() == false)
             {
                 bRet = false;
             }
@@ -379,7 +379,7 @@ bool NFIPlugin::AfterAllConnectFinish()
         {
             if (pModule->AfterAllConnectFinish() == false)
             {
-                NFLogWarning(NF_LOG_SYSTEMLOG, 0, "Plugin:{} AfterAllConnectFinish Failed", GetPluginName());
+                NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllConnectFinish Failed", GetPluginName());
             }
         }
     }
@@ -396,7 +396,7 @@ bool NFIPlugin::AfterAllDescStoreLoaded()
         {
             if (pModule->AfterAllDescStoreLoaded() == false)
             {
-                NFLogWarning(NF_LOG_SYSTEMLOG, 0, "Plugin:{} AfterAllDescStoreLoaded Failed", GetPluginName());
+                NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllDescStoreLoaded Failed", GetPluginName());
             }
         }
     }
@@ -413,7 +413,7 @@ bool NFIPlugin::AfterObjFromDBLoaded()
         {
             if (pModule->AfterObjFromDBLoaded() == false)
             {
-                NFLogWarning(NF_LOG_SYSTEMLOG, 0, "Plugin:{} AfterObjFromDBLoaded Failed", GetPluginName());
+                NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterObjFromDBLoaded Failed", GetPluginName());
             }
         }
     }
@@ -430,7 +430,7 @@ bool NFIPlugin::AfterServerRegisterFinish()
         {
             if (pModule->AfterServerRegisterFinish() == false)
             {
-                NFLogWarning(NF_LOG_SYSTEMLOG, 0, "Plugin:{} AfterServerRegisterFinish Failed", GetPluginName());
+                NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterServerRegisterFinish Failed", GetPluginName());
             }
         }
     }
@@ -447,7 +447,7 @@ bool NFIPlugin::AfterAppInitFinish()
         {
             if (pModule->AfterAppInitFinish() == false)
             {
-                NFLogWarning(NF_LOG_SYSTEMLOG, 0, "Plugin:{} AfterAppInitFinish Failed", GetPluginName());
+                NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAppInitFinish Failed", GetPluginName());
             }
         }
     }

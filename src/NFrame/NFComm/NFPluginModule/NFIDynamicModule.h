@@ -32,25 +32,25 @@ public:
 
 	virtual int OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message* pMessage) override;
 
-	virtual int RegisterAppTask(NF_SERVER_TYPES eServerType, uint32_t taskType, const std::string& desc,
+	virtual int RegisterAppTask(NF_SERVER_TYPE eServerType, uint32_t taskType, const std::string& desc,
 								uint32_t taskGroup)
 	{
 		return m_pObjPluginManager->RegisterAppTask(eServerType, taskType, desc, taskGroup);
 	}
 
-	virtual bool IsHasAppTask(NF_SERVER_TYPES eServerType, uint32_t taskGroup, uint32_t taskType) const
+	virtual bool IsHasAppTask(NF_SERVER_TYPE eServerType, uint32_t taskGroup, uint32_t taskType) const
 	{
 		return m_pObjPluginManager->IsHasAppTask(eServerType, taskGroup, taskType);
 	}
 
-	virtual int FinishAppTask(NF_SERVER_TYPES eServerType, uint32_t taskType,
+	virtual int FinishAppTask(NF_SERVER_TYPE eServerType, uint32_t taskType,
 							  uint32_t taskGroup)
 	{
 		return m_pObjPluginManager->FinishAppTask(eServerType, taskType, taskGroup);
 	}
 
 	template<size_t msgId, typename RequestType, typename ResponeType>
-	bool AddRpcService(NF_SERVER_TYPES serverType, bool createCo = false)
+	bool AddRpcService(NF_SERVER_TYPE serverType, bool createCo = false)
 	{
 		return FindModule<NFIMessageModule>()->AddRpcService<msgId, NFIDynamicModule, RequestType, ResponeType>(serverType, this, &NFIDynamicModule::OnHandleRpcMessage, createCo);
 	}
@@ -61,7 +61,9 @@ public:
 	 * @param nMsgID
 	 * @return
 	 */
-	virtual bool RegisterClientMessage(NF_SERVER_TYPES eType, uint32_t nMsgID, bool createCo = false);
+	virtual bool RegisterClientMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo = false);
+
+	virtual bool RegisterClientMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo = false);
 
 	/**
 	 * @brief 注册服务器信息处理函数
@@ -69,7 +71,9 @@ public:
 	 * @param nMsgID
 	 * @return
 	 */
-	virtual bool RegisterServerMessage(NF_SERVER_TYPES eType, uint32_t nMsgID, bool createCo = false);
+	virtual bool RegisterServerMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo = false);
+
+	virtual bool RegisterServerMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo = false);
 
 	/**
 	 * @brief 处理客户端消息

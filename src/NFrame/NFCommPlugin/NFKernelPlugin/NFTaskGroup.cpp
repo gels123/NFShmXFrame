@@ -53,7 +53,7 @@ bool NFTaskGroup::Shut()
         NFSLEEP(1000);
         if (NFGetSecondTime() - startTime >= 30)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "task module shut, but has task not finish after wait 30 second!");
+            NFLogError(NF_LOG_DEFAULT, 0, "task module shut, but has task not finish after wait 30 second!");
             break;
         }
     }
@@ -150,19 +150,16 @@ int NFTaskGroup::SendMsgToActor(const int nActorIndex, NFTask* pData)
 */
 int NFTaskGroup::SendMsgToActor(NFTaskActor* pActor, NFTask* pData)
 {
-    if (!m_pObjPluginManager->IsServerStopping())
+    if (pActor != nullptr && m_pMainActor != nullptr && m_pFramework != nullptr)
     {
-        if (pActor != nullptr && m_pMainActor != nullptr && m_pFramework != nullptr)
-        {
-            NFTaskActorMessage xMessage;
+        NFTaskActorMessage xMessage;
 
-            xMessage.nMsgType = NFTaskActorMessage::ACTOR_MSG_TYPE_COMPONENT;
-            xMessage.pData = pData;
-            xMessage.nFromActor = m_pMainActor->GetAddress().AsInteger();
+        xMessage.nMsgType = NFTaskActorMessage::ACTOR_MSG_TYPE_COMPONENT;
+        xMessage.pData = pData;
+        xMessage.nFromActor = m_pMainActor->GetAddress().AsInteger();
 
-            bool iRet = m_pFramework->Send(xMessage, m_pMainActor->GetAddress(), pActor->GetAddress());
-            CHECK_EXPR(iRet, -1, "m_pFramework->Send Failed");
-        }
+        bool iRet = m_pFramework->Send(xMessage, m_pMainActor->GetAddress(), pActor->GetAddress());
+        CHECK_EXPR(iRet, -1, "m_pFramework->Send Failed");
     }
 
     return 0;
@@ -320,7 +317,7 @@ int NFTaskGroup::GetBalanceActor(uint64_t balanceId)
 
     if (m_vecActorPool.empty())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "error");
+        NFLogError(NF_LOG_DEFAULT, 0, "error");
         return -1;
     }
 
@@ -332,7 +329,7 @@ int NFTaskGroup::GetBalanceActor(uint64_t balanceId)
     }
     else
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "error");
+        NFLogError(NF_LOG_DEFAULT, 0, "error");
         return -1;
     }
 }
@@ -341,7 +338,7 @@ int NFTaskGroup::GetRandActor()
 {
     if (m_vecActorPool.empty())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "error");
+        NFLogError(NF_LOG_DEFAULT, 0, "error");
         return -1;
     }
 
@@ -353,7 +350,7 @@ int NFTaskGroup::GetRandActor()
     }
     else
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "error");
+        NFLogError(NF_LOG_DEFAULT, 0, "error");
         return -1;
     }
 }
@@ -401,7 +398,7 @@ void NFTaskGroup::CheckTimeOutTask()
             int num = m_vecActorPool[i]->GetNumQueuedMessages();
             if (num >= 100)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "the actor has too many task, the not handle task num:{} actorId:{}", num, m_vecActorPool[i]->GetActorId());
+                NFLogError(NF_LOG_DEFAULT, 0, "the actor has too many task, the not handle task num:{} actorId:{}", num, m_vecActorPool[i]->GetActorId());
             }
         }
     }
@@ -424,7 +421,7 @@ void NFTaskGroup::OnMainThreadTick()
                 {
                     if (pTask->m_useTime >= 100)
                     {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "the taskGroup:{} task:{} use time out:{} ms, handle time:{} actorId:{}", m_taskGroupId, pTask->m_taskName, pTask->m_useTime/(double)1000,
+                        NFLogError(NF_LOG_DEFAULT, 0, "the taskGroup:{} task:{} use time out:{} ms, handle time:{} actorId:{}", m_taskGroupId, pTask->m_taskName, pTask->m_useTime/(double)1000,
                                    NFDateTime(pTask->m_handleStartTime/1000000, pTask->m_handleStartTime%1000000).GetLongTimeString(), pTask->m_handleActorId);
                     }
                     const NFTask::TPTaskState state = pTask->MainThreadProcess();
@@ -437,7 +434,7 @@ void NFTaskGroup::OnMainThreadTick()
                             break;
                         case NFTask::TPTASK_STATE_CONTINUE_CHILDTHREAD:
                         {
-                            NFLogInfo(NF_LOG_SYSTEMLOG, 0, "the taskGroup:{} task:{} will trans to the taskGroup:{} run", m_taskGroupId, pTask->m_taskName, pTask->m_nextActorGroup);
+                            NFLogInfo(NF_LOG_DEFAULT, 0, "the taskGroup:{} task:{} will trans to the taskGroup:{} run", m_taskGroupId, pTask->m_taskName, pTask->m_nextActorGroup);
                             FindModule<NFITaskModule>()->AddTask(pTask->m_nextActorGroup, pTask);
                         }
                         break;
@@ -466,13 +463,13 @@ void NFTaskGroup::OnMainThreadTick()
                 {
                     //error
                 }
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "task actor module error................");
+                NFLogError(NF_LOG_DEFAULT, 0, "task actor module error................");
             }
         }
 
         if (!listTask.empty())
         {
-            //NFLogDebug(NF_LOG_SYSTEMLOG, 0, "handle main thread tick task num:{}, use time:{}", listTask.size(),
+            //NFLogDebug(NF_LOG_DEFAULT, 0, "handle main thread tick task num:{}, use time:{}", listTask.size(),
             //           NFTime::Tick() - start);
         }
     }

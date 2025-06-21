@@ -8,7 +8,7 @@
 // -------------------------------------------------------------------------
 
 #include "NFBaseDBObj.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
 
 NFBaseDBObj::NFBaseDBObj()
 {

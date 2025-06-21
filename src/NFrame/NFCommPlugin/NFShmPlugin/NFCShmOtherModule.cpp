@@ -8,11 +8,14 @@
 // -------------------------------------------------------------------------
 
 #include "NFCShmOtherModule.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
 
-NFCShmOtherModule::NFCShmOtherModule(NFIPluginManager *p): NFIDynamicModule(p)
+#include <NFComm/NFCore/NFServerTime.h>
+
+#include "NFShmTransMng.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
+
+NFCShmOtherModule::NFCShmOtherModule(NFIPluginManager* p): NFIDynamicModule(p)
 {
-
 }
 
 NFCShmOtherModule::~NFCShmOtherModule()
@@ -21,24 +24,47 @@ NFCShmOtherModule::~NFCShmOtherModule()
 
 bool NFCShmOtherModule::Awake()
 {
-    Subscribe(NF_ST_NONE, proto_ff::NF_EVENT_SERVER_APP_FINISH_INITED, proto_ff::NF_EVENT_SERVER_TYPE, 0, __FUNCTION__);
+    Subscribe(NF_ST_NONE, NFrame::NF_EVENT_SERVER_APP_FINISH_INITED, NFrame::NF_EVENT_SERVER_TYPE, 0, __FUNCTION__);
     return true;
 }
 
-int NFCShmOtherModule::OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message *pMessage)
+int NFCShmOtherModule::OnExecute(uint32_t serverType, uint32_t eventId, uint32_t srcType, uint64_t srcId, const google::protobuf::Message* pMessage)
 {
-    if (bySrcType == proto_ff::NF_EVENT_SERVER_TYPE)
+    if (srcType == NFrame::NF_EVENT_SERVER_TYPE)
     {
-        if (nEventID == proto_ff::NF_EVENT_SERVER_APP_FINISH_INITED)
+        if (eventId == NFrame::NF_EVENT_SERVER_APP_FINISH_INITED)
         {
             /*
             初始化完毕
             */
-            FindModule<NFISharedMemModule>()->SetShmInitSuccessFlag();
+            FindModule<NFIMemMngModule>()->SetShmInitSuccessFlag();
+
+            if (FindModule<NFIMemMngModule>()->GetSecOffSet() > 0)
+            {
+                NFServerTime::Instance()->SetSecOffSet(FindModule<NFIMemMngModule>()->GetSecOffSet());
+            }
         }
     }
 
     return 0;
+}
+
+bool NFCShmOtherModule::CheckStopServer()
+{
+    if (!NFShmTransMng::Instance()->CheckStopServer())
+    {
+        return false;
+    }
+    return true;
+}
+
+bool NFCShmOtherModule::StopServer()
+{
+    if (!NFShmTransMng::Instance()->StopServer())
+    {
+        return false;
+    }
+    return true;
 }
 
 

@@ -31,7 +31,7 @@ bool NFCProxyClientModule::Awake()
         {
             if (pConfig->ServerType != NF_ST_PROXY_SERVER)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "server config error, server id not match the server type!");
+                NFLogError(NF_LOG_DEFAULT, 0, "server config error, server id not match the server type!");
                 exit(0);
             }
         }
@@ -47,19 +47,19 @@ bool NFCProxyClientModule::Awake()
             */
             m_proxyClientLinkId = extern_unlinkId;
             FindModule<NFIMessageModule>()->SetClientLinkId(NF_ST_PROXY_SERVER, extern_unlinkId);
-            NFLogInfo(NF_LOG_SYSTEMLOG, 0, "proxy client listen success, serverId:{}, ip:{}, port:{}",
+            NFLogInfo(NF_LOG_DEFAULT, 0, "proxy client listen success, serverId:{}, ip:{}, port:{}",
                       pConfig->ServerId, pConfig->ExternalServerIp, pConfig->ExternalServerPort);
         }
         else
         {
-            NFLogInfo(NF_LOG_SYSTEMLOG, 0, "proxy client listen failed!, serverId:{}, ip:{}, port:{}",
+            NFLogInfo(NF_LOG_DEFAULT, 0, "proxy client listen failed!, serverId:{}, ip:{}, port:{}",
                       pConfig->ServerId, pConfig->ExternalServerIp, pConfig->ExternalServerPort);
             return false;
         }
     }
     else
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "I Can't get the Proxy Server config!");
+        NFLogError(NF_LOG_DEFAULT, 0, "I Can't get the Proxy Server config!");
         return false;
     }
 

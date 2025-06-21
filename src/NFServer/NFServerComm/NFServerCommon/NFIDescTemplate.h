@@ -10,11 +10,13 @@
 #pragma once
 
 #include "NFServerComm/NFServerCommon/NFIDescStore.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
+#include "NFComm/NFObjCommon/NFShmMgr.h"
 #include "NFComm/NFShmStl/NFShmHashMap.h"
+#include "NFComm/NFShmStl/NFShmHashMultiMap.h"
+#include "NFComm/NFShmStl/NFShmHashMultiSet.h"
+#include "NFComm/NFShmStl/NFShmHashSet.h"
 #include "NFComm/NFShmStl/NFShmVector.h"
-#include "NFLogicCommon/NFDescStoreTypeDefines.h"
-#include "NFComm/NFShmCore/NFShmObjTemplate.h"
+#include "NFComm/NFObjCommon/NFObjectTemplate.h"
 #include "NFComm/NFCore/NFStringUtility.h"
 
 template<typename className, typename className_s, int classType, int DescNum>
@@ -33,12 +35,6 @@ public:
     
     int CreateInit()
     {
-        m_minId = INVALID_ID;
-        m_astDescIndex.resize(DescNum*2);
-        for(int i = 0; i < (int)m_astDescIndex.size(); i++)
-        {
-            m_astDescIndex[i] = INVALID_ID;
-        }
         return 0;
     }
     
@@ -47,46 +43,42 @@ public:
         return 0;
     }
 public:
-    virtual int GetResNum() const override { return m_astDescMap.size(); }
-    NFShmHashMap<uint64_t, className_s, DescNum> &GetResDesc() { return m_astDescMap; }
-    const NFShmHashMap<uint64_t, className_s, DescNum> &GetResDesc() const { return m_astDescMap; }
-    NFShmHashMap<uint64_t, className_s, DescNum> *GetResDescPtr() { return &m_astDescMap; }
-    const NFShmHashMap<uint64_t, className_s, DescNum> *GetResDescPtr() const { return &m_astDescMap; }
+    virtual int GetResNum() const override { return m_astDescVec.size(); }
+    NFShmVector<className_s, DescNum> &GetResDesc() { return m_astDescVec; }
+    const NFShmVector<className_s, DescNum> &GetResDesc() const { return m_astDescVec; }
+    const className_s* GetDescByIndex(int index) const
+    {
+        CHECK_EXPR(index >= 0 && index < (int)m_astDescVec.size(), NULL, "index:{} size:{}", index, m_astDescVec.size());
+        return &m_astDescVec[index];
+    }
     
+    className_s* GetDescByIndex(int index)
+    {
+        return const_cast<className_s *>((static_cast<const className*>(this))->GetDescByIndex(index));
+    }
+
     const className_s* GetDesc(int64_t id) const
     {
-        int64_t index = id - (int64_t)m_minId;
-        if (index >= 0 && index < (int64_t)m_astDescIndex.size())
-        {
-            auto iter = m_astDescMap.get_iterator(m_astDescIndex[index]);
-            if (iter != m_astDescMap.end())
-            {
-                return &iter->second;
-            }
-        }
-
         auto iter = m_astDescMap.find(id);
         if (iter != m_astDescMap.end())
         {
-            return &iter->second;
+            return GetDescByIndex(iter->second);
         }
-        
         return NULL;
     }
-    
+
     className_s* GetDesc(int64_t id)
     {
         return const_cast<className_s *>((static_cast<const className*>(this))->GetDesc(id));
     }
-    
 public:
-    virtual int Initialize() { return 0; }
+    virtual int Initialize() override { return 0; }
     
-    virtual int Load(NFResDB *pDB) { return 0; }
+    virtual int Load(NFResDb *pDB) override { return 0; }
     
-    virtual int CheckWhenAllDataLoaded() { return 0; }
+    virtual int CheckWhenAllDataLoaded() override { return 0; }
     
-    virtual int Reload(NFResDB *pDB) override
+    virtual int Reload(NFResDb *pDB) override
     {
         this->PrepareReload();
         int iRetCode = this->Load(pDB);
@@ -127,44 +119,23 @@ public:
     
     virtual int CalcUseRatio() override
     {
-        return m_astDescMap.size() * 100 / m_astDescMap.max_size();
+        return m_astDescVec.size() * 100 / m_astDescVec.max_size();
     }
     
     virtual int SaveDescStore() override
     {
-        if (!this->IsLoaded())
-            return 0;
-        for (auto iter = m_astDescMap.begin(); iter != m_astDescMap.end(); iter++)
-        {
-            auto pDesc = &iter->second;
-            if (pDesc->IsUrgentNeedSave())
-            {
-                auto pb = className_s::make_pbmsg();
-                pDesc->write_to_pbmsg(pb);
-                this->SaveDescStoreToDB(&pb);
-                pDesc->ClearUrgent();
-            }
-        }
         return 0;
     }
     
-    int InsertDescStore(const className_s &desc)
-    {
-        auto pb = className_s::make_pbmsg();
-        desc.write_to_pbmsg(pb);
-        this->InsertDescStoreToDB(&pb);
+    virtual int InsertDescStore(const className_s &desc) {
         return 0;
     }
     
-    int DeleteDescStore(const className_s &desc)
+    virtual int DeleteDescStore(const className_s &desc)
     {
-        auto pb = className_s::make_pbmsg();
-        desc.write_to_pbmsg(pb);
-        this->DeleteDescStoreToDB(&pb);
         return 0;
     }
 protected:
-    NFShmHashMap<uint64_t, className_s, DescNum> m_astDescMap;
-    NFShmVector<int, DescNum*2> m_astDescIndex;
-    int64_t m_minId;
+    NFShmVector<className_s, DescNum> m_astDescVec;
+    NFShmHashMap<int64_t, int, DescNum> m_astDescMap;
 };

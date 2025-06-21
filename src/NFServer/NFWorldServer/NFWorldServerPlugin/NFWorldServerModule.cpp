@@ -15,7 +15,7 @@
 #include "NFComm/NFPluginModule/NFIMessageModule.h"
 #include "NFServerComm/NFServerCommon/NFIServerMessageModule.h"
 #include "NFComm/NFPluginModule/NFCheck.h"
-#include "NFServerComm/NFServerMessage/proto_svr_msg.pb.h"
+#include "NFServerComm/NFServerMessage/ServerMsg.pb.h"
 
 NFCWorldServerModule::NFCWorldServerModule(NFIPluginManager *p) : NFIWorldServerModule(p)
 {
@@ -55,22 +55,22 @@ int NFCWorldServerModule::OnHandleServerMessage(uint64_t unLinkId, NFDataPackage
     switch (packet.nMsgId)
     {
         default:
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "msg:({}) not handle", packet.ToString());
+            NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) not handle", packet.ToString());
             break;
     }
 
     if (retCode != 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "msg:({}) handle exist error", packet.ToString());
+        NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) handle exist error", packet.ToString());
     }
     return 0;
 }
 
-int NFCWorldServerModule::OnHandleOtherServerReportFromMasterServer(const proto_ff::ServerInfoReport &xData)
+int NFCWorldServerModule::OnHandleOtherServerReportFromMasterServer(const NFrame::ServerInfoReport &xData)
 {
     switch (xData.server_type())
     {
-        case NF_SERVER_TYPES::NF_ST_LOGIC_SERVER:
+        case NF_SERVER_TYPE::NF_ST_LOGIC_SERVER:
         {
             OnHandleLogicReport(xData);
         }
@@ -81,9 +81,9 @@ int NFCWorldServerModule::OnHandleOtherServerReportFromMasterServer(const proto_
     return 0;
 }
 
-int NFCWorldServerModule::OnHandleLogicReport(const proto_ff::ServerInfoReport& xData)
+int NFCWorldServerModule::OnHandleLogicReport(const NFrame::ServerInfoReport& xData)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     CHECK_EXPR(xData.server_type() == NF_ST_LOGIC_SERVER, -1, "xData.server_type() == NF_ST_LOGIC_SERVER");
 
     NF_SHARE_PTR<NFServerData> pServerData = FindModule<NFIMessageModule>()->GetServerByServerId(NF_ST_WORLD_SERVER, xData.bus_id());
@@ -93,6 +93,6 @@ int NFCWorldServerModule::OnHandleLogicReport(const proto_ff::ServerInfoReport& 
     }
 
     pServerData->mServerInfo = xData;
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }

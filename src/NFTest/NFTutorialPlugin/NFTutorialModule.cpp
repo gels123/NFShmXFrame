@@ -9,6 +9,9 @@
 
 #include "NFTutorialModule.h"
 
+#include <FrameBehavior.pb.h>
+#include <FrameTestComm.pb.h>
+
 #define TUTORIAL_TIMER_ID 10
 
 NFTutorialModule::NFTutorialModule(NFIPluginManager* p): NFIDynamicModule(p)
@@ -22,9 +25,9 @@ NFTutorialModule::~NFTutorialModule()
 
 bool NFTutorialModule::Awake()
 {
-	NFLogError(NF_LOG_SYSTEMLOG, 0, "tutorial awake...........");
+	NFLogError(NF_LOG_DEFAULT, 0, "tutorial awake...........");
 	/**
-	 * ¶¨Ò»¸ö10ÃëÖ´ÐÐÒ»´ÎµÄ¶¨Ê±Æ÷
+	 * ï¿½ï¿½Ò»ï¿½ï¿½10ï¿½ï¿½Ö´ï¿½ï¿½Ò»ï¿½ÎµÄ¶ï¿½Ê±ï¿½ï¿½
 	 */
 	SetTimer(TUTORIAL_TIMER_ID, 10000);
 	return NFIDynamicModule::Awake();
@@ -32,7 +35,8 @@ bool NFTutorialModule::Awake()
 
 bool NFTutorialModule::Init()
 {
-	NFLogError(NF_LOG_SYSTEMLOG, 0, "tutorial init...........");
+	NFLogError(NF_LOG_DEFAULT, 0, "tutorial init...........");
+
 	return NFIDynamicModule::Init();
 }
 
@@ -43,29 +47,52 @@ bool NFTutorialModule::Execute()
 
 bool NFTutorialModule::Shut()
 {
-	NFLogError(NF_LOG_SYSTEMLOG, 0, "tutorial shut...........");
+	NFLogError(NF_LOG_DEFAULT, 0, "tutorial shut...........");
 	return NFIDynamicModule::Shut();
 }
 
 bool NFTutorialModule::Finalize()
 {
-	NFLogError(NF_LOG_SYSTEMLOG, 0, "tutorial finalize...........");
+	NFLogError(NF_LOG_DEFAULT, 0, "tutorial finalize...........");
 	return NFIDynamicModule::Finalize();
 }
 
 bool NFTutorialModule::OnDynamicPlugin()
 {
-	NFLogError(NF_LOG_SYSTEMLOG, 0, "tutorial OnDynamicPlugin...........");
+	NFLogError(NF_LOG_DEFAULT, 0, "tutorial OnDynamicPlugin...........");
 	return NFIDynamicModule::OnDynamicPlugin();
 }
 
 int NFTutorialModule::OnTimer(uint32_t nTimerID)
 {
+	LOG_STATISTIC("%d, %s", 123, "456");
+	NFrameComm::BevLogTest bevLog;
+	bevLog.set_tdteventtime(NF_ADJUST_TIMENOW());
+	bevLog.set_szvgameip(m_pObjPluginManager->GetBusName());
+	bevLog.set_iizoneareaid(m_pObjPluginManager->GetZoneID());
+	bevLog.set_iitimeshift(0);
+	NFrameComm::BevLogTestItem item;
+	item.set_item_id(1);
+	item.set_item_num(100);
+	*bevLog.mutable_item() = item;
+	item.set_item_id(2);
+	item.set_item_num(200);
+	*bevLog.add_item_list() = item;
+	item.set_item_id(3);
+	item.set_item_num(300);
+	*bevLog.add_item_list() = item;
+	item.set_item_id(4);
+	item.set_item_num(400);
+	*bevLog.add_item_list() = item;
+	bevLog.add_id_list(10);
+	bevLog.add_id_list(20);
+	bevLog.add_id_list(30);
+	LOG_BEHAVIOUR(bevLog);
 	if (nTimerID == TUTORIAL_TIMER_ID)
 	{
 		m_idCount++;
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "id count:{}.......", m_idCount);
-		//NFLogError(NF_LOG_SYSTEMLOG, 0, "xxxxxxxxxxxxxxxxxxxxx");
+		NFLogError(NF_LOG_DEFAULT, 0, "id count:{}.......", m_idCount);
+		//NFLogError(NF_LOG_DEFAULT, 0, "xxxxxxxxxxxxxxxxxxxxx");
 	}
 	return 0;
 }

@@ -3,8 +3,9 @@
 //
 
 #include "NFServerCommonDefine.h"
+#include "NFComm/NFPluginModule/NFSystemInfo.h"
 
-void NFServerCommon::WriteServerInfo(proto_ff::ServerInfoReport* pData, NFServerConfig* pConfig)
+void NFServerCommon::WriteServerInfo(NFrame::ServerInfoReport* pData, NFServerConfig* pConfig)
 {
     pData->set_bus_id(pConfig->BusId);
     pData->set_server_id(pConfig->ServerId);
@@ -25,7 +26,7 @@ void NFServerCommon::WriteServerInfo(proto_ff::ServerInfoReport* pData, NFServer
     }
 }
 
-void NFServerCommon::WriteServerInfo(proto_ff::ServerInfoReport* pData, const NFSystemInfo& systemInfo)
+void NFServerCommon::WriteServerInfo(NFrame::ServerInfoReport* pData, const NFSystemInfo& systemInfo)
 {
     pData->set_system_info(systemInfo.GetOsInfo().mOsDescription);
     pData->set_total_mem(systemInfo.GetMemInfo().mTotalMem);

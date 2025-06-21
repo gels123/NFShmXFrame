@@ -9,98 +9,79 @@
 
 #pragma once
 
-#include "NFComm/NFShmCore/NFShmObj.h"
-#include "NFComm/NFShmCore/NFShmNodeList.h"
-#include "NFComm/NFShmCore/NFShmPtr.h"
-#include "NFComm/NFShmCore/NFRawShmObj.h"
+#include "NFComm/NFObjCommon/NFObject.h"
+#include "NFComm/NFObjCommon/NFNodeList.h"
+#include "NFComm/NFObjCommon/NFObjPtr.h"
+#include "NFComm/NFObjCommon/NFRawObject.h"
 
 #define NFSHM_INFINITY_CALL                0xffffffff    // 调用无限次
-enum NFTimerRetType {
-    eTimerTypeSuccess = 0, // 执行成功
-    eTimerHandlerNull = 1, // 回调为空
-    eTimerNotTrigger = 2, // 没有触发
+
+enum NFTimerRetType
+{
+    E_TIMER_TYPE_SUCCESS = 0, // 执行成功
+    E_TIMER_HANDLER_NULL = 1, // 回调为空
+    E_TIMER_NOT_TRIGGER = 2, // 没有触发
 };
 
-class NFShmTimer : public NFShmObjTemplate<NFShmTimer, EOT_TYPE_TIMER_OBJ, NFShmObj>, public NFListNodeObjWithGlobalID<NFShmTimer, EOT_TYPE_TIMER_OBJ>
+class NFShmTimer final : public NFObjectTemplate<NFShmTimer, EOT_TYPE_TIMER_OBJ, NFObject>, public NFListNodeObjWithGlobalId<NFShmTimer>
 {
 public:
     enum NFShmTimerType
     {
-        LoopTimer,
-        OnceTimer,
-        MonthLoopTimer,
+        LOOP_TIMER,
+        ONCE_TIMER,
+        MONTH_LOOP_TIMER,
     };
 
     NFShmTimer();
 
-    virtual ~NFShmTimer();
+    ~NFShmTimer() override;
 
     int CreateInit();
 
     int ResumeInit();
 
-    NFShmObj *GetTimerShmObj()
-    {
-        return m_shmObj.GetPoint();
-    }
+    NFObject* GetTimerShmObj();
 
-    int GetTimerShmObjId()
-    {
-        return m_shmObjId;
-    }
+    int GetTimerShmObjId() const;
 
-    void SetTimerShmObj(NFShmObj *pObj)
-    {
-        m_shmObj = pObj;
-        m_shmObjId = pObj->GetGlobalId();
-    }
+    void SetTimerShmObj(const NFObject* pObj);
 
-    void SetTimerRawShmObj(NFRawShmObj *pObj)
-    {
-        m_rawShmObj = pObj;
-    }
+    void SetTimerRawShmObj(const NFRawObject* pObj);
 
-    NFRawShmObj* GetTimerRawShmObj()
-    {
-        return m_rawShmObj;
-    }
+    NFRawObject* GetTimerRawShmObj();
 
-    void PrintfDebug()
-    {
-//	 cout << "ID:" << m_iGlobalID << " Type:" << m_type << " begin:" << m_beginTime << " next:" << m_nextRun << " interval:" << m_interval << " round:" << m_round <<endl;
-        /*LOGSVR_DEBUG("print ID:" << GetObjectID() << " Type:" << m_type << " begin:" << m_beginTime << " next:" << m_nextRun << " interval:" <<
-    		m_interval << " round:" << m_round<<" slotindex:"<<m_slotIndex); */
-    }
+    void PrintfDebug() const;
 
-    NFTimerRetType HandleTimer(int timeId, int callcount);
+    NFTimerRetType HandleTimer(int timeId, int callCount);
 
     bool IsTimeOut(int64_t tick);
 
     NFTimerRetType OnTick(int64_t tick);
 
-    bool IsDelete();
+    bool IsDelete() const;
 
     void SetDelete();
 
-    bool IsWaitDelete();
+    bool IsWaitDelete() const;
 
     void SetWaitDelete();
 
-    NFShmTimerType GetType() { return m_type; }
+    NFShmTimerType GetType() const { return m_type; }
 
-    int64_t GetBeginTime() { return m_beginTime; }
+    int64_t GetBeginTime() const { return m_beginTime; }
 
-    int64_t GetInterval() { return m_interval; }
+    int64_t GetInterval() const { return m_interval; }
 
-    int64_t GetNextRun() { return m_nextRun; }
+    int64_t GetNextRun() const { return m_nextRun; }
 
-    int32_t GetCallCount() { return m_callCount; }
+    int32_t GetCallCount() const { return m_callCount; }
 
-    int GetSlotIndex() { return m_slotIndex; }
+    int GetSlotIndex() const { return m_slotIndex; }
 
-    int GetListIndex() { return m_listIndex; }
+    int GetListIndex() const { return m_listIndex; }
 
-    std::string GetDetailStructMsg();
+    std::string GetDetailStructMsg() const;
 
     void SetType(NFShmTimerType type) { m_type = type; }
 
@@ -110,7 +91,7 @@ public:
 
     void SetNextRun() { m_nextRun += m_interval; }
 
-    void SetNextRun(int64_t nexttime) { m_nextRun = nexttime; }
+    void SetNextRun(int64_t nextTime) { m_nextRun = nextTime; }
 
     void SetBeginTime(int64_t time) { m_beginTime = time; }
 
@@ -121,23 +102,22 @@ public:
     void SetListIndex(int index) { m_listIndex = index; }
 
 private:
-
     void DeleteFunc();
 
 private:
-    NFShmPtr<NFShmObj> m_shmObj;
-    NFRawShmPtr<NFRawShmObj> m_rawShmObj;
+    NFObjPtr<NFObject> m_shmObj;
+    NFRawShmPtr<NFRawObject> m_rawShmObj;
     int m_shmObjId;
     NFShmTimerType m_type;
 
-    int64_t m_beginTime;        // 开始的时间
-    int64_t m_nextRun;            // 下一次执行的时间
-    int64_t m_interval;        // 间隔时间
+    int64_t m_beginTime; // 开始的时间
+    int64_t m_nextRun; // 下一次执行的时间
+    int64_t m_interval; // 间隔时间
     int32_t m_callCount;
     int32_t m_curCallCount;
-    bool m_delFlag;        // 是否删除
+    bool m_delFlag; // 是否删除
     int m_round;
-    int m_slotIndex;        // 槽id
-    bool m_waitDel;            // 等待删除标记
-    int m_listIndex;        // 绑定的list的序号，当为-1时，代表已经脱离绑定
+    int m_slotIndex; // 槽id
+    bool m_waitDel; // 等待删除标记
+    int m_listIndex; // 绑定的list的序号，当为-1时，代表已经脱离绑定
 };

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package NFServer;
+
+import "nanopb.proto";
+
+message PacketMsg {
+    option (nanopb_msgopt).is_std_stl = true;
+    uint32 cmd = 1;
+    uint32 serverType = 2;
+    uint32 upper_limit = 3;
+    uint32 min_interval = 4;
+    uint32 control_time = 5;
+}
+
+message ServerPacketMsg {
+    option (nanopb_msgopt).is_std_stl = true;
+    repeated PacketMsg PacketMsg_list = 1;
+}

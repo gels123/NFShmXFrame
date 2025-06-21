@@ -9,10 +9,10 @@
 #pragma once
 #include <stdint.h>
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFObject.h"
+#include "NFBaseObj.h"
 
 class NFIPluginManager;
-struct NFTimerObjBase
+class NFTimerObjBase
 {
 public:
 	NFTimerObjBase():m_pTimerInfoPtr(nullptr), m_pFixTimerInfoPtr(nullptr)
@@ -51,7 +51,7 @@ private:
 	void* m_pFixTimerInfoPtr;
 };
 
-struct NFTimerObj : public NFTimerObjBase, public NFObject
+struct NFTimerObj : public NFTimerObjBase, public NFBaseObj
 {
 public:
     NFTimerObj(NFIPluginManager* pPluginManager);

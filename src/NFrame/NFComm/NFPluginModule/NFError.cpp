@@ -8,14 +8,14 @@
 // -------------------------------------------------------------------------
 
 #include "NFError.h"
-#include "proto_kernel.pb.h"
+#include "FrameEnum.pb.h"
 #include "NFComm/NFCore/NFCommon.h"
 
 std::string NFError::GetErrorStr(int32_t retCode)
 {
-    if (proto_ff::Proto_Kernel_ErrorCode_IsValid(retCode))
+    if (NFrame::FrameErrorCode_IsValid(retCode))
     {
-        return proto_ff::Proto_Kernel_ErrorCode_Name((proto_ff::Proto_Kernel_ErrorCode)retCode);
+        return NFrame::FrameErrorCode_Name(static_cast<NFrame::FrameErrorCode>(retCode));
     }
     else
     {

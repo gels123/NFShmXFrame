@@ -24,6 +24,10 @@ uint32_t NFServerIDUtil::GetZoneID(uint32_t busId)
     return (((uint32_t)(pszSvrID[ZONE_ID_POS_PREFIX] & 0x0F)) << 8) + pszSvrID[ZONE_ID_POS];
 }
 
+int NFServerIDUtil::GetZoneIDFromZoneAreaID(int iZoneAreaID)
+{
+    return iZoneAreaID % 10000;
+}
 
 uint32_t NFServerIDUtil::GetServerType(uint32_t busId)
 {

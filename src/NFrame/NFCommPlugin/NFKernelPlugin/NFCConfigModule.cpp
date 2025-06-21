@@ -13,8 +13,8 @@
 #include "NFComm/NFCore/NFStringUtility.h"
 #include "NFComm/NFCore/NFServerIDUtil.h"
 #include "NFComm/NFPluginModule/NFIMessageModule.h"
-#include "NFComm/NFKernelMessage/proto_common.pb.h"
-#include "NFComm/NFKernelMessage/proto_common_s.h"
+#include "NFComm/NFKernelMessage/FrameComm.pb.h"
+#include "NFComm/NFKernelMessage/FrameComm.nanopb.h"
 #include "NFComm/NFPluginModule/NFCheck.h"
 #include "NFComm/NFPluginModule/NFProtobufCommon.h"
 
@@ -33,7 +33,6 @@ NFCConfigModule::NFCConfigModule(NFIPluginManager *p) : NFIConfigModule(p)
 
 NFCConfigModule::~NFCConfigModule()
 {
-
 }
 
 bool NFCConfigModule::LoadConfig()
@@ -47,7 +46,7 @@ bool NFCConfigModule::LoadConfig()
     {
         if (TryLoadScriptFile(*it) == false)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "Load {} Failed!", *it);
+            NFLogError(NF_LOG_DEFAULT, 0, "Load {} Failed!", *it);
             assert(0);
         }
     }
@@ -63,19 +62,16 @@ bool NFCConfigModule::LoadLogConfig()
 {
     mLogConfig.Clear();
 
-    GetValue(DEFINE_LUA_STRING_LOG_LEVEL, mLogConfig.mLogLevel);
-    GetValue(DEFINE_LUA_STRING_LOG_FLUSH_LEVEL, mLogConfig.mLogFlushLevel);
-
     NFLuaRef logInfoRef = GetGlobal(DEFINE_LUA_STRING_LOG_INFO);
     if (!logInfoRef.isValid())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "log.lua can't find ({})", DEFINE_LUA_STRING_LOG_INFO);
+        NFLogError(NF_LOG_DEFAULT, 0, "log.lua can't find ({})", DEFINE_LUA_STRING_LOG_INFO);
         assert(0);
     }
 
     if (!logInfoRef.isTable())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "{} is not table in the log.lua", DEFINE_LUA_STRING_LOG_INFO);
+        NFLogError(NF_LOG_DEFAULT, 0, "{} is not table in the log.lua", DEFINE_LUA_STRING_LOG_INFO);
         assert(0);
     }
 
@@ -85,7 +81,7 @@ bool NFCConfigModule::LoadLogConfig()
         NFLuaRef logRef = logInfoRef[i];
         if (!logRef.isTable())
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "logInfo some wrong in the log.lua");
+            NFLogError(NF_LOG_DEFAULT, 0, "logInfo some wrong in the log.lua");
             assert(0);
         }
 
@@ -96,34 +92,10 @@ bool NFCConfigModule::LoadLogConfig()
         GetLuaTableValue(logRef, "level", lineConfig.mLevel);
         GetLuaTableValue(logRef, "logname", lineConfig.mLogName);
 
-        NFLuaRef guidRef;
-        GetLuaTableValue(logRef, "guid", guidRef);
-        if (guidRef.isTable())
-        {
-            for (int j = 1; j <= guidRef.len(); j++)
-            {
-                NFLuaRef guidLuaRef = guidRef[j];
-                if (guidLuaRef.isValid())
-                {
-                    uint64_t guid = guidLuaRef.toValue<uint64_t>();
-                    if (guid != 0)
-                    {
-                        lineConfig.mVecGuid.push_back(guid);
-                    }
-                }
-            }
-        }
-        else
-        {
-            uint64_t guid = guidRef.toValue<uint64_t>();
-            if (guid != 0)
-            {
-                lineConfig.mVecGuid.push_back(guid);
-            }
-        }
-
         mLogConfig.mLineConfigList.push_back(lineConfig);
     }
+
+    FindModule<NFILogModule>()->SetDefaultLogConfig();
 
     return true;
 }
@@ -133,13 +105,13 @@ bool NFCConfigModule::LoadPluginConfig()
     NFLuaRef pluginRef = GetGlobal(DEFINE_LUA_STRING_LOAD_PLUGIN);
     if (!pluginRef.isValid())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Plugin.lua can't find ({})", DEFINE_LUA_STRING_LOAD_PLUGIN);
+        NFLogError(NF_LOG_DEFAULT, 0, "Plugin.lua can't find ({})", DEFINE_LUA_STRING_LOAD_PLUGIN);
         assert(0);
     }
 
     if (!pluginRef.isTable())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "{} is not table in the plugin.lua", DEFINE_LUA_STRING_LOAD_PLUGIN);
+        NFLogError(NF_LOG_DEFAULT, 0, "{} is not table in the plugin.lua", DEFINE_LUA_STRING_LOAD_PLUGIN);
         assert(0);
     }
 
@@ -148,33 +120,26 @@ bool NFCConfigModule::LoadPluginConfig()
         std::string serverPluginName = it.key<std::string>();
         NFLuaRef serverPluginRef = it.value();
 
-        proto_ff::pbPluginConfig pbPluginConfig;
+        NFrame::pbPluginConfig pbPluginConfig;
         NFProtobufCommon::LuaToProtoMessage(serverPluginRef, &pbPluginConfig);
-        //NFLogTrace(NF_LOG_SYSTEMLOG, 0, "load server:{} plugin config:\n{}", serverPluginName, pbPluginConfig.DebugString());
+        NFLogDebug(NF_LOG_DEFAULT, 0, "load server:{} plugin config:\n{}", serverPluginName, pbPluginConfig.DebugString());
 
         if (pbPluginConfig.frameplugins_size() <= 0 && pbPluginConfig.serverplugins_size() <= 0 && pbPluginConfig.workplugins_size() <= 0)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "{} can't find int server:{} int the table {}  in the plugin.lua",
+            NFLogError(NF_LOG_DEFAULT, 0, "{} can't find int server:{} int the table {}  in the plugin.lua",
                        DEFINE_LUA_STRING_SERVER_PLUGINS, serverPluginName, DEFINE_LUA_STRING_LOAD_PLUGIN);
             assert(0);
         }
 
-        if (!pbPluginConfig.has_servertype())
+        if (!NFrame::NF_SERVER_TYPE_IsValid(pbPluginConfig.servertype()))
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "{} can't find int server:{} int the table {}  in the plugin.lua",
-                       DEFINE_LUA_STRING_SERVER_PLUGINS, serverPluginName, DEFINE_LUA_STRING_LOAD_PLUGIN);
+            NFLogError(NF_LOG_DEFAULT, 0, "the server type of server:{} is not right:{} int the table {}  in the plugin.lua",
+                       serverPluginName, pbPluginConfig.servertype(), DEFINE_LUA_STRING_LOAD_PLUGIN);
             assert(0);
         }
 
         NFPluginConfig *pConfig = NF_NEW NFPluginConfig();
-        pConfig->read_from_pbmsg(pbPluginConfig);
-
-        if (pConfig->ServerType >= NF_ST_MAX)
-        {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "{} can't find int server:{} int the table {}  in the plugin.lua",
-                       DEFINE_LUA_STRING_SERVER_PLUGINS, serverPluginName, DEFINE_LUA_STRING_LOAD_PLUGIN);
-            assert(0);
-        }
+        CHECK_EXPR(pConfig->FromPb(pbPluginConfig), false, "FromPb Failed");
         mPluginConfig.emplace(serverPluginName, pConfig);
     }
 
@@ -194,7 +159,7 @@ bool NFCConfigModule::LoadServerConfig()
         {
             for (int i = 0; i < (int) pAllServer->ServerList.size(); i++)
             {
-                proto_ff_s::pbAllServerConfig_s &serverInfo = pAllServer->ServerList[i];
+                pbAllServerConfig &serverInfo = pAllServer->ServerList[i];
                 NFLuaRef serverRef = GetGlobal(serverInfo.Server);
                 if (serverRef.isValid() && serverRef.isTable())
                 {
@@ -232,37 +197,33 @@ bool NFCConfigModule::LoadServerConfig()
             std::string serverName = iter.key<std::string>();
             NFLuaRef serverConfigRef = iter.value();
 
-            proto_ff::pbNFServerConfig tmpConfig;
+            NFrame::pbNFServerConfig tmpConfig;
             NFProtobufCommon::LuaToProtoMessage(serverConfigRef, &tmpConfig);
 
-            proto_ff::pbNFServerConfig *pPbConfig = &tmpConfig;
-            //NFLogTrace(NF_LOG_SYSTEMLOG, 0, "load server:{} config:\n{}", serverName, pPbConfig->DebugString());
+            NFrame::pbNFServerConfig *pPbConfig = &tmpConfig;
+            //NFLogTrace(NF_LOG_DEFAULT, 0, "load server:{} config:\n{}", serverName, pPbConfig->DebugString());
 
-            if (!pPbConfig->has_serverid())
+            if (pPbConfig->serverid().empty())
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "must be config the ServerId........");
+                NFLogError(NF_LOG_DEFAULT, 0, "must be config the ServerId........");
                 assert(0);
             }
 
             pPbConfig->set_busid(NFServerIDUtil::GetBusID(pPbConfig->serverid()));
             if (pPbConfig->busid() <= 0)
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "serverid can't BusAddrAton to busid:{}", pPbConfig->serverid());
+                NFLogError(NF_LOG_DEFAULT, 0, "serverid can't BusAddrAton to busid:{}", pPbConfig->serverid());
                 assert(0);
             }
-
-            if (!pPbConfig->has_servertype())
+            if (!NFrame::NF_SERVER_TYPE_IsValid(pPbConfig->servertype()))
             {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "must be config the ServerType........");
+                NFLogError(NF_LOG_DEFAULT, 0, "must be config the ServerType........");
                 assert(0);
             }
-
-            NF_ASSERT(pPbConfig->servertype() < NF_ST_MAX);
-            NF_ASSERT(GetServerName((NF_SERVER_TYPES) pPbConfig->servertype()) == serverTypeName);
 
             if (pPbConfig->buslength() == 0)
             {
-                pPbConfig->set_buslength(20971520);  //20M
+                pPbConfig->set_buslength(20971520); //20M
             }
 
             if (pPbConfig->idlesleepus() == 0)
@@ -302,9 +263,15 @@ bool NFCConfigModule::LoadServerConfig()
                 pPbConfig->set_url(url);
             }
 
-            //NFLogTrace(NF_LOG_SYSTEMLOG, 0, "load config:{}", pPbConfig->DebugString());
+            //NFLogTrace(NF_LOG_DEFAULT, 0, "load config:{}", pPbConfig->DebugString());
             NFServerConfig *pConfig = NF_NEW NFServerConfig();
-            pConfig->read_from_pbmsg(*pPbConfig);
+            pConfig->FromPb(*pPbConfig);
+            if (serverConfigRef.has(DEFINE_LUA_STRING_EXTERNAL_DATA))
+            {
+                pConfig->m_externData = serverConfigRef[DEFINE_LUA_STRING_EXTERNAL_DATA];
+            }
+            pConfig->Parse();
+
 
             if (m_pObjPluginManager->IsLoadAllServer())
             {
@@ -345,11 +312,11 @@ bool NFCConfigModule::LoadServerConfig()
             bool flag = true;
             for (int i = 0; i < (int) pAllServer->ServerList.size(); i++)
             {
-                proto_ff_s::pbAllServerConfig_s &serverInfo = pAllServer->ServerList[i];
+                pbAllServerConfig &serverInfo = pAllServer->ServerList[i];
                 if (mServerConfig[serverInfo.ServerType] == NULL)
                 {
                     flag = false;
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "the server:{},{} match error, can't find the config", serverInfo.Server, serverInfo.ID);
+                    NFLogError(NF_LOG_DEFAULT, 0, "the server:{},{} match error, can't find the config", serverInfo.Server, serverInfo.ID);
                 }
                 else
                 {
@@ -363,7 +330,7 @@ bool NFCConfigModule::LoadServerConfig()
             if (pAllServer->ServerList.size() > 0)
             {
                 CHECK_EXPR_ASSERT(m_appConfig != NULL, false, "m_appConfig is NULL, maybe ServerID:{} error, not match the config",
-                   m_pObjPluginManager->GetAppName());
+                                  m_pObjPluginManager->GetAppName());
             }
         }
     }
@@ -436,12 +403,12 @@ NFPluginConfig *NFCConfigModule::GetPluginConfig(const std::string &pluginName)
     return nullptr;
 }
 
-NFServerConfig *NFCConfigModule::GetServerConfig(NF_SERVER_TYPES eServerType)
+NFServerConfig *NFCConfigModule::GetServerConfig(NF_SERVER_TYPE eServerType)
 {
     return mServerConfig[eServerType];
 }
 
-NFServerConfig *NFCConfigModule::GetAppConfig(NF_SERVER_TYPES eServerType)
+NFServerConfig *NFCConfigModule::GetAppConfig(NF_SERVER_TYPE eServerType)
 {
     if (m_pObjPluginManager->IsLoadAllServer())
     {
@@ -449,12 +416,9 @@ NFServerConfig *NFCConfigModule::GetAppConfig(NF_SERVER_TYPES eServerType)
         {
             for (int i = 0; i < (int) mServerConfig.size(); i++)
             {
-                if (mServerConfig[i] && mServerConfig[i]->ServerType != NF_ST_MASTER_SERVER
-                    && mServerConfig[i]->ServerType != NF_ST_ROUTE_AGENT_SERVER && mServerConfig[i]->ServerType != NF_ST_ROUTE_SERVER
-                    && mServerConfig[i]->ServerType != NF_ST_PROXY_SERVER && mServerConfig[i]->ServerType != NF_ST_PROXY_AGENT_SERVER
-                    && mServerConfig[i]->ServerType != NF_ST_STORE_SERVER && mServerConfig[i]->ServerType != NF_ST_MONITOR_SERVER)
+                if (mServerConfig[i] && IsWorkServer(NF_SERVER_TYPE(mServerConfig[i]->ServerType)))
                 {
-                    const NFServerData *pServerData = FindModule<NFIMessageModule>()->GetRouteData((NF_SERVER_TYPES) mServerConfig[i]->ServerType);
+                    const NFServerData *pServerData = FindModule<NFIMessageModule>()->GetRouteData((NF_SERVER_TYPE) mServerConfig[i]->ServerType);
                     if (pServerData && pServerData->mUnlinkId > 0)
                     {
                         return mServerConfig[i];
@@ -476,7 +440,7 @@ NFServerConfig *NFCConfigModule::GetAppConfig(NF_SERVER_TYPES eServerType)
     return NULL;
 }
 
-std::string NFCConfigModule::GetDefaultDBName(NF_SERVER_TYPES nfServerTypes)
+std::string NFCConfigModule::GetDefaultDBName(NF_SERVER_TYPE nfServerTypes)
 {
     NFServerConfig *pConfig = GetAppConfig(nfServerTypes);
     if (pConfig)
@@ -486,7 +450,7 @@ std::string NFCConfigModule::GetDefaultDBName(NF_SERVER_TYPES nfServerTypes)
     return std::string();
 }
 
-std::string NFCConfigModule::GetCrossDBName(NF_SERVER_TYPES nfServerTypes)
+std::string NFCConfigModule::GetCrossDBName(NF_SERVER_TYPE nfServerTypes)
 {
     NFServerConfig *pConfig = GetAppConfig(nfServerTypes);
     if (pConfig)
@@ -496,7 +460,7 @@ std::string NFCConfigModule::GetCrossDBName(NF_SERVER_TYPES nfServerTypes)
     return std::string();
 }
 
-std::string NFCConfigModule::GetRedisIp(NF_SERVER_TYPES nfServerTypes)
+std::string NFCConfigModule::GetRedisIp(NF_SERVER_TYPE nfServerTypes)
 {
     NFServerConfig *pConfig = GetAppConfig(nfServerTypes);
     if (pConfig)
@@ -506,7 +470,7 @@ std::string NFCConfigModule::GetRedisIp(NF_SERVER_TYPES nfServerTypes)
     return std::string();
 }
 
-uint32_t NFCConfigModule::GetRedisPort(NF_SERVER_TYPES nfServerTypes)
+uint32_t NFCConfigModule::GetRedisPort(NF_SERVER_TYPE nfServerTypes)
 {
     NFServerConfig *pConfig = GetAppConfig(nfServerTypes);
     if (pConfig)
@@ -516,7 +480,7 @@ uint32_t NFCConfigModule::GetRedisPort(NF_SERVER_TYPES nfServerTypes)
     return 0;
 }
 
-std::string NFCConfigModule::GetRedisPass(NF_SERVER_TYPES nfServerTypes)
+std::string NFCConfigModule::GetRedisPass(NF_SERVER_TYPE nfServerTypes)
 {
     NFServerConfig *pConfig = GetAppConfig(nfServerTypes);
     if (pConfig)
@@ -526,12 +490,12 @@ std::string NFCConfigModule::GetRedisPass(NF_SERVER_TYPES nfServerTypes)
     return std::string();
 }
 
-proto_ff::ServerInfoReport NFCConfigModule::GetDefaultMasterInfo(NF_SERVER_TYPES eServerType)
+NFrame::ServerInfoReport NFCConfigModule::GetDefaultMasterInfo(NF_SERVER_TYPE eServerType)
 {
-    NFServerConfig* pConfig = GetAppConfig(eServerType);
+    NFServerConfig *pConfig = GetAppConfig(eServerType);
     if (pConfig)
     {
-        proto_ff::ServerInfoReport xData;
+        NFrame::ServerInfoReport xData;
         xData.set_server_type(NF_ST_MASTER_SERVER);
         xData.set_bus_id(NFServerIDUtil::GetBusID("1.1.1.1"));
         xData.set_server_id("1.1.1.1");
@@ -543,8 +507,9 @@ proto_ff::ServerInfoReport NFCConfigModule::GetDefaultMasterInfo(NF_SERVER_TYPES
         xData.set_server_port(pConfig->RouteConfig.MasterPort);
         return xData;
     }
-    else {
-        proto_ff::ServerInfoReport xData;
+    else
+    {
+        NFrame::ServerInfoReport xData;
         xData.set_server_type(NF_ST_MASTER_SERVER);
         xData.set_bus_id(NFServerIDUtil::GetBusID("1.1.1.1"));
         xData.set_server_id("1.1.1.1");
@@ -562,7 +527,7 @@ bool NFCConfigModule::CheckConfig()
     if (!m_pObjPluginManager->IsLoadAllServer())
     {
         NF_ASSERT(m_appConfig);
-        NF_ASSERT(GetServerName((NF_SERVER_TYPES) m_appConfig->ServerType) == m_pObjPluginManager->GetAppName());
+        //NF_ASSERT(GetServerName((NF_SERVER_TYPE) m_appConfig->ServerType) == m_pObjPluginManager->GetAppName());
     }
     return true;
 }

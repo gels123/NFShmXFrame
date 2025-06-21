@@ -10,12 +10,12 @@
 
 #include "NFComm/NFCore/NFPlatform.h"
 #include "google/protobuf/message.h"
-#include "NFComm/NFCore/NFFileUtility.h"
 #include "NFIHttpHandle.h"
 #include "NFComm/NFPluginModule/NFILuaLoader.h"
 #include "NFComm/NFCore/NFSingleton.hpp"
 #include "google/protobuf/dynamic_message.h"
-#include "NFComm/NFCore/NFMutex.h"
+#include "NFComm/NFPluginModule/NFJson2PB/NFPbToJson.h"
+#include "NFComm/NFKernelMessage/nanopb.pb.h"
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -57,17 +57,13 @@ struct DBTableColInfo
 class _NFExport NFProtobufCommon : public NFSingleton<NFProtobufCommon>
 {
 public:
-    static std::string
-    GetFieldsString(const google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc);
+    static std::string GetFieldsString(const google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc);
 
-    static std::string GetRepeatedFieldsString(const google::protobuf::Message &message,
-                                               const google::protobuf::FieldDescriptor *pFieldDesc, int index);
+    static std::string GetRepeatedFieldsString(const google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc, int index);
 
-    static void SetFieldsString(google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc,
-                                const std::string &strValue);
+    static bool SetFieldsString(google::protobuf::Message& message, const google::protobuf::FieldDescriptor* pFieldDesc, const std::string& strValue);
 
-    static void AddFieldsString(google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc,
-                                const std::string &strValue);
+    static bool AddFieldsString(google::protobuf::Message& message, const google::protobuf::FieldDescriptor* pFieldDesc, const std::string& strValue);
 
     /*
     ** 通过在Protobuf里的message名字创建出一个默认的此类的变量
@@ -79,29 +75,25 @@ public:
     */
     static ::google::protobuf::Message *CreateMessageByName(const std::string &full_name);
 
-    static void
-    GetMapFieldsFromMessage(const google::protobuf::Message &message, std::map<std::string, std::string> &mapFileds);
+    static void GetDBMapFieldsFromMessage(const google::protobuf::Message &message, std::map<std::string, std::string> &mapFields, const std::string& lastFieldName = "");
 
-    static void
-    GetFieldsFromDesc(const google::protobuf::Descriptor *pDesc, std::vector<std::string> &vecFields);
+    static void GetDBFieldsFromDesc(const google::protobuf::Descriptor *pDesc, std::vector<std::string> &vecFields, const std::string& lastFieldName = "");
 
     static int GetPrivateFieldsFromMessage(const google::protobuf::Message &message, std::string& field, std::string& fieldValue);
 
     static int GetPrivateKeyFromMessage(const google::protobuf::Descriptor *pDesc, std::string& field);
 
-    static void
-    GetMapFieldsFromMessage(const google::protobuf::Message &message, std::map<std::string, std::string> &keyMap,
-                            std::map<std::string, std::string> &kevValueMap);
+    static int GetMacroTypeFromMessage(const google::protobuf::Descriptor *pDesc, const std::string& base, std::unordered_map<std::string, std::string>& fieldMap);
 
-    static void GetFieldsFromMessage(const google::protobuf::Message &message, std::vector<std::pair<std::string, std::string>> &kevValueList);
+    static void GetMapDBFieldsFromMessage(const google::protobuf::Message &message, std::map<std::string, std::string> &keyMap, std::map<std::string, std::string> &kevValueMap, const std::string& lastFieldName = "");
 
-    static void GetDBMessageFromMapFields(const std::map<std::string, std::string> &result,
-                                          google::protobuf::Message *pMessageObject);
+    static void GetDBFieldsFromMessage(const google::protobuf::Message &message, std::vector<std::pair<std::string, std::string>> &kevValueList, const std::string& lastFieldName = "");
 
-    static void GetMessageFromMapFields(const std::unordered_map<std::string, std::string> &result,
-                                          google::protobuf::Message *pMessageObject);
+    static void GetDBMessageFromMapFields(const std::map<std::string, std::string> &result, google::protobuf::Message *pMessageObject, const std::string& lastFieldName = "", bool* pbAllEmpty = NULL);
 
-    static int GetMapFieldsStringFromMessage(const google::protobuf::Message &message, std::string &msg);
+    static int GetMessageFromMapFields(const std::unordered_map<std::string, std::string>& result, google::protobuf::Message* pMessageObject, const std::string& lastFieldName = "", bool* pbAllEmpty = NULL);
+
+    static int MessageToLogStr(std::string &msg, const google::protobuf::Message &message, const std::string& split = "|", const std::string& repeated_split = ";", const std::string& repeated_field_split = ",", bool repeated = false);
 
     static bool ProtoMessageToXml(const google::protobuf::Message &message,
                                   std::string *json);
@@ -113,6 +105,10 @@ public:
                                    std::string *json,
                                    std::string *error = NULL);
 
+    static bool ProtoMessageToJson(const NFJson2PB::Pb2JsonOptions& options, const google::protobuf::Message &message,
+                                   std::string *json,
+                                   std::string *error = NULL);
+
     static bool ProtoMessageToJson(const google::protobuf::Message &message,
                                    google::protobuf::io::ZeroCopyOutputStream *json,
                                    std::string *error = NULL);
@@ -120,6 +116,12 @@ public:
     static bool JsonToProtoMessage(const std::string &json,
                                    google::protobuf::Message *message,
                                    std::string *error = NULL);
+
+    static bool CheckJsonToProtoMessage(const std::string& json_string, google::protobuf::Message* message, bool repeated);
+
+    static bool CheckJsonValueToProtoField(const std::string& json_string, const std::string& fieldName, google::protobuf::FieldDescriptor::CppType fieldType, bool isRepeated);
+
+    static bool JsonToProtoField(const std::string& json, google::protobuf::Message* pMessage, const google::protobuf::FieldDescriptor* pFiledDesc);
 
     static bool JsonToProtoMessage(google::protobuf::io::ZeroCopyInputStream *stream,
                                    google::protobuf::Message *message,
@@ -138,7 +140,7 @@ public:
      * @param IndexMap
      * @param mapFileds
      */
-    static int GetDbFieldsInfoFromMessage(const google::protobuf::Descriptor *pDesc, std::map<std::string, DBTableColInfo> &primaryKeyMap, std::map<std::string, DBTableColInfo> &mapFileds);
+    static int GetDbFieldsInfoFromMessage(const google::protobuf::Descriptor *pDesc, std::map<std::string, DBTableColInfo> &primaryKeyMap, std::vector<std::pair<std::string, DBTableColInfo>> &mapFileds, const std::string& lastFieldName = "", const std::string& lastComment = "");
 
     static uint32_t GetPBDataTypeFromDBDataType(const std::string& dbDataType, const std::string& strColumnType);
     static std::string GetDBDataTypeFromPBDataType(uint32_t pbDataType, uint32_t textMax);
@@ -149,6 +151,10 @@ public:
     static std::string GetProtoPackageName(const std::string& message);
 
     static std::string GetDescStoreClsName(const google::protobuf::Message& message);
+public:
+    static int GetPrimarykeyFromMessage(const google::protobuf::Message* pMessage, std::string &result);
+
+    static int SetPrimarykeyFromMessage(google::protobuf::Message* pMessage, const std::string& data);
 public:
     ////////////////////////////////////////store pb//////////////////////////////////////////////////////////////////
 
@@ -177,10 +183,33 @@ public:
     */
     ::google::protobuf::Message *CreateDynamicMessageByName(const std::string &full_name);
 
+    static FieldParseType GetFieldPasreType(const google::protobuf::FieldDescriptor *pFieldDesc);
+
+    int GetFieldsDBMaxCount(const google::protobuf::FieldDescriptor *pFieldDesc) const;
+
+    int GetFieldsDBMaxSize(const google::protobuf::FieldDescriptor *pFieldDesc) const;
+
+    int GetFieldsMaxCount(const google::protobuf::FieldDescriptor *pFieldDesc) const;
+
+    int GetFieldsMaxSize(const google::protobuf::FieldDescriptor *pFieldDesc) const;
+
+    const ::google::protobuf::EnumValueDescriptor* FindEnumValueByName(const string& name) const;
+
+    const ::google::protobuf::EnumDescriptor* FindEnumTypeByName(const string& name) const;
+
+    bool FindEnumNumberByMacroName(const string& enumName, const std::string& macroName, std::string& value);
 public:
     std::string m_fileMd5;
     google::protobuf::DescriptorPool *m_pDescriptorPool;
     std::vector<google::protobuf::DescriptorPool *> m_pOldPoolVec;
     google::protobuf::DynamicMessageFactory *m_pDynamicMessageFactory;
+public:
+	struct EnumMacroData
+	{
+		std::unordered_map<std::string, int> m_enumNameToNumber;
+		std::unordered_map<std::string, int> m_enumToNumber;
+		std::unordered_map<int, std::string> m_numberToEnumName;
+	};
+    std::unordered_map<std::string, EnumMacroData> m_enumMacroData;
 };
 

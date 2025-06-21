@@ -177,17 +177,17 @@ void NFRedisClientSocket::conn_eventcb(bufferevent * bev, short events, void * u
 	if (events & BEV_EVENT_CONNECTED)
 	{
 		pClientSocket->mNetStatus = NF_NET_EVENT::NF_NET_EVENT_CONNECTED;
-		NFLogInfo(NF_LOG_SYSTEMLOG, 0, "redis connect success");
+		NFLogInfo(NF_LOG_DEFAULT, 0, "redis connect success");
 	}
 	else if (events & BEV_EVENT_TIMEOUT)
 	{
 		pClientSocket->mNetStatus = NF_NET_EVENT::NF_NET_EVENT_TIMEOUT;
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "redis connect timeout");
+        NFLogError(NF_LOG_DEFAULT, 0, "redis connect timeout");
 	}
 	else
 	{
 		pClientSocket->mNetStatus = NF_NET_EVENT::NF_NET_EVENT_ERROR;
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "redis connect error");
+        NFLogError(NF_LOG_DEFAULT, 0, "redis connect error");
 	}
 }
 

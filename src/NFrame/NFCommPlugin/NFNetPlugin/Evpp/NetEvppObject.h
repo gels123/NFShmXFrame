@@ -30,9 +30,7 @@
 
 #include <cstdint>
 
-#include "NFComm/NFPluginModule/NFServerDefine.h"
-#include "../NFNetDefine.h"
-#include "NFComm/NFCore/NFBuffer.h"
+#include "NFComm/NFPluginModule/NFNetDefine.h"
 #include "evpp/tcp_conn.h"
 #include "evpp/event_loop.h"
 
@@ -43,7 +41,7 @@ class NFEvppClient;
 /**
 * @brief 网络对象，代表一个连接
 */
-class NetEvppObject
+class NetEvppObject final
 {
 public:
     friend NFEvppNetMessage;
@@ -56,7 +54,7 @@ public:
     /**
      * @brief	析构函数
      */
-    virtual ~NetEvppObject();
+    ~NetEvppObject();
 
     /**
      * @brief
@@ -73,7 +71,7 @@ public:
      * @param  val
      * @return void
      */
-    void SetStrIp(std::string val);
+    void SetStrIp(const std::string& val);
 
     void SetPort(uint32_t port);
 
@@ -111,33 +109,34 @@ public:
      *
      * @return void
      */
-    virtual void CloseObject();
+    void CloseObject() const;
 
     /**
     * @brief 是否是服务器端
     *
     * @return void
     */
-    virtual void SetIsServer(bool b);
+    void SetIsServer(bool b);
 
-    virtual bool IsServer() const;
+    bool IsServer() const;
 
     /**
     * @brief 设置解析方法
     *
     * @return void
     */
-    virtual void SetPacketParseType(uint32_t packetType) { mPacketParseType = packetType; }
+    void SetPacketParseType(uint32_t packetType) { m_packetParseType = packetType; }
 
-    virtual void SetConnPtr(const evpp::TCPConnPtr conn) { mConnPtr = conn; }
+    void SetConnPtr(const evpp::TCPConnPtr& conn) { m_connPtr = conn; }
 
-    virtual void SetLastHeartBeatTime(uint64_t updateTime) { mLastHeartBeatTime = updateTime; }
+    void SetLastHeartBeatTime(uint64_t updateTime) { m_lastHeartBeatTime = updateTime; }
 
-    virtual uint64_t GetLastHeartBeatTime() const { return mLastHeartBeatTime; }
+    uint64_t GetLastHeartBeatTime() const { return m_lastHeartBeatTime; }
 
-    virtual void SetSecurity(bool security) { mSecurity = security; }
+    void SetSecurity(bool security) { m_security = security; }
 
-    virtual bool IsSecurity() const { return mSecurity; }
+    bool IsSecurity() const { return m_security; }
+
 protected:
     /**
      * @brief	代表客户端连接的唯一ID
@@ -153,27 +152,27 @@ protected:
     /**
      * @brief 是否需要删除, 这个链接不在起作用，将在下一次循环中被删除
      */
-    bool mNeedRemove;
+    bool m_needRemove;
 
     /**
     * @brief is server
     */
-    bool mIsServer; //是否是服务器端
+    bool m_isServer; //是否是服务器端
 
     /**
     * @brief 解码消息类型
     */
-    uint32_t mPacketParseType;
+    uint32_t m_packetParseType;
 
     /**
     * @brief 来自EVPP的链接代理
     */
-    evpp::TCPConnPtr mConnPtr;
+    evpp::TCPConnPtr m_connPtr;
 
     /**
     * @brief 心跳包更新时间
     */
-    uint64_t mLastHeartBeatTime;
+    uint64_t m_lastHeartBeatTime;
 
-    bool mSecurity;
+    bool m_security;
 };

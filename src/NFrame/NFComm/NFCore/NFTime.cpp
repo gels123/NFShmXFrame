@@ -9,51 +9,22 @@
 
 #include "NFTime.h"
 #include "NFDateTime.hpp"
-
+#include "NFServerTime.h"
 #include <time.h>
 #include <string.h>
 #include <errno.h>
 
-uint64_t NFTime::gmStartTime_ = 0;  //gm显示的时间
-uint64_t NFTime::gmSetTimeTime_ = 0; //GM设置时的当前LINUX时间,只改到秒
-
-
 NFTime NFTime::Now()
 {
     NFTime t;
-    uint64_t nano = (uint64_t) NFGetNanoSeccondTime();
-    t.sec_ = nano / 1000000000;
-    t.nsec_ = nano - t.sec_ * 1000000000;
+    t.sec_ = NFServerTime::Instance()->Tick()/1000;
+    t.nsec_ =  NFServerTime::Instance()->Tick()%1000 * 1000000;
     t.realSec_ = t.sec_;
-    if (gmStartTime_ > 0)
-    {
-        t.sec_ = gmStartTime_ + (t.sec_ - gmSetTimeTime_);
-    }
+    t.sec_ = t.sec_ + NFServerTime::Instance()->GetSecOffSet();
     return t;
 }
 
-NFTime NFTime::GmSetTime(int year, int month, int day, int hour, int min, int sec)
-{
-    gmSetTimeTime_ = NFTime::Now().realSec_;
-
-    NFTime t;
-    struct tm tm;
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
-    tm.tm_hour = hour;
-    tm.tm_min = min;
-    tm.tm_sec = sec;
-
-    t.sec_ = mktime(&tm);
-    t.nsec_ = 0;
-
-    gmStartTime_ = t.sec_;
-
-    return t;
-}
-
-//convert time 
+//convert time
 uint64_t NFTime::GetSecTime(int year, int month, int day, int hour, int min, int sec)
 {
 
@@ -89,7 +60,7 @@ NFTime::NFTime(int year, int month, int day, int hour, int min, int sec)
 
 uint64_t NFTime::Tick()
 {
-    return (uint64_t) NFGetTime();
+    return NFServerTime::Instance()->Tick();
 }
 
 time_t NFTime::UnixSec()
@@ -247,16 +218,16 @@ uint64_t NFTime::GetWeekUpdateTime(uint64_t timeSec, int32_t nHour)
 uint64_t NFTime::GetNextWeekRemainingTime()
 {
     uint64_t weekstarttime = NFTime::Now().UnixSecOnMondayZero();
-    return weekstarttime + 7 * 24 * 3600 - NFTime::Now().UnixSec();
+    return weekstarttime + 7 * 24 * 3600 - NF_ADJUST_TIMENOW();
 }
 
 //获取下月剩余的时间(秒数) nHour:时/* hours since midnight - [0,23] */
 uint64_t NFTime::GetNextMonthRemainingTime()
 {
-    NFDate date = GetLocalDate(NFTime::Now().UnixSec());
+    NFDate date = GetLocalDate(NF_ADJUST_TIMENOW());
     NFDateTime datetime(1, date.mon, date.year, 0, 0, 0);
     datetime.AddMonths(1);
-    return (uint64_t) datetime.GetTimestamp() - NFTime::Now().UnixSec();
+    return (uint64_t) datetime.GetTimestamp() - NF_ADJUST_TIMENOW();
 }
 
 uint64_t NFTime::GetZeroTime(uint64_t timeSec)
@@ -283,12 +254,7 @@ uint64_t NFTime::GetMonthZeroTime(uint64_t timeSec)
 //获取当前服务器所在的时区
 int32_t NFTime::GetCurTimeZone()
 {
-    //static Time startTime(0);
-    //Date startDate;
-    //startTime.LocalDate(&startDate);
-    //return startDate.hour * 3600 + startDate.min * 60 + startDate.sec;
-
-    time_t utcSec = NFTime::Now().UnixSec();
+    time_t utcSec = NFGetSecondTime();
     struct tm curData;
     localtime_r((const time_t *) &utcSec, &curData);
 
@@ -305,10 +271,10 @@ int32_t NFTime::GetCurTimeZone()
         tmpHour -= 24;
     }
 
-    return tmpHour * 3600;
+    return tmpHour;
 }
 
 uint64_t NFTime::GetLocalDateSec()
 {
-    return NFTime::Now().sec() + GetCurTimeZone();
+    return NFTime::Now().sec() + GetCurTimeZone()*3600;
 }

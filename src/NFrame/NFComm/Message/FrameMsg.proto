@@ -1,0 +1,345 @@
+syntax = "proto3";
+
+package NFrame;
+
+import "nanopb.proto";
+
+// 命令字
+enum FrameServerMsg {
+    NF_FRAME_MSG_NONE = 0;
+	NF_SERVER_TO_SERVER_HEART_BEAT = 1;  //服务器心跳
+	NF_SERVER_TO_SERVER_HEART_BEAT_RSP = 2;  //服务器心跳
+	NF_SERVER_TO_SERVER_BUS_CONNECT_REQ = 3;  //服务器心跳 BUS Connect 协议
+	NF_SERVER_TO_SERVER_BUS_CONNECT_RSP = 4;  //服务器心跳 BUS CONNECT RSP 协议
+
+	NF_GTM_KILL_ALL_SERVER_NTF = 50;
+	NF_STS_KILL_ALL_SERVER_NTF = 51;
+	NF_STS_SEND_DUMP_INFO_NTF = 52;
+
+	NF_MasterTMonitor_RELOAD_CMD_REQ = 80;
+	NF_MasterTMonitor_RESTART_CMD_REQ = 81;
+	NF_MasterTMonitor_START_CMD_REQ = 82;
+	NF_MasterTMonitor_STOP_CMD_REQ = 83;
+	NF_MasterTMonitor_STOP_ALL_CMD_REQ = 84;
+	NF_MasterTMonitor_RELOAD_ALL_CMD_REQ = 85;
+	NF_MasterTMonitor_RESTART_ALL_CMD_REQ = 86;
+	NF_MasterTMonitor_START_ALL_CMD_REQ = 87;
+
+	NF_MonitorTMaster_RELOAD_CMD_RSP = 90;
+	NF_MonitorTMaster_RESTART_CMD_RSP = 91;
+	NF_MonitorTMaster_START_CMD_RSP = 92;
+	NF_MonitorTMaster_STOP_CMD_RSP = 93;
+	NF_MonitorTMaster_STOP_ALL_CMD_RSP = 94;
+	NF_MonitorTMaster_RELOAD_ALL_CMD_RSP = 95;
+	NF_MonitorTMaster_RESTART_ALL_CMD_RSP = 96;
+	NF_MonitorTMaster_START_ALL_CMD_RSP = 97;
+
+	NF_SERVER_TO_SERVER_REGISTER = 100;  //服务器注册
+	NF_SERVER_TO_SERVER_REGISTER_RSP = 101;  //服务器注册
+	NF_MASTER_SERVER_SEND_OTHERS_TO_SERVER = 102;  //master服务器反馈别的服务器给注册服务器
+	NF_SERVER_TO_MASTER_SERVER_REPORT = 103;  //服务器注册master
+
+	NF_ROUTER_CMD_INTERNAL_C2R_REGISTER = 104; // 注册，内部命令
+	NF_ROUTER_CMD_INTERNAL_R2C_REGISTER = 105; // 注册回应
+	NF_ROUTER_CMD_INTERNAL_C2R_HEARTBEAT = 106; // client到routersvr的心跳，内部命令
+	NF_ROUTER_CMD_INTERNAL_R2C_HEARTBEAT = 107; // routersvr到client的心跳，内部命令
+	NF_ROUTER_CMD_DISPATCH_MOD = 108; // 取模转发，转发命令
+	NF_ROUTER_CMD_DISPATCH_ROUNDROBIN = 109; // 随机转发，转发命令，routersvr可自己设定random策略，是随机计算，是roundrobin
+	NF_ROUTER_CMD_DISPATCH_BROADCAST = 110; // 广播，转发命令，平等的广播
+	NF_ROUTER_CMD_DISPATCH_BROADCAST_AND_MASTER = 111; // 广播，同时选择主服务，转发命令  c-->router
+	NF_ROUTER_CMD_DISPATCH_BORADCAST_MASTER = 112; // 广播，确定某一个为master router---->dest
+	NF_ROUTER_CMD_DISPATCH_BORADCAST_SLAVE = 113; // 广播，确定某一个为slave  router---->dest
+	NF_ROUTER_CMD_DISPATCH_DIRECT = 114; // 直接转发，转发命令
+	NF_ROUTER_CMD_INTERNAL_R2C_DISPATCHFAILED = 115; // routersvr到client，转发失败回应
+	NF_ROUTER_CMD_INTERNAL_C2R_REG_RAASSOCAPPSVS = 116; // routeragent和appsvr的对应关系注册到routersvr
+
+	NF_SERVER_TO_SERVER_RPC_CMD = 119; //rpc协议
+	NF_SERVER_TO_SERVER_TRANS_CMD = 120; //trans msg
+	NF_SERVER_TO_STORE_SERVER_DB_CMD = 121; //send db msg
+	NF_STORE_SERVER_TO_SERVER_DB_CMD = 122; //send db msg
+	NF_WORLD_ROUTER_CMD_TO_SUIT_LOGIC = 123; //logic send msg to world, world trans msg to suit logic
+	NF_SNS_ROUTER_CMD_TO_SUIT_LOGIC = 124; //logic send msg to sns, sns trans msg to suit logic
+	NF_STS_BROAD_PLAYER_MSG_NOTIFY = 125;
+	NF_SEVER_TO_WEB_SERVER_RSP_NOTIFY = 126;
+	NF_SERVER_BROAD_EVENT_TO_SERVER_CMD = 127; //广播事件系统
+	NF_SERVER_REDIRECT_MSG_TO_PROXY_SERVER_CMD = 128; //其他业务服务器粘包消息发给网关
+	NF_SERVER_TO_SERVER_REGISTER_ROOM_INFO_RPC = 129;
+
+	//STORE SERVER CMD
+	NF_STORESVR_C2S_SELECT = 200;                    // select req  按条件去查询，
+	NF_STORESVR_S2C_SELECT = 201;                        // select res
+	NF_STORESVR_C2S_SELECTOBJ = 202;                    // 按对象去查询
+	NF_STORESVR_S2C_SELECTOBJ = 203;
+	NF_STORESVR_C2S_INSERT = 204;
+	NF_STORESVR_S2C_INSERT = 205;
+	NF_STORESVR_C2S_INSERTOBJ = 206;
+	NF_STORESVR_S2C_INSERTOBJ = 207;
+	NF_STORESVR_C2S_DELETE = 208;
+	NF_STORESVR_S2C_DELETE = 209;
+	NF_STORESVR_C2S_DELETEOBJ = 210;
+	NF_STORESVR_S2C_DELETEOBJ = 211;
+	NF_STORESVR_C2S_MODIFY = 212;
+	NF_STORESVR_S2C_MODIFY = 213;
+	NF_STORESVR_C2S_MODIFYOBJ = 214;
+	NF_STORESVR_S2C_MODIFYOBJ = 215;
+	NF_STORESVR_C2S_UPDATE = 216;                        // modify + insert
+	NF_STORESVR_S2C_UPDATE = 217;
+	NF_STORESVR_C2S_UPDATEOBJ = 218;                        // modify + insert
+	NF_STORESVR_S2C_UPDATEOBJ = 219;
+	NF_STORESVR_C2S_DESCSTORE = 220;
+	NF_STORESVR_S2C_DESCSTORE = 221;
+	NF_STORESVR_C2S_EXECUTE = 222;
+	NF_STORESVR_S2C_EXECUTE = 223;
+	NF_STORESVR_C2S_EXECUTE_MORE = 224;
+	NF_STORESVR_S2C_EXECUTE_MORE = 225;
+}
+
+enum PacketDispType
+{
+	E_DISP_TYPE_NONE = 0;
+	E_DISP_TYPE_BY_TRANSACTION = 1;
+	E_DISP_TYPE_BY_ROLEID = 2;
+	E_DISP_TYPE_BY_MSGID = 3;
+	E_DISP_TYPE_BY_RPC = 4;
+};
+
+message Proto_DispInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint64 id = 1;
+	int32 seq = 4;
+	int32 req_seq = 5;
+	int32 err_code = 6;
+	PacketDispType type = 7;
+}
+
+message Proto_TransInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int32 req_trans_id = 1;        //req transaction id  事务ID。请求方的ID
+	int32 rsp_trans_id = 2;       //rsp transaction id  事务ID回包携带的，需要据此在PacketDisp里处理
+}
+
+message Proto_StoreInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint64 id = 1;
+	uint32 table_id = 2;
+}
+
+message Proto_EventInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint32 server_type = 1;
+	uint64 event_id = 2;
+	uint64 src_type = 3;
+	uint64 src_id = 4;
+	string full_message_name = 5;
+}
+
+message Proto_ScriptRpcResult
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string req_type = 1;
+	string rsp_type = 2;
+	string respone = 3;
+}
+
+message Proto_RpcInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int64 req_rpc_id = 1;
+	int64 rsp_rpc_id = 2;
+	int32 rpc_ret_code = 3;
+	uint64 req_rpc_hash = 4;
+	uint64 rsp_rpc_hash = 5;
+	uint32 req_bus_id = 6;
+	uint64 req_server_type = 7;
+	bool is_script_rpc = 8;
+}
+
+//粘包
+message Proto_RedirectInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	repeated uint64 id = 1;
+	bool all = 2;
+}
+
+message Proto_FramePkg
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int32 module_id = 1;
+	int32 msg_id = 2;              //trans send msg id
+	bytes msg_data = 3;
+	Proto_DispInfo disp_info = 4;              //trans send msg id
+	Proto_TransInfo trans_info = 5;              //trans send msg id
+	Proto_StoreInfo store_info = 6;
+	Proto_EventInfo event_info = 7; //
+	Proto_RedirectInfo redirect_info = 8;
+	Proto_RpcInfo rpc_info = 9;
+}
+
+enum EServerState
+{
+	EST_INIT = 0;
+	EST_NARMAL = 1;
+	EST_BUSY = 2;
+	EST_CRASH = 3;
+}
+
+message ServerInfoReport
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint32 bus_id = 1;
+	string server_id = 2;
+	uint32 server_type = 3;
+	string server_name = 4;
+	string url = 5;
+	string link_mode = 6;
+	uint32 bus_length = 7; //NFBUS/TBUS共享内存通信大小
+	string server_ip = 9;
+	uint32 server_port = 10;
+	uint32 server_http_port = 11;
+	string external_server_ip = 12;
+	uint32 external_server_port = 13;
+	bool is_cross_server = 14;
+	string route_svr = 15;
+	uint32 server_max_online = 30;
+	uint32 server_cur_online = 31;
+	uint32 server_state = 32;
+	string system_info = 33;
+	uint64 total_mem = 34;
+	uint64 free_mem = 35;
+	uint64 used_mem = 36;
+	double proc_cpu = 37;  //cur process cpu used
+	uint64 proc_mem = 38;  //cur process mem used
+	uint32 proc_thread = 39; //cur process thread num
+	string proc_name = 40;
+	string proc_cwd = 41;
+	uint32 proc_pid = 42;
+	string last_date = 43;
+	uint64 last_time = 44;
+	string contract_info = 45;
+	string machine_addr = 46;
+	repeated string db_name_list = 47;
+	repeated uint32 msg_id = 48;
+	repeated uint64 map_id_list = 49;
+}
+
+message ServerInfoReportList
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	repeated ServerInfoReport server_list = 1;
+}
+
+message ServerInfoReportListRespne
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int32 ret_code = 1;
+}
+
+message ZkServerInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string bus_url = 1;
+	string tcp_url = 2;
+}
+
+message DynLibFileInfo
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string file_md5 = 1;
+	int32 file_size = 2;
+}
+
+message DynLibFileInfoArray
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	repeated DynLibFileInfo file_list = 1;
+}
+
+message Proto_KillAllServerNtf
+{
+	option (nanopb_msgopt).is_std_stl = true;
+}
+
+message Proto_KillAllServerRsp
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int32 result = 1;
+}
+
+//NF_STS_BROAD_PLAYER_MSG_NOTIFY = 125;
+message Proto_STSBroadPlayerMsgNotify
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	repeated uint64 user_id = 1;
+	uint32 msg_id = 2;
+	bytes msg_data = 3;
+}
+
+//NF_SEVER_TO_WEB_SERVER_RSP_NOTIFY = 126;
+message Proto_STWebMsgRspNotify
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	uint64 request_id = 1;
+	int32 result = 2;
+	string err_msg = 3;
+}
+
+enum NFEventSrcType
+{
+	NF_EVENT_NONE_TYPE = 0;
+	NF_EVENT_SERVER_TYPE = 1; //server event
+	NF_EVENT_GM_TYPE = 2;   //GM
+	NF_EVENT_PLAYER_TYPE = 4;   //player event
+}
+
+enum NFEventIdType
+{
+	//////server event////////////
+    NF_EVENT_NONE = 0;
+	NF_EVENT_SERVER_TYPE_BEGIN = 1;
+	NF_EVENT_SERVER_TASK_GROUP_FINISH = 2;
+	NF_EVENT_SERVER_APP_FINISH_INITED = 5;
+	NF_EVENT_SERVER_DEAD_EVENT = 6;
+	NF_EVENT_GAME_SERVER_DUMP_EVENT = 8;
+	NF_EVENT_LOGIC_SERVER_DUMP_EVENT = 9;
+	NF_EVENT_WORLD_SERVER_DUMP_EVENT = 10;
+	NF_EVENT_CENTER_SERVER_DUMP_VENT = 11;
+	NF_EVENT_PROXY_SERVER_DUMP_EVENT = 12;
+	NF_EVENT_PROXY_AGENT_SERVER_DUMP_EVENT = 13;
+	NF_EVENT_STORE_SERVER_DMP_EVENT = 14;
+	NF_EVENT_LOGIN_SERVER_DUMP_EVENT = 15;
+	NF_EVENT_ROUTE_AGENT_SERVER_DUMP_EVENT = 16;
+	NF_EVENT_ROUTE_SERVER_DUMP_EVENT = 17;
+	NF_EVENT_MASTER_SERVER_DUMP_EVENT = 18;
+	NF_EVENT_SERVER_REPORT_EVENT = 30;
+	NF_EVENT_SERVER_SET_TIME_EVENT = 31;
+	NF_EVENT_SERVER_TYPE_END = 99;
+}
+
+message NFEventNoneData
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	int64 param1 = 1;
+	int64 param2 = 2;
+	int64 param3 = 3;
+	int64 param4 = 4;
+	int64 param5 = 5;
+}
+
+message NFEventScriptData
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string event_type = 1;
+	string event_data = 2;
+}
+
+message Proto_ServerDumpInfoNtf
+{
+	option (nanopb_msgopt).is_std_stl = true;
+	string dump_info = 1;
+	uint32 bus_id = 2;
+}

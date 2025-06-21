@@ -20,13 +20,13 @@ public:
 
 	}
 
-	virtual int GetPluginVersion() override;
+	int GetPluginVersion() override;
 
-	virtual std::string GetPluginName() override;
+	std::string GetPluginName() override;
 
-	virtual void Install() override;
+	void Install() override;
 
-	virtual void Uninstall() override;
+	void Uninstall() override;
 
-	virtual bool IsDynamicLoad() override;
+	bool IsDynamicLoad() override;
 };

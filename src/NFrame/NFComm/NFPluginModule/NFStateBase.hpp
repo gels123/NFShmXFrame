@@ -11,7 +11,7 @@
 #include "NFComm/NFCore/NFPlatform.h"
 
 /**
- * @brief ×´Ì¬»ùÀà
+ * @brief çŠ¶æ€åŸºç±»
  * @tparam T
  */
 template<class T>
@@ -30,7 +30,7 @@ public:
 
 public:
     /**
-     * ½øÈë×´Ì¬Ê±´¦Àí
+     * è¿›å…¥çŠ¶æ€æ—¶å¤„ç†
      * @param owner
      */
     void Enter(T owner)
@@ -39,7 +39,7 @@ public:
     }
 
     /**
-     * ÍË³ö×´Ì¬Ê±´¦Àí
+     * é€€å‡ºçŠ¶æ€æ—¶å¤„ç†
      * @param owner
      */
     void Exit(T owner)
@@ -48,7 +48,7 @@ public:
     }
 
     /**
-     * ´Ó¸Ã×´Ì¬×ªÏòÏÂÒ»¸ö×´Ì¬µÄ´¦Àí
+     * ä»è¯¥çŠ¶æ€è½¬å‘ä¸‹ä¸€ä¸ªçŠ¶æ€çš„å¤„ç†
      * @param owner
      */
     void ToNextState(T owner)
@@ -57,7 +57,7 @@ public:
     }
 
     /**
-     * Ö´ĞĞÊÂ¼ş´¦Àí
+     * æ‰§è¡Œäº‹ä»¶å¤„ç†
      * @param owner
      * @param cmd
      * @param gid
@@ -69,7 +69,7 @@ public:
     }
 
     /**
-     * ÖØÁ¬
+     * é‡è¿
      * @param owner
      */
     void Reload(T owner)

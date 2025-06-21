@@ -190,7 +190,11 @@ struct CallBack
 			mxReceiveCallBack[i].resize(NF_NET_MAX_MSG_ID);
 		}
 
-		mxRpcCallBack.resize(NF_NET_MAX_MSG_ID);
+		mxRpcCallBack.resize(NF_MODULE_MAX);
+		for (int i = 0; i < (int)mxRpcCallBack.size(); i++)
+		{
+			mxRpcCallBack[i].resize(NF_NET_MAX_MSG_ID);
+		}
 	}
 
 	virtual ~CallBack()
@@ -204,7 +208,7 @@ struct CallBack
 	std::unordered_map<uint32_t, std::unordered_map<std::string, HTTP_RECEIVE_FUNCTOR>> mxHttpMsgCBMap; //uint32_t => NFHttpType
 	std::unordered_map<uint32_t, std::vector<HTTP_RECEIVE_FUNCTOR>> mxHttpOtherMsgCBMap;                //uint32_t => NFHttpType
 	std::unordered_map<std::string, HTTP_FILTER_FUNCTOR> mxHttpMsgFliterMap;
-	std::vector<NetRpcService> mxRpcCallBack;
+	std::vector<std::vector<NetRpcService>> mxRpcCallBack;
 };
 
 struct ServerLinkData
@@ -229,7 +233,7 @@ struct ServerLinkData
 	std::map<uint64_t, uint32_t> mLinkIdToBusIdMap; //linkid -- busid
 	NFServerData m_routeData;
 	NFServerData m_masterServerData;
-	NF_SERVER_TYPES mServerType;
+	NF_SERVER_TYPE mServerType;
 	uint64_t m_serverLinkId;
 	uint64_t m_clientLinkId;
 
@@ -245,9 +249,9 @@ struct ServerLinkData
 
 	NF_SHARE_PTR<NFServerData> GetServerByUnlinkId(uint64_t unlinkId);
 
-	NF_SHARE_PTR<NFServerData> CreateServerByServerId(uint32_t busId, NF_SERVER_TYPES busServerType, const proto_ff::ServerInfoReport& data);
+	NF_SHARE_PTR<NFServerData> CreateServerByServerId(uint32_t busId, NF_SERVER_TYPE busServerType, const NFrame::ServerInfoReport& data);
 
-	virtual void CloseServer(NF_SERVER_TYPES destServer, uint32_t busId, uint64_t usLinkId);
+	virtual void CloseServer(NF_SERVER_TYPE destServer, uint32_t busId, uint64_t usLinkId);
 
 	virtual void CreateLinkToServer(uint32_t busId, uint64_t linkId);
 
@@ -265,23 +269,23 @@ struct ServerLinkData
 
 	virtual int SendMsgToMasterServer(NFIMessageModule* pMessageModule, uint32_t nModuleId, uint32_t nMsgId, const google::protobuf::Message& xData, uint64_t valueId = 0);
 
-	std::vector<NF_SHARE_PTR<NFServerData>> GetServerByServerType(NF_SERVER_TYPES serverTypes);
+	std::vector<NF_SHARE_PTR<NFServerData>> GetServerByServerType(NF_SERVER_TYPE serverTypes);
 
-	NF_SHARE_PTR<NFServerData> GetFirstServerByServerType(NF_SERVER_TYPES serverTypes);
+	NF_SHARE_PTR<NFServerData> GetFirstServerByServerType(NF_SERVER_TYPE serverTypes);
 
-	NF_SHARE_PTR<NFServerData> GetFirstServerByServerType(NF_SERVER_TYPES serverTypes, bool crossServer);
+	NF_SHARE_PTR<NFServerData> GetFirstServerByServerType(NF_SERVER_TYPE serverTypes, bool crossServer);
 
-	NF_SHARE_PTR<NFServerData> GetRandomServerByServerType(NF_SERVER_TYPES serverTypes);
+	NF_SHARE_PTR<NFServerData> GetRandomServerByServerType(NF_SERVER_TYPE serverTypes);
 
-	NF_SHARE_PTR<NFServerData> GetRandomServerByServerType(NF_SERVER_TYPES serverTypes, bool crossServer);
+	NF_SHARE_PTR<NFServerData> GetRandomServerByServerType(NF_SERVER_TYPE serverTypes, bool crossServer);
 
-	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, uint64_t value);
+	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, uint64_t value);
 
-	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, uint64_t value, bool crossServer);
+	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, uint64_t value, bool crossServer);
 
-	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, const std::string& value);
+	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, const std::string& value);
 
-	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, const std::string& value, bool crossServer);
+	NF_SHARE_PTR<NFServerData> GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, const std::string& value, bool crossServer);
 
 	NF_SHARE_PTR<NFServerData> GetFirstDbServer(const std::string& dbName);
 	NF_SHARE_PTR<NFServerData> GeRandomDbServer(const std::string& dbName);
@@ -290,9 +294,9 @@ struct ServerLinkData
 
 	std::vector<NF_SHARE_PTR<NFServerData>> GetAllServer();
 
-	std::vector<NF_SHARE_PTR<NFServerData>> GetAllServer(NF_SERVER_TYPES serverTypes);
+	std::vector<NF_SHARE_PTR<NFServerData>> GetAllServer(NF_SERVER_TYPE serverTypes);
 
-	std::vector<NF_SHARE_PTR<NFServerData>> GetAllServer(NF_SERVER_TYPES serverTypes, bool isCrossServer);
+	std::vector<NF_SHARE_PTR<NFServerData>> GetAllServer(NF_SERVER_TYPE serverTypes, bool isCrossServer);
 
 	std::vector<std::string> GetDBNames();
 };

@@ -8,21 +8,12 @@
 
 #pragma once
 
-#include <time.h>
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <utility>
-#include <thread>
-#include <chrono>
-#include <future>
-#include <functional>
-#include <atomic>
 
 #include "NFCPluginManager.h"
-#include "NFComm/NFCore/NFPlatform.h"
 #include "NFComm/NFCore/NFCmdLine.h"
 #include "NFComm/NFCore/NFCommon.h"
-#include "NFComm/NFCore/NFFileUtility.h"
 
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX

@@ -11,7 +11,7 @@
 #include "NFMacros.h"
 #include "NFPlatformMacros.h"
 #include "common/spdlog/fmt/fmt.h"
-
+#include "common/spdlog/fmt/bundled/printf.h"
 #include <stdint.h>
 #include <chrono>
 #include <string>
@@ -28,7 +28,7 @@
 #include <sstream>
 #include <stdio.h>
 
-#ifndef _MSC_VER
+#if NF_PLATFORM == NF_PLATFORM_LINUX
 #include <sys/syscall.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -175,7 +175,8 @@ inline int64_t NFGetNanoSeccondTime()
 #define NF_FILE_FUNCTION_LINE __FILE__, __FUNCTION__, __LINE__
 #endif
 #define NF_FORMAT(my_fmt, ...)             fmt::format(my_fmt, ##__VA_ARGS__)
-#define NF_FORMAT_EXPR(str, my_fmt, ...)   try { str = fmt::format(my_fmt, ##__VA_ARGS__); } catch (fmt::v5::format_error& error) { NFLogError(NF_LOG_SYSTEMLOG, 0, "fmt:{} err:{}{}", my_fmt, error.what()); }
+#define NF_SPRINTF(my_fmt, ...)             fmt::sprintf(my_fmt, ##__VA_ARGS__)
+#define NF_FORMAT_EXPR(str, my_fmt, ...)   try { str = fmt::format(my_fmt, ##__VA_ARGS__); } catch (fmt::format_error& error) { NFLogError(NF_LOG_DEFAULT, 0, "fmt:{} err:{}", my_fmt, error.what()); }
 
 template<typename... ARGS>
 inline std::string NFFormatFunc(const char* my_fmt, const ARGS& ... args)
@@ -184,13 +185,53 @@ inline std::string NFFormatFunc(const char* my_fmt, const ARGS& ... args)
         std::string str = fmt::format(my_fmt, args...);
         return str;
     }
-    catch (fmt::v5::format_error& error)
+    catch (fmt::format_error& error)
+    {
+        return my_fmt + std::string(" err:") + error.what();
+    }
+}
+
+template<typename... ARGS>
+inline std::string NFSprintfFunc(const char* my_fmt, const ARGS& ... args)
+{
+    try {
+        std::string str = fmt::sprintf(my_fmt, args...);
+        return str;
+    }
+    catch (fmt::format_error& error)
+    {
+        return my_fmt + std::string(" err:") + error.what();
+    }
+}
+
+template<typename... ARGS>
+inline std::string NFFormatFunc(const std::string& my_fmt, const ARGS& ... args)
+{
+    try {
+        std::string str = fmt::format(my_fmt, args...);
+        return str;
+    }
+    catch (fmt::format_error& error)
+    {
+        return my_fmt + std::string(" err:") + error.what();
+    }
+}
+
+template<typename... ARGS>
+inline std::string NFSprintfFunc(const std::string& my_fmt, const ARGS& ... args)
+{
+    try {
+        std::string str = fmt::sprintf(my_fmt, args...);
+        return str;
+    }
+    catch (fmt::format_error& error)
     {
         return my_fmt + std::string(" err:") + error.what();
     }
 }
 
 #define NF_FORMAT_FUNC(my_fmt, ...)             NFFormatFunc(my_fmt, ##__VA_ARGS__)
+#define NF_SPRINTF_FUNC(my_fmt, ...)             NFFormatFunc(my_fmt, ##__VA_ARGS__)
 
 #define MMO_LOWORD(l)           ((uint16_t)(l))
 #define MMO_HIWORD(l)           ((uint16_t)(((uint32_t)(l) >> 16) & 0xFFFF))
@@ -258,3 +299,22 @@ char (&ArraySizeHelper(const T (&array)[N]))[N];
 #define TIME_AXIS_SECLENGTH            108000        // 秒为单位的支持到30个小时
 #define INVALID_TIMER                0xffffffff  // 无效定时器
 #define INFINITY_CALL                0xffffffff    // 调用无限次
+
+#define FIND_MODULE(classBaseName, className)  \
+assert((TIsDerived<classBaseName, NFIModule>::Result));
+
+template<typename DerivedType, typename BaseType>
+class TIsDerived {
+public:
+    static int AnyFunction(BaseType *base) {
+        return 1;
+    }
+
+    static char AnyFunction(void *t2) {
+        return 0;
+    }
+
+    enum {
+        Result = sizeof(int) == sizeof(AnyFunction((DerivedType *) NULL)),
+    };
+};

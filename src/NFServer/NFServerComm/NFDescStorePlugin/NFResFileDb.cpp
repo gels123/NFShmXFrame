@@ -31,7 +31,7 @@ int NFFileResTable::FindAllRecord(const std::string &gamePath, google::protobuf:
 
     CHECK_EXPR(ok, -1, "parse error:{} {}", pMessage->InitializationErrorString(), pMessage->DebugString());
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "parse file:{} Success", szFileName);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "parse file:{} Success", szFileName);
 
 	return 0;
 }
@@ -55,7 +55,7 @@ int NFFileResTable::DeleteOneRecord(const std::string &serverId, const google::p
     return 0;
 }
 
-NFFileResDB::NFFileResDB(NFIPluginManager* p, const std::string &szResFilePath):NFResDB(p)
+NFFileResDB::NFFileResDB(NFIPluginManager* p, const std::string &szResFilePath):NFResDb(p)
 {
     m_szResFilePath = szResFilePath;
 }

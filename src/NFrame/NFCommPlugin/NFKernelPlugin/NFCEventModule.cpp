@@ -9,6 +9,8 @@
 
 #include "NFCEventModule.h"
 
+#include <NFComm/NFPluginModule/NFStackTrace.h>
+
 NFCEventModule::NFCEventModule(NFIPluginManager* p):NFIEventModule(p)
 {
 }
@@ -33,7 +35,7 @@ bool NFCEventModule::Execute()
 }
 
 //发送执行事件
-void NFCEventModule::FireExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message& message)
+int NFCEventModule::FireExecute(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message& message)
 {
     SEventKey skey;
     skey.nServerType = serverType;
@@ -47,7 +49,7 @@ void NFCEventModule::FireExecute(uint32_t serverType, uint32_t nEventID, uint32_
     if (skey.nSrcID != 0) {
         bool bRes = m_ExecuteCenter.Fire(skey, message);
         if (!bRes) {
-            return;
+            return 0;
         }
     }
 
@@ -60,12 +62,15 @@ void NFCEventModule::FireExecute(uint32_t serverType, uint32_t nEventID, uint32_
     bool bRes = m_ExecuteCenter.Fire(skey, message);
     if (!bRes)
     {
-        return;
+        return 0;
     }
+
+    NFLogDebug(NF_LOG_DEFAULT, 0, "Fire Event, serverType:{} nEventID:{} bySrcType:{} nSrcID:{}, content:{}", serverType, nEventID, bySrcType, nSrcID, message.Utf8DebugString());
+    return 0;
 }
 
 //订阅执行事件
-bool NFCEventModule::Subscribe(NFEventObjBase* pSink, uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string& desc)
+bool NFCEventModule::Subscribe(NFEventObjBase* pSink, NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string& desc)
 {
     SEventKey skey;
     skey.nServerType = serverType;
@@ -77,7 +82,7 @@ bool NFCEventModule::Subscribe(NFEventObjBase* pSink, uint32_t serverType, uint3
 }
 
 //取消订阅执行事件
-bool NFCEventModule::UnSubscribe(NFEventObjBase* pSink, uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID)
+bool NFCEventModule::UnSubscribe(NFEventObjBase* pSink, NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID)
 {
     SEventKey skey;
     skey.nServerType = serverType;

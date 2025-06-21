@@ -9,13 +9,10 @@
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
-#include "NFComm/NFPluginModule/NFCheck.h"
+#include "NFShmStl.h"
 #include <iterator>
 #include <algorithm>
 #include <vector>
-#include "NFShmStl.h"
 
 template<class Tp>
 class NFShmDyVectorBase
@@ -23,7 +20,7 @@ class NFShmDyVectorBase
 public:
     explicit NFShmDyVectorBase()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -59,34 +56,33 @@ public:
         return 0;
     }
 
-    virtual int Init(const char* pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
+    virtual int Init(const char *pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
     {
-        CHECK_NULL(pBuffer);
-        CHECK_EXPR(iObjectCount >= 0, -1, "iObjectCount:{}",iObjectCount);
+        CHECK_EXPR(pBuffer != NULL, -1, "");
+        CHECK_EXPR(iObjectCount >= 0, -1, "iObjectCount:%lu", iObjectCount);
         int iCountSize = CountSize(iObjectCount);
-        NF_ASSERT_MSG(bufSize >= iCountSize, "bufSize:{} iCountSize:{}", bufSize, iCountSize);
-        
-        m_pBuffer = (char*)pBuffer;
-        m_pSize = (size_t*)pBuffer;
-        m_pMaxSize = (size_t*)(pBuffer+sizeof(size_t));
-        m_pData = (Tp*)(pBuffer + sizeof(size_t) + sizeof(size_t));
+        NF_ASSERT_MSG(bufSize >= iCountSize, "bufSize:%lu iCountSize:%lu", bufSize, iCountSize);
 
+        m_pBuffer = (char *) pBuffer;
+        m_pSize = (size_t *) pBuffer;
+        m_pMaxSize = (size_t *) (pBuffer + sizeof(size_t));
+        m_pData = (Tp *) (pBuffer + sizeof(size_t) + sizeof(size_t));
 
 
         if (bResetShm)
         {
-            memset((void*)pBuffer, 0, bufSize);
+            memset((void *) pBuffer, 0, bufSize);
             *m_pMaxSize = iObjectCount;
         }
         else
         {
-            NF_ASSERT_MSG(*m_pSize <= *m_pMaxSize, "size:{} max_size:{}", *m_pSize, *m_pMaxSize);
-            NF_ASSERT_MSG(*m_pMaxSize == iObjectCount, "max size:{} object count:{}", *m_pMaxSize, iObjectCount);
+            NF_ASSERT_MSG(*m_pSize <= *m_pMaxSize, "size:%lu max_size:%lu", *m_pSize, *m_pMaxSize);
+            NF_ASSERT_MSG(*m_pMaxSize == iObjectCount, "max size:%lu object count:%lu", *m_pMaxSize, iObjectCount);
             if (!std::numeric_limits<Tp>::is_specialized)
             {
-                for(size_t i = 0; i < *m_pSize; i++)
+                for (size_t i = 0; i < *m_pSize; i++)
                 {
-                    std::_Construct(m_pData+i);
+                    std::_Construct(m_pData + i);
                 }
             }
         }
@@ -104,10 +100,10 @@ public:
     }
 
 protected:
-    char* m_pBuffer;
-    Tp* m_pData;
-    size_t* m_pSize;
-    size_t* m_pMaxSize;
+    char *m_pBuffer;
+    Tp *m_pData;
+    size_t *m_pSize;
+    size_t *m_pMaxSize;
 };
 
 template<class Tp>
@@ -115,10 +111,12 @@ class NFShmDyVector : public NFShmDyVectorBase<Tp>
 {
 private:
     typedef NFShmDyVectorBase<Tp> _Base;
+
 protected:
     using _Base::m_pData;
     using _Base::m_pSize;
     using _Base::m_pMaxSize;
+
 public:
     typedef Tp value_type;
     typedef value_type *pointer;
@@ -132,10 +130,11 @@ public:
 
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     typedef std::reverse_iterator<iterator> reverse_iterator;
+
 public:
     explicit NFShmDyVector()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -160,13 +159,15 @@ public:
         clear();
     }
 
-    virtual int Init(const char* pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
+    virtual int Init(const char *pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
     {
         return NFShmDyVectorBase<Tp>::Init(pBuffer, bufSize, iObjectCount, bResetShm);
     }
 
     NFShmDyVector<Tp> &operator=(const NFShmDyVector<Tp> &__x);
+
     NFShmDyVector<Tp> &operator=(const std::vector<Tp> &__x);
+
 public:
     iterator begin() { return m_pData; }
 
@@ -194,40 +195,38 @@ public:
 
     reference operator[](size_type __n)
     {
-        NF_ASSERT_MSG(__n < max_size(), "__n:{} >= max_size():{}, the server dump", __n, max_size());
-        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:{} >= size():{}, you can't use it", __n, size());
+        NF_ASSERT_MSG(__n < max_size(), "__n:%lu >= max_size():%lu, the server dump", __n, max_size());
+        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:%lu >= size():%lu, you can't use it", __n, size());
         return *(begin() + __n);
     }
 
     const_reference operator[](size_type __n) const
     {
-        NF_ASSERT_MSG(__n < max_size(), "__n:{} >= max_size():{}, the server dump", __n, max_size());
-        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:{} >= size():{}, you can't use it", __n, size());
+        NF_ASSERT_MSG(__n < max_size(), "__n:%lu >= max_size():%lu, the server dump", __n, max_size());
+        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:%lu >= size():%lu, you can't use it", __n, size());
         return *(begin() + __n);
     }
 
     reference at(size_type __n)
     {
-        NF_ASSERT_MSG(__n < max_size(), "__n:{} >= max_size():{}, the server dump", __n, max_size());
-        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:{} >= size():{}, you can't use it", __n, size());
+        NF_ASSERT_MSG(__n < max_size(), "__n:%lu >= max_size():%lu, the server dump", __n, max_size());
+        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:%lu >= size():%lu, you can't use it", __n, size());
         return *(begin() + __n);
     }
 
     const_reference at(size_type __n) const
     {
-        NF_ASSERT_MSG(__n < max_size(), "__n:{} >= max_size():{}, the server dump", __n, max_size());
-        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:{} >= size():{}, you can't use it", __n, size());
+        NF_ASSERT_MSG(__n < max_size(), "__n:%lu >= max_size():%lu, the server dump", __n, max_size());
+        CHECK_EXPR(__n < size(), *(begin() + __n), "__n:%lu >= size():%lu, you can't use it", __n, size());
         return *(begin() + __n);
     }
 
     void reserve(size_type __n)
     {
-
     }
 
     void shrink_to_fit()
     {
-
     }
 
     Tp *data()
@@ -251,31 +250,31 @@ public:
 
     reference front()
     {
-        NF_ASSERT_MSG(0 < max_size(), "index:{} >= max_size():{}, the server dump", 0, max_size());
-        CHECK_EXPR(0 < size(), *(begin() + 0), "index:{} >= size():{}, you can't use it", 0, size());
+        NF_ASSERT_MSG(0 < max_size(), "index:%lu >= max_size():%lu, the server dump", 0, max_size());
+        CHECK_EXPR(0 < size(), *(begin() + 0), "index:%lu >= size():%lu, you can't use it", 0, size());
         return *begin();
     }
 
     const_reference front() const
     {
-        NF_ASSERT_MSG(0 < max_size(), "index:{} >= max_size():{}, the server dump", 0, max_size());
-        CHECK_EXPR(0 < size(), *(begin() + 0), "index:{} >= size():{}, you can't use it", 0, size());
+        NF_ASSERT_MSG(0 < max_size(), "index:%lu >= max_size():%lu, the server dump", 0, max_size());
+        CHECK_EXPR(0 < size(), *(begin() + 0), "index:%lu >= size():%lu, you can't use it", 0, size());
         return *begin();
     }
 
     reference back()
     {
-        NF_ASSERT_MSG((int) size() - 1 >= 0 && (int) size() - 1 < max_size(), "index:{} < 0 || >= max_size():{}, the server dump", (int) size() - 1,
+        NF_ASSERT_MSG((int) size() - 1 >= 0 && (int) size() - 1 < max_size(), "index:%lu < 0 || >= max_size():%lu, the server dump", (int) size() - 1,
                       max_size());
-        CHECK_EXPR((int) size() - 1 >= 0, *(begin() + 0), "index:{} < 0 || >= size():{}, you can't use it", (int) size() - 1, size());
+        CHECK_EXPR((int) size() - 1 >= 0, *(begin() + 0), "index:%lu < 0 || >= size():%lu, you can't use it", (int) size() - 1, size());
         return *(end() - 1);
     }
 
     const_reference back() const
     {
-        NF_ASSERT_MSG((int) size() - 1 >= 0 && (int) size() - 1 < max_size(), "index:{} < 0 || >= max_size():{}, the server dump", (int) size() - 1,
+        NF_ASSERT_MSG((int) size() - 1 >= 0 && (int) size() - 1 < max_size(), "index:%lu < 0 || >= max_size():%lu, the server dump", (int) size() - 1,
                       max_size());
-        CHECK_EXPR((int) size() - 1 >= 0, *(begin() + 0), "index:{} < 0 || >= size():{}, you can't use it", (int) size() - 1, size());
+        CHECK_EXPR((int) size() - 1 >= 0, *(begin() + 0), "index:%lu < 0 || >= size():%lu, you can't use it", (int) size() - 1, size());
         return *(end() - 1);
     }
 
@@ -295,7 +294,7 @@ public:
         }
         else
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "NFShmDyVector push_back Failed, Vector Not Enough Space");
+            LOG_ERR(0, -1, "NFShmDyVector push_back Failed, Vector Not Enough Space");
             return -1;
         }
     }
@@ -316,14 +315,13 @@ public:
         }
         else
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "NFShmDyVector push_back Failed, Vector Not Enough Space");
+            LOG_ERR(0, -1, "NFShmDyVector push_back Failed, Vector Not Enough Space");
             return -1;
         }
     }
 
     void swap(NFShmDyVector<Tp> &__x)
     {
-
     }
 
     iterator emplace(iterator __position, const Tp &__x)
@@ -388,7 +386,7 @@ public:
 
     void pop_back()
     {
-        --size();
+        --(*m_pSize);
         std::_Destroy(m_pData + size());
     }
 
@@ -406,7 +404,7 @@ public:
 
         if (__position + 1 != end())
             std::copy(__position + 1, m_pData + size(), __position);
-        --size();
+        --(*m_pSize);
         std::_Destroy(m_pData + size());
         return __position;
     }
@@ -568,7 +566,7 @@ public:
         std::shuffle(begin(), end());
     }
 
-    void remove(const Tp& value)
+    void remove(const Tp &value)
     {
         auto iter = std::remove(begin(), end(), value);
         if (iter != end())
@@ -595,6 +593,7 @@ public:
             erase(iter, end());
         }
     }
+
 protected:
     int _M_insert_aux(iterator __position, const Tp &__x);
 
@@ -609,8 +608,8 @@ protected:
     {
         if (__n > max_size())
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0,
-                         "NFShmDyVector Constructor _M_initialize_aux, __n:{} > max_size():{}, Vector Space Not Enough! __n change to max_size()", __n,
+            NFLogWarning(NF_LOG_DEFAULT, 0,
+                         "NFShmDyVector Constructor _M_initialize_aux, __n:%lu > max_size():%lu, Vector Space Not Enough! __n change to max_size()", __n,
                          max_size());
             __n = max_size();
         }
@@ -646,8 +645,8 @@ protected:
         size_type __n = std::distance(__first, __last);
         if (__n > max_size())
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0,
-                         "NFShmDyVector Constructor _M_range_initialize, __n:{} > max_size():{}, Vector Space Not Enough! __n change to max_size()", __n,
+            NFLogWarning(NF_LOG_DEFAULT, 0,
+                         "NFShmDyVector Constructor _M_range_initialize, __n:%lu > max_size():%lu, Vector Space Not Enough! __n change to max_size()", __n,
                          max_size());
             __n = max_size();
         }
@@ -754,7 +753,7 @@ void NFShmDyVector<_Tp>::_M_fill_assign(size_t __n, const value_type &__val)
 {
     if (__n > capacity())
     {
-        NFLogWarning(NF_LOG_SYSTEMLOG, 0, "The Vector Left Space:{} Not Enough! Can't Assign {} Element, Only {}", max_size(), __n, max_size());
+        NFLogWarning(NF_LOG_DEFAULT, 0, "The Vector Left Space:%lu Not Enough! Can't Assign %lu Element, Only %lu", max_size(), __n, max_size());
         __n = capacity();
     }
 
@@ -795,14 +794,14 @@ int NFShmDyVector<_Tp>::_M_insert_aux(iterator __position)
 
 template<class _Tp>
 void NFShmDyVector<_Tp>::_M_fill_insert(iterator __position, size_type __n,
-                                                const _Tp &__x)
+                                        const _Tp &__x)
 {
-    CHECK_EXPR_NOT_RET(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail! size:{} max_size():{}", size(), max_size());
+    CHECK_EXPR_RE_VOID(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail! size:%lu max_size():%lu", size(), max_size());
     if (__n != 0)
     {
         if (size_type(max_size() - size()) < __n)
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0, "The Vector Left Space:{} Not Enough! Can't Insert {} Element, Only {}", max_size() - size(), __n,
+            NFLogWarning(NF_LOG_DEFAULT, 0, "The Vector Left Space:%lu Not Enough! Can't Insert %lu Element, Only %lu", max_size() - size(), __n,
                          max_size() - size());
             __n = size_type(max_size() - size());
         }
@@ -830,10 +829,10 @@ void NFShmDyVector<_Tp>::_M_fill_insert(iterator __position, size_type __n,
 
 template<class _Tp>
 void NFShmDyVector<_Tp>::insert(iterator __position,
-                                        const_iterator __first,
-                                        const_iterator __last)
+                                const_iterator __first,
+                                const_iterator __last)
 {
-    CHECK_EXPR_NOT_RET(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail!");
+    CHECK_EXPR_RE_VOID(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail!");
 
     if (__first != __last)
     {
@@ -841,7 +840,7 @@ void NFShmDyVector<_Tp>::insert(iterator __position,
 
         if (size_type(max_size() - size()) < __n)
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0, "The Vector Left Space:{} Not Enough! Can't Insert {} Element, Only {}", max_size() - size(), __n,
+            NFLogWarning(NF_LOG_DEFAULT, 0, "The Vector Left Space:%lu Not Enough! Can't Insert %lu Element, Only %lu", max_size() - size(), __n,
                          max_size() - size());
             __n = size_type(max_size() - size());
             auto temp = __first;
@@ -873,7 +872,7 @@ void NFShmDyVector<_Tp>::insert(iterator __position,
 template<class _Tp>
 template<class _InputIter>
 void NFShmDyVector<_Tp>::_M_assign_aux(_InputIter __first, _InputIter __last,
-                                               std::input_iterator_tag)
+                                       std::input_iterator_tag)
 {
     iterator __cur = begin();
     for (; __first != __last && __cur != end(); ++__cur, ++__first)
@@ -887,13 +886,13 @@ void NFShmDyVector<_Tp>::_M_assign_aux(_InputIter __first, _InputIter __last,
 template<class _Tp>
 template<class _ForwardIter>
 void NFShmDyVector<_Tp>::_M_assign_aux(_ForwardIter __first, _ForwardIter __last,
-                                               std::forward_iterator_tag)
+                                       std::forward_iterator_tag)
 {
     size_type __len = std::distance(__first, __last);
 
     if (__len > capacity())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "__len > capacity(), some copy not success");
+        LOG_ERR(0, -1, "__len > capacity(), some copy not success");
         std::_Destroy(m_pData, m_pData + size());
 
         auto finish = std::uninitialized_copy_n(__first, max_size(), m_pData);
@@ -919,9 +918,9 @@ void NFShmDyVector<_Tp>::_M_assign_aux(_ForwardIter __first, _ForwardIter __last
 template<class _Tp>
 template<class _InputIterator>
 void NFShmDyVector<_Tp>::_M_range_insert(iterator __pos,
-                                                 _InputIterator __first,
-                                                 _InputIterator __last,
-                                                 std::input_iterator_tag)
+                                         _InputIterator __first,
+                                         _InputIterator __last,
+                                         std::input_iterator_tag)
 {
     for (; __first != __last; ++__first)
     {
@@ -937,18 +936,18 @@ void NFShmDyVector<_Tp>::_M_range_insert(iterator __pos,
 template<class _Tp>
 template<class _ForwardIterator>
 void NFShmDyVector<_Tp>::_M_range_insert(iterator __position,
-                                                 _ForwardIterator __first,
-                                                 _ForwardIterator __last,
-                                                 std::forward_iterator_tag)
+                                         _ForwardIterator __first,
+                                         _ForwardIterator __last,
+                                         std::forward_iterator_tag)
 {
-    CHECK_EXPR_NOT_RET(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail!");
+    CHECK_EXPR_RE_VOID(m_pData + size() != m_pData + max_size(), "The Vector No Enough Space! Insert Fail!");
     if (__first != __last)
     {
         size_type __n = std::distance(__first, __last);
 
         if (size_type(max_size() - size()) < __n)
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0, "The Vector Left Space:{} Not Enough! Can't Insert {} Element, Only {}", max_size() - size(), __n,
+            NFLogWarning(NF_LOG_DEFAULT, 0, "The Vector Left Space:%lu Not Enough! Can't Insert %lu Element, Only %lu", max_size() - size(), __n,
                          max_size() - size());
             __n = size_type(max_size() - size());
             auto temp = __first;

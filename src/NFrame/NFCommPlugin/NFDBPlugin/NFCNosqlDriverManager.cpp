@@ -111,12 +111,12 @@ NFINosqlDriver* NFCNosqlDriverManager::GetNosqlDriver(const std::string& strID)
 void NFCNosqlDriverManager::CheckNoSql()
 {
     static const int CHECK_TIME = 15;
-    if (mLastCheckTime + CHECK_TIME > NFTime::Now().UnixSec())
+    if (mLastCheckTime + CHECK_TIME > NF_ADJUST_TIMENOW())
     {
         return;
     }
 
-    mLastCheckTime = NFTime::Now().UnixSec();
+    mLastCheckTime = NF_ADJUST_TIMENOW();
 
     auto xNosqlDriver = this->mxNoSqlDriver.First();
     while (xNosqlDriver)

@@ -52,7 +52,7 @@ public:
 public:
     NFShmDyHashMap()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -196,7 +196,7 @@ public:
 public:
     NFShmDyHashMultiMap()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }

@@ -8,60 +8,55 @@
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFIBusModule.h"
-#include "NFComm/NFCore/NFSpinLock.h"
-#include "NFBusHash.h"
-#include "NFBusDefine.h"
-#include "NFBusShm.h"
-#include "../NFINetMessage.h"
-#include "../NFNetDefine.h"
-#include "NFComm/NFCore/NFBuffer.h"
-#include "NFComm/NFCore/NFCommMapEx.hpp"
-#include "NFComm/NFCore/NFConcurrentQueue.h"
 #include "NFIBusConnection.h"
-#include <map>
+#include "../NFINetMessage.h"
+#include "NFComm/NFCore/NFCommMapEx.hpp"
+#include "NFComm/NFPluginModule/NFNetDefine.h"
 
 class NFCBusServer;
 class NFCBusClient;
 
-class NFCBusMessage : public NFINetMessage
+class NFCBusMessage final : public NFINetMessage
 {
 public:
-	explicit NFCBusMessage(NFIPluginManager* p, NF_SERVER_TYPES serverType);
+	explicit NFCBusMessage(NFIPluginManager* p, NF_SERVER_TYPE serverType);
 
-	virtual ~NFCBusMessage();
+	~NFCBusMessage() override;
 
-    virtual bool ReadyExecute() override;
+	bool ReadyExecute() override;
 
-	virtual bool Execute() override;
+	bool Execute() override;
 
-	virtual bool Shut() override;
+	bool Shut() override;
 
-	virtual bool Finalize() override;
+	bool Finalize() override;
+
 public:
 	/**
 	* @brief	初始化
 	*
 	* @return 是否成功
 	*/
-	virtual uint64_t BindServer(const NFMessageFlag& flag);
+	uint64_t BindServer(const NFMessageFlag& flag) override;
 
 	/**
 	* @brief	初始化
 	*
 	* @return 是否成功
 	*/
-	virtual uint64_t ConnectServer(const NFMessageFlag& flag);
+	uint64_t ConnectServer(const NFMessageFlag& flag) override;
 
-    /**
-     * @brief	发送数据 不包含数据头
-     *
-     * @param pData		发送的数据,
-     * @param unSize	数据的大小
-     * @return
-     */
-    virtual bool Send(uint64_t usLinkId, NFDataPackage& packet, const char* msg, uint32_t nLen);
-    virtual bool Send(uint64_t usLinkId, NFDataPackage& packet, const google::protobuf::Message& xData);
+	/**
+	 * @brief	发送数据 不包含数据头
+	 *
+	 * @param usLinkId
+	 * @param packet
+	 * @param msg		发送的数据,
+	 * @param nLen	数据的大小
+	 * @return
+	 */
+	bool Send(uint64_t usLinkId, NFDataPackage& packet, const char* msg, uint32_t nLen) override;
+	bool Send(uint64_t usLinkId, NFDataPackage& packet, const google::protobuf::Message& xData) override;
 
 	/**
 	 * @brief 获得连接IP
@@ -69,8 +64,8 @@ public:
 	 * @param  usLinkId
 	 * @return std::string
 	 */
-	virtual std::string GetLinkIp(uint64_t usLinkId);
-    virtual uint32_t GetPort(uint64_t usLinkId);
+	std::string GetLinkIp(uint64_t usLinkId) override;
+	uint32_t GetPort(uint64_t usLinkId) override;
 
 	/**
 	* @brief 关闭连接
@@ -78,18 +73,19 @@ public:
 	* @param  usLinkId
 	* @return
 	*/
-	virtual void CloseLinkId(uint64_t usLinkId);
+	void CloseLinkId(uint64_t usLinkId) override;
 
-    virtual void OnHandleMsgPeer(eMsgType type, uint64_t serverLinkId, uint64_t objectLinkId, NFDataPackage& package);
+	void OnHandleMsgPeer(eMsgType type, uint64_t serverLinkId, uint64_t objectLinkId, NFDataPackage& package);
 
-    virtual int ResumeConnect() override;
+	int ResumeConnect() override;
 
-    virtual int OnTimer(uint32_t nTimerID) override;
+	int OnTimer(uint32_t nTimerId) override;
 
-    virtual void SendHeartMsg();
+	void SendHeartMsg();
 
-    virtual void CheckServerHeartBeat();
+	void CheckServerHeartBeat();
+
 private:
-    NFCommMapEx<uint64_t, NFIBusConnection> m_busConnectMap;
+	NFCommMapEx<uint64_t, NFIBusConnection> m_busConnectMap;
     NF_SHARE_PTR<NFIBusConnection> m_bindConnect;
 };

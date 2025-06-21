@@ -15,6 +15,8 @@
 #include <ctype.h>
 #include <wctype.h>
 #include <iostream>
+#include <regex>
+
 #include "NFSlice.hpp"
 #include "NFPlatform.h"
 #if NF_PLATFORM == NF_PLATFORM_WIN
@@ -280,7 +282,7 @@ public:
 	}
 
 	// query whether parameter string is a float number string or not.
-	static bool IsFloatNumber(std::string& s);
+	static bool IsFloatNumber(const std::string& s);
 
 	static void Split(const std::string& str,
 	                  const std::string& delim,
@@ -637,7 +639,8 @@ public:
 
 		for (size_t i = 0; i < str.size(); ++i)
 		{
-			if (/*str[i] == ' ' || */str[i] == '\n' || str[i] == '\r')
+			//"\0 \t\r\n\v
+			if (str[i] == ' ' || str[i] == '\n' || str[i] == '\r' || str[i] == '\t' || str[i] == '\v' || str[i] == '\0')
 			{
 				continue;
 			}
@@ -977,7 +980,7 @@ public:
      * @param delti
      * @return
      */
-/*    static std::vector<std::string> SplitRegexString(const std::string& str, const std::string& delti) {
+    static std::vector<std::string> SplitRegexString(const std::string& str, const std::string& delti) {
         std::regex reg(delti);
         std::vector<std::string> elems(std::sregex_token_iterator(str.begin(), str.end(), reg, -1),
                                        std::sregex_token_iterator());
@@ -992,7 +995,7 @@ public:
     static void SplitRegexString(const std::string& str, const std::string& delti, std::vector<std::string>* pResult)
     {
         *pResult = SplitRegexString(str, delti);
-    }*/
+    }
 
 	//字符串分割
 	static void SplitString(const std::string& sSrc, std::string sDelimit, std::vector<std::string>& vResult, std::string sNull_subst = "");
@@ -1032,7 +1035,7 @@ public:
         }
     }
 
-        template<typename T1>
+    template<typename T1>
 	static bool SplitStringToVectorVec(const std::string& strSrc, vector<vector<T1> >& vecResult)
 	{
 		vector<string> vStrData;

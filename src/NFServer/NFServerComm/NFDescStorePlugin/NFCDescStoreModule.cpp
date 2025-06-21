@@ -8,9 +8,12 @@
 // -------------------------------------------------------------------------
 
 #include "NFCDescStoreModule.h"
+
+#include <NFServerComm/NFServerCommon/NFDBObjMgr.h>
+
 #include "NFComm/NFPluginModule/NFLogMgr.h"
 #include "NFComm/NFPluginModule/NFCheck.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
+#include "NFComm/NFObjCommon/NFShmMgr.h"
 #include "NFComm/NFCore/NFFileUtility.h"
 #include "NFComm/NFCore/NFMD5.h"
 #include "NFResFileDb.h"
@@ -18,8 +21,8 @@
 #include "NFComm/NFPluginModule/NFIAsyDBModule.h"
 #include "NFResMysqlDb.h"
 #include "NFComm/NFPluginModule/NFICoroutineModule.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
 #include "NFComm/NFPluginModule/NFIMessageModule.h"
 #include "NFServerComm/NFServerCommon/NFIServerMessageModule.h"
 
@@ -50,7 +53,7 @@ bool NFCDescStoreModule::AfterInitShmMem()
     LoadFileDestSotre();
     if (!HasDBDescStore())
     {
-        if (FindModule<NFISharedMemModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
+        if (FindModule<NFIMemMngModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
         {
             int iRet = CheckWhenAllDataLoaded();
             if (iRet != 0)
@@ -66,7 +69,7 @@ bool NFCDescStoreModule::Awake()
 {
     for (int i = 0; i < (int) NF_ST_MAX; i++)
     {
-        Subscribe(i, proto_ff::NF_EVENT_SERVER_TASK_GROUP_FINISH, proto_ff::NF_EVENT_SERVER_TYPE, APP_INIT_TASK_GROUP_SERVER_CONNECT,
+        Subscribe((NF_SERVER_TYPE)i, NFrame::NF_EVENT_SERVER_TASK_GROUP_FINISH, NFrame::NF_EVENT_SERVER_TYPE, APP_INIT_TASK_GROUP_SERVER_CONNECT,
                   __FUNCTION__);
     }
     return true;
@@ -75,12 +78,12 @@ bool NFCDescStoreModule::Awake()
 int
 NFCDescStoreModule::OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message *pMessage)
 {
-    if (nEventID == proto_ff::NF_EVENT_SERVER_TASK_GROUP_FINISH && bySrcType == proto_ff::NF_EVENT_SERVER_TYPE &&
+    if (nEventID == NFrame::NF_EVENT_SERVER_TASK_GROUP_FINISH && bySrcType == NFrame::NF_EVENT_SERVER_TYPE &&
         nSrcID == APP_INIT_TASK_GROUP_SERVER_CONNECT)
     {
-        if (serverType == NF_ST_NONE || m_pObjPluginManager->IsHasAppTask((NF_SERVER_TYPES) serverType, APP_INIT_TASK_GROUP_SERVER_LOAD_DESC_STORE))
+        if (serverType == NF_ST_NONE || m_pObjPluginManager->IsHasAppTask((NF_SERVER_TYPE) serverType, APP_INIT_TASK_GROUP_SERVER_LOAD_DESC_STORE))
         {
-            NFLogInfo(NF_LOG_SYSTEMLOG, 0, "{} Start LoadDBDestSotre.........", GetServerName((NF_SERVER_TYPES)serverType));
+            NFLogInfo(NF_LOG_DEFAULT, 0, "{} Start LoadDBDestSotre.........", GetServerName((NF_SERVER_TYPE)serverType));
             LoadDBDestSotre();
         }
     }
@@ -95,13 +98,10 @@ bool NFCDescStoreModule::Execute()
         {
             if (HasDBDescStore())
             {
-                if (FindModule<NFISharedMemModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
+                if (FindModule<NFIMemMngModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
                 {
                     int iRet = CheckWhenAllDataLoaded();
-                    if (iRet != 0)
-                    {
-                        return false;
-                    }
+                    CHECK_EXPR_ASSERT(iRet == 0, false, "CheckWhenAllDataLoaded Failed");
                 }
             }
 
@@ -136,7 +136,7 @@ int NFCDescStoreModule::LoadFileDestSotre()
     if (m_bStartInit) return 0;
 
     int iRet = -1;
-    if (FindModule<NFISharedMemModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
+    if (FindModule<NFIMemMngModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
     {
         LoadFile();
     }
@@ -157,7 +157,7 @@ int NFCDescStoreModule::LoadDBDestSotre()
     if (m_bStartInit) return 0;
 
     int iRet = -1;
-    if (FindModule<NFISharedMemModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
+    if (FindModule<NFIMemMngModule>()->GetInitMode() == EN_OBJ_MODE_INIT)
     {
         LoadDB();
     }
@@ -172,36 +172,36 @@ int NFCDescStoreModule::LoadDBDestSotre()
 
 void NFCDescStoreModule::InitAllDescStore()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     for (int i = 0; i < (int) mDescStoreRegisterList.size(); i++)
     {
         std::string name = mDescStoreRegisterList[i];
-        NFIDescStore *pDescStore = dynamic_cast<NFIDescStore *>(FindModule<NFISharedMemModule>()->GetHeadObj(mDescStoreRegister[name]));
+        NFIDescStore *pDescStore = dynamic_cast<NFIDescStore *>(FindModule<NFIMemMngModule>()->GetHeadObj(mDescStoreRegister[name]));
         CHECK_EXPR_CONTINUE(pDescStore, "can' get NFIDescStore:{} ptr from shm", name);
 
         int iRet = InitDescStore(name, pDescStore);
         CHECK_EXPR_CONTINUE(iRet == 0, "InitDescStore:{} Failed!", name);
 
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Init Desc Store:{} Success", name);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Init Desc Store:{} Success", name);
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
 }
 
 void NFCDescStoreModule::InitAllDescStoreEx()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     for (int i = 0; i < (int) mDescStoreExRegisterList.size(); i++)
     {
         std::string name = mDescStoreExRegisterList[i];
-        NFIDescStoreEx *pDescStoreEx = dynamic_cast<NFIDescStoreEx *>(FindModule<NFISharedMemModule>()->GetHeadObj(mDescStoreExRegister[name]));
+        NFIDescStoreEx *pDescStoreEx = dynamic_cast<NFIDescStoreEx *>(FindModule<NFIMemMngModule>()->GetHeadObj(mDescStoreExRegister[name]));
         CHECK_EXPR_CONTINUE(pDescStoreEx, "can' get NFIDescStoreEx:{} ptr from shm", name);
 
         int iRet = InitDescStoreEx(name, pDescStoreEx);
         CHECK_EXPR_CONTINUE(iRet == 0, "InitDescStoreEx:{} Failed!", name);
 
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Init Desc Store Ex:{} Success", name);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Init Desc Store Ex:{} Success", name);
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
 }
 
 bool NFCDescStoreModule::IsAllDescStoreLoad()
@@ -219,40 +219,40 @@ bool NFCDescStoreModule::IsAllDescStoreLoad()
 
 int NFCDescStoreModule::InitDescStore(const std::string &descClass, NFIDescStore *pDescStore)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     CHECK_EXPR(pDescStore, -1, "pDescStore = NULL");
 
     pDescStore->SetValid();
     AddDescStore(descClass, pDescStore);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::InitDescStoreEx(const std::string& descClass, NFIDescStoreEx* pDescStoreEx)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     CHECK_EXPR(pDescStoreEx, -1, "pDescStore = NULL");
 
     pDescStoreEx->SetValid();
     AddDescStoreEx(descClass, pDescStoreEx);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::ExtraInitializeWhenRecover()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     //Reload(m_pResDB);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::LoadDescStore(NFIDescStore *pDescStore)
 {
-    CHECK_NULL(pDescStore);
+    CHECK_NULL(0, pDescStore);
 
     if (pDescStore->IsLoaded())
     {
@@ -291,7 +291,7 @@ int NFCDescStoreModule::LoadDescStore(NFIDescStore *pDescStore)
 
             pDescStore->SetMD5(fileMd5.c_str());
         }
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store End Load:{}, iRet={}, fileMd5:{}", pDescStore->GetFileName(), iRet, fileMd5);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store End Load:{}, iRet={}, fileMd5:{}", pDescStore->GetFileName(), iRet, fileMd5);
     }
     else
     {
@@ -303,7 +303,7 @@ int NFCDescStoreModule::LoadDescStore(NFIDescStore *pDescStore)
 
 int NFCDescStoreModule::LoadFile()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     for (int i = 0; i < (int) mDescStoreRegisterList.size(); i++)
     {
@@ -314,13 +314,13 @@ int NFCDescStoreModule::LoadFile()
         if (!pDescStore->IsFileLoad())
             continue;
         
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Begin Load:{}", pDescStore->GetFileName());
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Begin Load:{}", pDescStore->GetFileName());
 
         int ret = LoadDescStore(pDescStore);
         NF_ASSERT_MSG(ret == 0, "Load Desc Store:" + pDescStore->GetFileName() + " Failed!");
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Load:{} Sucess", pDescStore->GetFileName());
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Load:{} Sucess", pDescStore->GetFileName());
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
@@ -341,7 +341,7 @@ bool NFCDescStoreModule::HasDBDescStore()
 
 int NFCDescStoreModule::LoadDB()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     for (int i = 0; i < (int) mDescStoreRegisterList.size(); i++)
     {
@@ -352,22 +352,22 @@ int NFCDescStoreModule::LoadDB()
         if (pDescStore->IsFileLoad())
             continue;
 
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "Desc Store Begin Load:{}", pDescStore->GetFileName());
+        NFLogInfo(NF_LOG_DEFAULT, 0, "Desc Store Begin Load:{}", pDescStore->GetFileName());
 
         FindModule<NFICoroutineModule>()->MakeCoroutine([pDescStore, this]
                                                         {
                                                             int ret = LoadDescStore(pDescStore);
                                                             NF_ASSERT_MSG(ret == 0, "Load Desc Store:" + pDescStore->GetFileName() + " Failed!");
-                                                            NFLogInfo(NF_LOG_SYSTEMLOG, 0, "Desc Store Load:{} Sucess", pDescStore->GetFileName());
+                                                            NFLogInfo(NF_LOG_DEFAULT, 0, "Desc Store Load:{} Sucess", pDescStore->GetFileName());
                                                         });
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::ReLoadDescStore(NFIDescStore *pDescStore)
 {
-    CHECK_NULL(pDescStore);
+    CHECK_NULL(0, pDescStore);
 
     int iRet = 0;
     if (pDescStore->IsFileLoad())
@@ -389,7 +389,7 @@ int NFCDescStoreModule::ReLoadDescStore(NFIDescStore *pDescStore)
             }
         }
 
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "File {}.bin Changed, Reload.", pDescStore->GetFileName());
+        NFLogInfo(NF_LOG_DEFAULT, 0, "File {}.bin Changed, Reload.", pDescStore->GetFileName());
         pDescStore->SetReLoading(true);
         iRet = pDescStore->Reload(m_pResFileDB);
         CHECK_EXPR(iRet == 0, iRet, "Desc Store Reload table:{} error", pDescStore->GetFileName());
@@ -408,7 +408,7 @@ int NFCDescStoreModule::ReLoadDescStore(NFIDescStore *pDescStore)
     }
     else
     {
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "db table:{} Changed, Reload.", pDescStore->GetFileName());
+        NFLogInfo(NF_LOG_DEFAULT, 0, "db table:{} Changed, Reload.", pDescStore->GetFileName());
         pDescStore->SetReLoading(true);
         iRet = pDescStore->Reload(m_pResSqlDB);
         CHECK_EXPR(iRet == 0, iRet, "Desc Store:{} Reload Failed!", pDescStore->GetFileName());
@@ -417,25 +417,25 @@ int NFCDescStoreModule::ReLoadDescStore(NFIDescStore *pDescStore)
         pDescStore->SetChecked(false);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "Desc Store End Reload:{}", pDescStore->GetFileName());
+    NFLogInfo(NF_LOG_DEFAULT, 0, "Desc Store End Reload:{}", pDescStore->GetFileName());
     return 0;
 }
 
 int NFCDescStoreModule::Reload()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     for (int i = 0; i < (int) mDescStoreRegisterList.size(); i++)
     {
         const std::string &name = mDescStoreRegisterList[i];
         NFIDescStore *pDescStore = mDescStoreMap[name];
         assert(pDescStore);
 
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "Desc Store Begin Reload:{}", name);
+        NFLogInfo(NF_LOG_DEFAULT, 0, "Desc Store Begin Reload:{}", name);
 
         if (pDescStore->IsFileLoad())
         {
             int ret = ReLoadDescStore(pDescStore);
-            NF_ASSERT_MSG(ret == 0, "ReLoad Desc Store Failed!");
+            CHECK_EXPR_ASSERT(ret == 0, ret, "ReLoad Desc Store Failed!");
         }
         else
         {
@@ -454,65 +454,65 @@ int NFCDescStoreModule::Reload()
         pDescStore->SetReLoading(false);
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::CheckWhenAllDataLoaded()
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     int iRet = 0;
     for (auto iter = mDescStoreMap.begin(); iter != mDescStoreMap.end(); iter++)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Begin CheckWhenAllDataLoaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Begin CheckWhenAllDataLoaded:{}", iter->first);
         NFIDescStore *pDescStore = iter->second;
         assert(pDescStore);
         iRet = pDescStore->CheckWhenAllDataLoaded();
 
-        CHECK_EXPR(iRet == 0, iRet, "Desc Store:{} CheckWhenAllDataLoaded Failed!", iter->first);
+        CHECK_EXPR_ASSERT(iRet == 0, iRet, "Desc Store:{} CheckWhenAllDataLoaded Failed!", iter->first);
 
         pDescStore->SetChecked(true);
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store End CheckWhenAllDataLoaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store End CheckWhenAllDataLoaded:{}", iter->first);
     }
     for (auto iter = mDescStoreExMap.begin(); iter != mDescStoreExMap.end(); iter++)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Ex Begin Loaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Ex Begin Loaded:{}", iter->first);
         NFIDescStoreEx *pDescStoreEx = iter->second;
         assert(pDescStoreEx);
         iRet = pDescStoreEx->Load();
 
-        CHECK_EXPR(iRet == 0, iRet, "Desc Store Ex:{} Loaded Failed!", iter->first);
+        CHECK_EXPR_ASSERT(iRet == 0, iRet, "Desc Store Ex:{} Loaded Failed!", iter->first);
 
         pDescStoreEx->SetLoaded(true);
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Ex End Loaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Ex End Loaded:{}", iter->first);
     }
     for (auto iter = mDescStoreExMap.begin(); iter != mDescStoreExMap.end(); iter++)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Ex Begin CheckWhenAllDataLoaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Ex Begin CheckWhenAllDataLoaded:{}", iter->first);
         NFIDescStoreEx *pDescStoreEx = iter->second;
         assert(pDescStoreEx);
         iRet = pDescStoreEx->CheckWhenAllDataLoaded();
 
-        CHECK_EXPR(iRet == 0, iRet, "Desc Store Ex:{} CheckWhenAllDataLoaded Failed!", iter->first);
+        CHECK_EXPR_ASSERT(iRet == 0, iRet, "Desc Store Ex:{} CheckWhenAllDataLoaded Failed!", iter->first);
 
         pDescStoreEx->SetChecked(true);
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "Desc Store Ex End CheckWhenAllDataLoaded:{}", iter->first);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "Desc Store Ex End CheckWhenAllDataLoaded:{}", iter->first);
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFCDescStoreModule::GetFileContainMD5(const std::string &strFileName, std::string &fileMd5)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     bool exist = NFFileUtility::IsFileExist(strFileName);
     CHECK_EXPR(exist, -1, "strFileName:{} not exist", strFileName);
 
     fileMd5 = NFMD5::md5file(strFileName);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
@@ -656,18 +656,18 @@ NFIDescStore *NFCDescStoreModule::FindDescStore(const std::string &strDescName)
     return nullptr;
 }
 
-NFResDB *
+NFResDb *
 NFCDescStoreModule::CreateResDBFromRealDB()
 {
     return new NFResMysqlDB(m_pObjPluginManager);
 }
 
-NFResDB *NFCDescStoreModule::CreateResDBFromFiles(const std::string &dir)
+NFResDb *NFCDescStoreModule::CreateResDBFromFiles(const std::string &dir)
 {
     return new NFFileResDB(m_pObjPluginManager, dir);
 }
 
-int NFCDescStoreModule::GetDescStoreByRpc(NF_SERVER_TYPES eType, const std::string &dbName, const std::string &table_name,
+int NFCDescStoreModule::GetDescStoreByRpc(NF_SERVER_TYPE eType, const std::string &dbName, const std::string &table_name,
                                           google::protobuf::Message *pMessage)
 {
     return FindModule<NFIServerMessageModule>()->GetRpcDescStoreService(eType, std::hash<std::string>()(table_name), pMessage, std::vector<std::string>(),
@@ -678,3 +678,22 @@ void NFCDescStoreModule::runAfterShmInit()
 {
     Initialize();
 }
+
+bool NFCDescStoreModule::CheckStopServer()
+{
+    if (!NFDBObjMgr::Instance()->CheckStopServer())
+    {
+        return false;
+    }
+    return true;
+}
+
+bool NFCDescStoreModule::StopServer()
+{
+    if (!NFDBObjMgr::Instance()->StopServer())
+    {
+        return false;
+    }
+    return true;
+}
+

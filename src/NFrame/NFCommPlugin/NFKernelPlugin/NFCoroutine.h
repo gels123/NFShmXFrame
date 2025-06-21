@@ -35,7 +35,7 @@
 
 class NFSchedule;
 
-typedef void (*NFCoroutineFunc)(struct NFSchedule *, void *ud);
+typedef void (*NFCoroutineFunc)(NFSchedule *, void *ud);
 
 class NFCoroutine {
 public:

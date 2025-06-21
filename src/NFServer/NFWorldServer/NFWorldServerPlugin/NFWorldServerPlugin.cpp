@@ -42,6 +42,7 @@ std::string NFWorldServerPlugin::GetPluginName()
 
 void NFWorldServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_WORLD_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIWorldServerModule, NFCWorldServerModule);
 }
 

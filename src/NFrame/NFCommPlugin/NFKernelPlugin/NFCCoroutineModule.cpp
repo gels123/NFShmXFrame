@@ -82,11 +82,11 @@ void NFCCoroutineModule::UpdateUser()
     }
 }
 
-bool NFCCoroutineModule::OnStopServer()
+bool NFCCoroutineModule::CheckStopServer()
 {
     if (m_pCorSched)
     {
-        return m_pCorSched->OnStopServer();
+        return m_pCorSched->CheckStopServer();
     }
 
     return true;
@@ -225,7 +225,7 @@ int NFCCoroutineModule::SetUserData(google::protobuf::Message *pUserData)
     int64_t coId = CurrentTaskId();
     if (INVALID_CO_ID == coId)
     {
-        return proto_ff::ERR_CODE_CO_NOT_IN_COROUTINE;
+        return NFrame::ERR_CODE_CO_NOT_IN_COROUTINE;
     }
     return m_pCorSched->SetUserData(coId, pUserData);
 }
@@ -267,11 +267,11 @@ bool NFCCoroutineModule::IsExistUserCo(uint64_t userId)
     {
         if (!iter->second.empty())
         {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 
@@ -307,7 +307,7 @@ int64_t NFCCoroutineModule::MakeCoroutine(const std::function<void()> &func, boo
     NFCommonCoroutineTask *pTask = NewTask<NFCommonCoroutineTask>();
     if (pTask == NULL)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "new co task failed!");
+        NFLogError(NF_LOG_DEFAULT, 0, "new co task failed!");
         return -1;
     }
 

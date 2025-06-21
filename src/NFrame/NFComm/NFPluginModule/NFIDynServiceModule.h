@@ -48,11 +48,11 @@ public:
      */
     virtual int OnHandleRpcMessage(uint32_t msgId, google::protobuf::Message& request, google::protobuf::Message& respone, uint64_t param1, uint64_t param2) override;
 public:
-    virtual int RegisterClientMessage(NF_SERVER_TYPES serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo);
-    virtual int RegisterServerMessage(NF_SERVER_TYPES serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo);
+    virtual int RegisterClientMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo);
+    virtual int RegisterServerMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo);
 
     template<size_t msgId, typename BaseType, typename RequestType, typename ResponeType>
-    int AddServiceRpc(NF_SERVER_TYPES serverType, BaseType* pBase, int (BaseType::*handleRecieve)(RequestType& request, ResponeType& respone), uint32_t serviceId, bool createCo = false)
+    int AddServiceRpc(NF_SERVER_TYPE serverType, BaseType* pBase, int (BaseType::*handleRecieve)(RequestType& request, ResponeType& respone), uint32_t serviceId, bool createCo = false)
     {
         CHECK_EXPR_ASSERT(msgId < m_rpcMsgToServiceMap.size(), -1, "");
         AddRpcService<msgId, RequestType, ResponeType>(serverType, createCo);

@@ -41,7 +41,7 @@ public:
 public:
     NFShmDyHashSet()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -169,7 +169,7 @@ public:
 public:
     NFShmDyHashMultiSet()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }

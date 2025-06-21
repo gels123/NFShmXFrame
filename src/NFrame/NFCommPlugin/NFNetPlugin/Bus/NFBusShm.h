@@ -29,8 +29,8 @@ struct NFShmStatsBlockError {
 	size_t m_nReadBadBlockCount;               // 读到的错误数据块数量
 	size_t m_nReadWriteTimeoutCount;           // 读到的写超时保护数量
 	size_t m_nReadCheckBlockSizeFailedCount; // 读到的数据块长度检查错误数量
-	size_t m_ReadCheckNodeSizeFailedCount;  // 读到的数据节点和长度检查错误数量
-	size_t m_ReadCheckHashFailedCount;       // 读到的数据hash值检查错误数量
+	size_t m_nReadCheckNodeSizeFailedCount; // 读到的数据节点和长度检查错误数量
+	size_t m_nReadCheckHashFailedCount; // 读到的数据hash值检查错误数量
 };
 
 #if NF_PLATFORM == NF_PLATFORM_WIN
@@ -42,12 +42,12 @@ struct NFShmRecordType {
 	HANDLE m_nHandle;
 	LPCTSTR m_nBuffer;
 	size_t m_nSize;
-	size_t m_ReferenceCount;
-	bool m_nOwner;
+	size_t m_nReferenceCount;
+    bool m_nOwner;
 	uint64_t m_nBusId;
-	uint64_t m_nBusLenth;
-	uint64_t m_nUnLinkId;
-	uint32_t mPacketParseType; //解码消息类型
+	uint64_t m_nBusLength;
+    uint64_t m_nUnLinkId;
+    uint32_t m_packetParseType; //解码消息类型
 };
 #else
 struct NFShmRecordType{
@@ -57,24 +57,24 @@ struct NFShmRecordType{
         m_nShmId = 0;
         m_nBuffer = NULL;
         m_nSize = 0;
-        m_ReferenceCount = 0;
+        m_nReferenceCount = 0;
         m_nOwner = false;
         m_nBusId = 0;
-        m_nBusLenth = 0;
+        m_nBusLength = 0;
         m_nUnLinkId = 0;
-        mPacketParseType = 0;
+        m_packetParseType = 0;
     }
     int m_nShmFd;
     std::string m_nShmPath;
 	int m_nShmId;
 	void *m_nBuffer;
 	size_t m_nSize;
-	size_t m_ReferenceCount;
-	bool m_nOwner;
+    size_t m_nReferenceCount;
+    bool m_nOwner;
 	uint64_t m_nBusId;
-    uint64_t m_nBusLenth;
+    uint64_t m_nBusLength;
 	uint64_t m_nUnLinkId;
-	uint32_t mPacketParseType; //解码消息类型
+    uint32_t m_packetParseType; //解码消息类型
 };
 #endif
 
@@ -148,11 +148,11 @@ static_assert(std::is_standard_layout<NFShmChannel>::value, "shm_channel must be
 
 struct NFShmAddr
 {
-    volatile std::atomic<uint64_t> mDstLinkId;
-    volatile std::atomic<uint64_t> mSrcLinkId[NFBUS_MACRO_SRC_BUS_LIMIT];
-    volatile std::atomic<uint64_t> mSrcBusLength[NFBUS_MACRO_SRC_BUS_LIMIT];
-    volatile std::atomic<uint32_t> mSrcParseType[NFBUS_MACRO_SRC_BUS_LIMIT];
-    volatile std::atomic<bool>  bActiveConnect[NFBUS_MACRO_SRC_BUS_LIMIT];
+	volatile std::atomic<uint64_t> m_dstLinkId;
+	volatile std::atomic<uint64_t> m_srcLinkId[NFBUS_MACRO_SRC_BUS_LIMIT];
+	volatile std::atomic<uint64_t> m_srcBusLength[NFBUS_MACRO_SRC_BUS_LIMIT];
+	volatile std::atomic<uint32_t> m_srcParseType[NFBUS_MACRO_SRC_BUS_LIMIT];
+	volatile std::atomic<bool> m_bActiveConnect[NFBUS_MACRO_SRC_BUS_LIMIT];
 };
 
 // 对齐头
@@ -192,13 +192,13 @@ typedef enum {
  */
 struct NFShmBlock {
 	enum size_def {
-		channel_head_size = sizeof(NFShmChannelHead),
-		block_head_size = ((sizeof(NFShmBlockHead) + NFBUS_MACRO_DATA_ALIGN_SIZE - 1) / NFBUS_MACRO_DATA_ALIGN_SIZE) * NFBUS_MACRO_DATA_ALIGN_SIZE,
-		node_head_size = ((sizeof(NFShmNodeHead) + NFBUS_MACRO_DATA_ALIGN_SIZE - 1) / NFBUS_MACRO_DATA_ALIGN_SIZE) * NFBUS_MACRO_DATA_ALIGN_SIZE,
+		CHANNEL_HEAD_SIZE = sizeof(NFShmChannelHead),
+		BLOCK_HEAD_SIZE = ((sizeof(NFShmBlockHead) + NFBUS_MACRO_DATA_ALIGN_SIZE - 1) / NFBUS_MACRO_DATA_ALIGN_SIZE) * NFBUS_MACRO_DATA_ALIGN_SIZE,
+		NODE_HEAD_SIZE = ((sizeof(NFShmNodeHead) + NFBUS_MACRO_DATA_ALIGN_SIZE - 1) / NFBUS_MACRO_DATA_ALIGN_SIZE) * NFBUS_MACRO_DATA_ALIGN_SIZE,
 
-		node_data_size = NFBUS_MACRO_DATA_NODE_SIZE,
-		node_head_data_size = node_data_size - block_head_size,
-        connect_shm_size = (node_head_size+node_data_size)*100,
+		NODE_DATA_SIZE = NFBUS_MACRO_DATA_NODE_SIZE,
+		NODE_HEAD_DATA_SIZE = NODE_DATA_SIZE - BLOCK_HEAD_SIZE,
+		CONNECT_SHM_SIZE = (NODE_HEAD_SIZE + NODE_DATA_SIZE) * 100,
 	};
 };
 

@@ -36,12 +36,12 @@ public:
     int OnHandleProxyAgentServerOtherMessage(uint64_t unLinkId, NFDataPackage& packet);
     int OnHandleProxyServerDisconnect(uint64_t unLinkId);
     int OnServerRegisterProcess(uint64_t unLinkId, NFDataPackage& packet);
-    int OnOtherServerRegisterProcess(const proto_ff::ServerInfoReport& xData, uint64_t unLinkId);
+    int OnOtherServerRegisterProcess(const NFrame::ServerInfoReport& xData, uint64_t unLinkId);
 
 	/*
 		处理Master服务器链接事件和未注册消息
 	*/
-    int ConnectMasterServer(const proto_ff::ServerInfoReport& xData);
+    int ConnectMasterServer(const NFrame::ServerInfoReport& xData);
 	int OnMasterSocketEvent(eMsgType nEvent, uint64_t unLinkId);
 	int OnHandleMasterOtherMessage(uint64_t unLinkId, NFDataPackage& packet);
 
@@ -49,7 +49,7 @@ public:
     int RegisterProxyServer(uint64_t unLinkId);
 	int ServerReport();
 	int OnHandleServerReport(uint64_t unLinkId, NFDataPackage& packet);
-    int OnHandleProxyReport(const proto_ff::ServerInfoReport& xData);
+    int OnHandleProxyReport(const NFrame::ServerInfoReport& xData);
 
     int OnProxyServerSocketEvent(eMsgType nEvent, uint64_t unLinkId);
     int OnHandleProxyOtherMessage(uint64_t unLinkId, NFDataPackage& packet);

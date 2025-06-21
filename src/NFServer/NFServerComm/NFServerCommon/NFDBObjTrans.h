@@ -9,9 +9,9 @@
 
 #pragma once
 
-#include "NFComm/NFShmCore/NFTransBase.h"
+#include "NFComm/NFObjCommon/NFTransBase.h"
 
-class NFDBObjTrans : public NFShmObjTemplate<NFDBObjTrans, EOT_TRANS_DB_OBJ, NFTransBase>
+class NFDBObjTrans : public NFObjectTemplate<NFDBObjTrans, EOT_TRANS_DB_OBJ, NFTransBase>
 {
 public:
     NFDBObjTrans();
@@ -22,7 +22,7 @@ public:
     //非继承函数, 不要加virtual
     int ResumeInit();
 public:
-    int Init(NF_SERVER_TYPES eType, int iObjID, uint32_t iSeqOP);
+    int Init(NF_SERVER_TYPE eType, int iObjID, uint32_t iSeqOP);
     int Insert(uint64_t iModKey, google::protobuf::Message* data);
     int Save(uint64_t iModKey, google::protobuf::Message* data);
     int Load(uint64_t iModKey, google::protobuf::Message* data);
@@ -36,5 +36,5 @@ private:
     int m_iLinkedObjID;
     uint32_t m_iObjSeqOP;
     int m_iDBOP;
-    NF_SERVER_TYPES m_iServerType;
+    NF_SERVER_TYPE m_iServerType;
 };

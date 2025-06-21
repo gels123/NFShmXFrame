@@ -1,20 +1,20 @@
 // -------------------------------------------------------------------------
 //    @FileName         :    NFShmPlugin.cpp
-//    @Author           :    LvSheng.Huang
+//    @Author           :    gaoyi
 //    @Date             :   2022-09-18
 //    @Module           :    NFShmPlugin
 //
 // -------------------------------------------------------------------------
 
 #include "NFShmPlugin.h"
-#include "NFCSharedMemModule.h"
+#include "NFCShmMngModule.h"
 #include "NFCShmOtherModule.h"
 
-#include "NFGlobalID.h"
+#include "NFShmGlobalId.h"
 #include "NFShmTimer.h"
-#include "NFShmTimerManager.h"
-#include "NFTransMng.h"
-#include "NFComm/NFShmCore/NFTransBase.h"
+#include "NFShmTimerMng.h"
+#include "NFShmTransMng.h"
+#include "NFComm/NFObjCommon/NFTransBase.h"
 #include "NFComm/NFPluginModule/NFIConfigModule.h"
 #include "NFShmSubscribeInfo.h"
 #include "NFShmEventMgr.h"
@@ -54,13 +54,13 @@ bool NFShmPlugin::IsDynamicLoad()
 
 void NFShmPlugin::Install()
 {
-    REGISTER_MODULE(m_pObjPluginManager, NFISharedMemModule, NFCSharedMemModule);
+    REGISTER_MODULE(m_pObjPluginManager, NFIMemMngModule, NFCShmMngModule);
     REGISTER_MODULE(m_pObjPluginManager, NFCShmOtherModule, NFCShmOtherModule);
 }
 
 void NFShmPlugin::Uninstall()
 {
-    UNREGISTER_MODULE(m_pObjPluginManager, NFISharedMemModule, NFCSharedMemModule);
+    UNREGISTER_MODULE(m_pObjPluginManager, NFIMemMngModule, NFCShmMngModule);
     UNREGISTER_MODULE(m_pObjPluginManager, NFCShmOtherModule, NFCShmOtherModule);
 }
 
@@ -87,13 +87,13 @@ bool NFShmPlugin::InitShmObjectRegister()
         maxShmEvent = NF_SHM_EVENT_KEY_MAX_NUM;
     }
 
-    REGISTER_SHM_OBJ(NFShmObj, 0);
-    REGISTER_SINGLETON_SHM_OBJ(NFGlobalID);
+    REGISTER_SHM_OBJ(NFObject, 0);
+    REGISTER_SINGLETON_SHM_OBJ(NFShmGlobalId);
 	REGISTER_SHM_OBJ(NFShmTimer, maxShmtimer);
-    REGISTER_SINGLETON_SHM_OBJ(NFShmTimerManager);
+    REGISTER_SINGLETON_SHM_OBJ(NFShmTimerMng);
     REGISTER_SHM_OBJ(NFShmSubscribeInfo, maxShmEvent);
     REGISTER_SINGLETON_SHM_OBJ(NFShmEventMgr);
-    REGISTER_SINGLETON_SHM_OBJ(NFTransMng);
+    REGISTER_SINGLETON_SHM_OBJ(NFShmTransMng);
     REGISTER_SHM_OBJ(NFTransBase, 0);
 	return true;
 }

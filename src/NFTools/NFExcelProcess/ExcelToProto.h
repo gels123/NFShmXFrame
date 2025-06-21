@@ -18,10 +18,10 @@ public:
     virtual ~ExcelToProto();
 public:
     virtual int HandleExcel();
-    virtual void HandleColOtherInfo(int col_index, MiniExcelReader::Sheet& sheet, const std::string& colType, uint32_t& uniqueKeysNum, uint32_t& uniqueKeysListNum, uint32_t &maxSize);
 public:
     void WriteExcelProto();
-    void WriteSheetProto(ExcelSheet* pSheet, std::string& write_str);
+    int WriteSheetProto(ExcelSheet* pSheet, std::string& write_str);
+    int WriteSheetProto(ExcelSheet* pSheet, std::string& write_str, ExcelSheetColInfo *pColInfo);
     void WriteSheetDescStoreH(ExcelSheet* pSheet);
     void WriteSheetDescStoreExH();
     void WriteSheetDescStoreCpp(ExcelSheet* pSheet);
@@ -29,6 +29,6 @@ public:
     void WriteSheetDescStore();
     void WriteMakeFile();
     void WriteDestStoreDefine();
-
+    int WriteRelation(ExcelSheet* pSheet, std::string& write_str, ExcelRelation* pRelation, ExcelSheetColInfo *pColInfo, int depth);
 };
 

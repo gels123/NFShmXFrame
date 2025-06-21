@@ -111,6 +111,7 @@ T NFRandInt(T min, T max)
 	return distribution(generator);
 }
 
+//[min, max]范围内的随机数
 template <typename T>
 T NFRandReal(T min, T max)
 {
@@ -119,3 +120,38 @@ T NFRandReal(T min, T max)
 	return distribution(generator);
 }
 
+//要求参数时正数或0
+inline int RangeRand(int lowerbound, int upperbound)
+{
+	return lowerbound + (int)((upperbound - lowerbound + 1) * (rand() / (RAND_MAX + 1.0)));
+}
+
+inline uint64_t RangeRand64(uint64_t ullLowerBound, uint64_t ullUpperBound)
+{
+	return ullLowerBound + (uint64_t)((ullUpperBound - ullLowerBound + 1) * (rand() / (RAND_MAX + 1.0)));
+}
+
+inline bool IsSatifyRangeRand10K(int iChance)
+{
+	return RangeRand(1, 10000) <= iChance;
+}
+
+inline bool IsSatifyRangeRand1M(int iChance)
+{
+	return RangeRand(1, 1000000) <= iChance;
+}
+
+inline int RandRandHundred()
+{
+	return RangeRand(1, 100);
+}
+
+inline int RangeRand10K()
+{
+	return RangeRand(1, 10000);
+}
+
+inline int RandRand1M()
+{
+	return RangeRand(1, 1000000);
+}

@@ -41,6 +41,7 @@ std::string NFLoginServerPlugin::GetPluginName()
 
 void NFLoginServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_LOGIN_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFILoginServerModule, NFCLoginServerModule);
 }
 

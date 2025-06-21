@@ -21,11 +21,20 @@
 #pragma comment( lib, "libprotobuf.lib" )
 #pragma comment( lib, "Theron.lib" )
 #pragma comment( lib, "mysqlclient.lib" )
+#pragma comment( lib, "protobuf-nanopb.lib" )
 //////////////////////////////////////////////////////////////////
 #pragma comment( lib, "evpp.lib" )
 #pragma comment( lib, "mysqlpp.lib" )
-
+#pragma comment( lib, "Enet.lib" )
 /////////////////////////////////////////////////////////////////
+#pragma comment( lib, "NFLuaBind.lib" )
+#pragma comment( lib, "NF3rdCommon.lib" )
+#pragma comment( lib, "NFCore.lib" )
+#pragma comment( lib, "NFKernelMessage.lib" )
+#pragma comment( lib, "NFPluginModule.lib" )
+#pragma comment( lib, "NFObjCommon.lib" )
+#pragma comment( lib, "NFPluginManager.lib" )
+
 
 #else
 /////////////////////////////////////////////////////////////////

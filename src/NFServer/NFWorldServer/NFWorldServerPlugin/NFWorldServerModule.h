@@ -13,7 +13,7 @@
 #include "NFComm/NFCore/NFCommMapEx.hpp"
 #include "NFComm/NFCore/NFCommMap.hpp"
 #include "NFServerComm/NFServerCommon/NFIWorldServerModule.h"
-#include "proto_svr_msg.pb.h"
+#include "ServerMsg.pb.h"
 
 class NFCWorldServerModule : public NFIWorldServerModule
 {
@@ -44,12 +44,12 @@ public:
      * @param packet
      * @return
      */
-    virtual int OnHandleOtherServerReportFromMasterServer(const proto_ff::ServerInfoReport &xData) override;
+    virtual int OnHandleOtherServerReportFromMasterServer(const NFrame::ServerInfoReport &xData) override;
 
     /**
      * @brief 处理逻辑服务器信息
      * @param xData
      * @return
      */
-    virtual int OnHandleLogicReport(const proto_ff::ServerInfoReport& xData);
+    virtual int OnHandleLogicReport(const NFrame::ServerInfoReport& xData);
 };

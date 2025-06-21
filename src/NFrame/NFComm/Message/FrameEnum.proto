@@ -1,0 +1,250 @@
+syntax = "proto3";
+package NFrame;
+
+import "nanopb.proto";
+
+//最大不能超过255,最高不要超过63
+enum NF_SERVER_TYPE {
+	option (nanopb_enumopt).enum_to_string = true;
+	NF_ST_NONE               = 0[(nanopb_enumvopt).enum_name="NoneServer"];            // NONE
+	NF_ST_MASTER_SERVER      = 1[(nanopb_enumvopt).enum_name="MasterServer"];
+	NF_ST_ROUTE_SERVER       = 2[(nanopb_enumvopt).enum_name="RouteServer"]; //路由集群服务器 负责不同机子服务器数据之间的转发
+	NF_ST_ROUTE_AGENT_SERVER = 3; //路由代理服务器  负责同一台机子服务器数据之间的转发
+	NF_ST_PROXY_SERVER       = 4;
+	NF_ST_PROXY_AGENT_SERVER = 5; //Proxy 路由代理服务器 负责同一台机子客户端与服务器数据之间的转发
+	NF_ST_STORE_SERVER       = 6; //DB服务器
+	NF_ST_LOGIN_SERVER       = 7;
+	NF_ST_WORLD_SERVER       = 8;
+	NF_ST_LOGIC_SERVER       = 9; //Logic服务器
+	NF_ST_GAME_SERVER        = 10;
+	NF_ST_SNS_SERVER         = 11; //SNS服务器
+	NF_ST_WEB_SERVER         = 12; //Web服务器
+	NF_ST_ONLINE_SERVER     = 13; //Online服务器
+	NF_ST_CENTER_SERVER      = 14; //center匹配服务器
+	NF_ST_MATCH_SERVER      = 15; //match匹配服务器
+	NF_ST_CITY_SERVER      = 16; //city服务器
+	NF_ST_CHECK_SERVER      = 17; //check服务器
+	NF_ST_NAVMESH_SERVER      = 18; //navmesh服务器
+	NF_ST_MAX                = 19;
+}
+
+//最大不能超过255
+enum NF_SNS_SERVER_TYPE
+{
+	option allow_alias = true;
+	NF_SNS_TYPE_NONE = 0;
+	NF_SNS_TYPE_SNS = 1;
+	NF_SNS_TYPE_FRIEND = 1;
+	NF_SNS_TYPE_GUILD = 1;
+	NF_SNS_TYPE_FAMILY = 1;
+	NF_SNS_TYPE_GROUP = 1;
+}
+
+enum FrameGlobalEnum
+{
+	SERVER_ENUM_NONE = 0;
+
+	MAX_SQL_TABLE_NUM = 100; //最大数据库表格数目
+	MAX_SERVER_PLUGINS_NUM = 20; //最大服务器引擎so/dll
+}
+
+enum NF_LOG_LEVEL
+{
+	NLL_TRACE_NORMAL = 0;
+	NLL_DEBUG_NORMAL = 1;
+	NLL_INFO_NORMAL = 2;
+	NLL_WARING_NORMAL = 3;
+	NLL_ERROR_NORMAL = 4;
+	NLL_CRITICAL_NORMAL = 5;
+	NLL_OFF_NORMAL = 6;
+};
+
+/**
+* @brief 服务器分层架构，这里只能填写系统引擎的LOG
+*
+*/
+enum NF_LOG_ID
+{
+	//0-100是基础框架层LOG
+	NF_LOG_DEFAULT = 0;		//系统LOG
+	NF_LOG_STATISTIC = 1; //统计日志
+	NF_LOG_BEHAVIOUR = 2; //行为日志
+};
+
+// 错误码
+enum FrameErrorCode {
+	option allow_alias = true;
+	//0------10000
+	ERR_CODE_SVR_OK = 0;
+	ERR_CODE_SVR_SYSTEM_ERROR = -1;
+	ERR_CODE_SVR_SYSTEM_TIMEOUT = -2;
+	ERR_CODE_SVR_SYSTEM_DATABASE_ERROR = -3;
+	ERR_VALUE_CHECK_INVALID = -4;
+	ERR_LOG_SYSTEM_SERVER_OBJ_NULL = -5;
+
+	ERR_CODE_MSG_RPC_BASE = -100;
+	ERR_CODE_RPC_INVALID_PARAM = -101;   // 参数错误
+	ERR_CODE_RPC_ENCODE_FAILED = -102;   // 编码错误
+	ERR_CODE_RPC_DECODE_FAILED = -103;   // 解码错误
+	ERR_CODE_RPC_RECV_EXCEPTION_MSG = -104;   // 收到EXCEPTION消息
+	ERR_CODE_RPC_UNKNOWN_TYPE = -105;   // 消息类型错误
+	ERR_CODE_RPC_UNSUPPORT_FUNCTION_NAME = -106;  // 不支持的函数名
+	ERR_CODE_RPC_SESSION_NOT_FOUND = -107;   // session已过期
+	ERR_CODE_RPC_SEND_FAILED = -108;   // 发送失败
+	ERR_CODE_RPC_REQUEST_TIMEOUT = -109;   // 请求超时
+	ERR_CODE_RPC_FUNCTION_NAME_EXISTED = -110; // 服务名已存在
+	ERR_CODE_RPC_SYSTEM_ERROR = -111;  // 系统错误
+	ERR_CODE_RPC_PROCESS_TIMEOUT = -112;  // 服务处理超时
+	ERR_CODE_RPC_MSG_FUNCTION_UNEXISTED = -113;  // 服务名不存在
+	ERR_CODE_RPC_SYSTEM_OVERLOAD_BASE = -114; // 系统过载BASE
+	ERR_CODE_RPC_MESSAGE_EXPIRED = -115; // 系统过载-消息过期
+	ERR_CODE_RPC_TASK_OVERLOAD = -116; // 系统过载-并发任务过载
+	ERR_CODE_RPC_CO_USED = -117; //rpc所在的携程已经被使用了
+
+
+	/////////////////////////zk调用返回码/////////////////////////////////////
+	ERR_CODE_ZK_SYSTEMERROR = -200;///< System and server-side errors.
+	ERR_CODE_ZK_RUNTIMEINCONSISTENCY = -201;///< A runtime inconsistency was found
+	ERR_CODE_ZK_DATAINCONSISTENCY = -203;  ///< A data inconsistency was found
+	ERR_CODE_ZK_CONNECTIONLOSS = -204; ///< Connection to the server has been lost
+	ERR_CODE_ZK_MARSHALLINGERROR = -205; ///< Error while marshalling or unmarshalling data
+	ERR_CODE_ZK_UNIMPLEMENTED = -206; ///< Operation is unimplemented
+	ERR_CODE_ZK_OPERATIONTIMEOUT = -207; ///< Operation timeout
+	ERR_CODE_ZK_BADARGUMENTS = -208; ///< Invalid arguments
+	ERR_CODE_ZK_INVALIDSTATE = -209; ///< Invliad zhandle state
+	ERR_CODE_kSM_DNSFAILURE = -210; ///< Error occurs when dns lookup
+
+	ERR_CODE_ZK_APIERROR = -211;
+	ERR_CODE_ZK_NONODE = -212; ///< Node does not exist
+	ERR_CODE_ZK_NOAUTH = -213; ///< Not authenticated
+	ERR_CODE_ZK_BADVERSION = -214; ///< Version conflict
+	ERR_CODE_ZK_NOCHILDRENFOREPHEMERALS = -215;  ///< Ephemeral nodes may not have children
+	ERR_CODE_ZK_NODEEXISTS = -216;  ///< The node already exists
+	ERR_CODE_ZK_NOTEMPTY = -217; ///< The node has children
+	ERR_CODE_ZK_SESSIONEXPIRED = -218; ///< The session has been expired by the server
+	ERR_CODE_ZK_INVALIDCALLBACK = -219;  ///< Invalid callback specified
+	ERR_CODE_ZK_INVALIDACL = -220;  ///< Invalid ACL specified
+	ERR_CODE_ZK_AUTHFAILED = -221;  ///< Client authentication failed
+	ERR_CODE_ZK_CLOSING = -222;  ///< ZooKeeper is closing
+	ERR_CODE_ZK_NOTHING = -223; ///< (not error) no server responses to process
+	ERR_CODE_ZK_SESSIONMOVED = -224;  ///< session moved to another server, so operation is ignored
+	ERR_CODE_ZK_NOQUOTA = -225;  ///< quota is not enough.
+	ERR_CODE_ZK_SERVEROVERLOAD = -226;  ///< server overload.
+	ERR_CODE_ZK_NOT_SET_APPKEY = -227;  ///< 未设置appkey
+  /////////////////////////zk调用返回码/////////////////////////////////////
+
+	ERR_CODE_MESSAGE_BASE = -300;
+	////////////////////////////////////////////////////////////////////
+	ERR_CODE_NAMING_BASE = -400;
+	ERR_CODE_NAMING_NOT_SUPPORTTED = -401;
+	ERR_CODE_NAMING_INVAILD_PARAM = -402;
+	ERR_CODE_NAMING_URL_REGISTERED = -403; ///< 已经注册过了
+	ERR_CODE_NAMING_URL_NOT_BINDED = -404; ///< 注册的地址没有bind
+	ERR_CODE_NAMING_REGISTER_FAILED = -405; ///< 注册地址失败
+	ERR_CODE_NAMING_FACTORY_MAP_NULL = -406; ///< 名字工厂map为空
+	ERR_CODE_NAMING_FACTORY_EXISTED = -407;  ///< 名字工厂已存在
+  ///////////////////////////////////////////////////////////////////
+	ERR_CODE_ROUTER_BASE = -500;
+	ERR_CODE_ROUTER_NOT_SUPPORTTED = -501;
+	ERR_CODE_ROUTER_INVAILD_PARAM = -502;
+	ERR_CODE_ROUTER_NONE_VALID_HANDLE = -503;
+	ERR_CODE_ROUTER_FACTORY_MAP_NULL = -504;     ///< 名字工厂map为空
+	ERR_CODE_ROUTER_FACTORY_EXISTED = -505;     ///< 名字工厂已存在
+	ERR_CODE_ROUTER_DISPATCHFAILD_DESTSVR_NOTEXIST = -506; // 转发失败，对端服务不存在
+  ////////////////////////////////////////////////////////////////////
+	ERR_CODE_TIMER_BASE = -600;
+	////////////////////////////////////////////////////////////////////
+	ERR_CODE_STORESVR_ERRCODE_BUSY = -701;
+	ERR_CODE_STORESVR_ERRCODE_EINVAL = -702;
+	ERR_CODE_STORESVR_ERRCODE_PARSEFROMSTRINGFAILED = -703;
+	ERR_CODE_STORESVR_ERRCODE_DBNAME_OR_MODKEY_INVALID = -704;
+	ERR_CODE_STORESVR_ERRCODE_TBNAME_INVALID = -705;
+	ERR_CODE_STORESVR_ERRCODE_SELECT_EMPTY = -706;
+	ERR_CODE_STORESVR_ERRCODE_SELECT_FILLMESSAGEBYRESULTFAILED = -707;
+	ERR_CODE_STORESVR_ERRCODE_SELECTFAILED = -708;
+	ERR_CODE_STORESVR_ERRCODE_INSERTFAILED = -711;
+	ERR_CODE_STORESVR_ERRCODE_DELETEFAILED = -712;
+	ERR_CODE_STORESVR_ERRCODE_DELETERECORDISNOTEXIST = -713;
+	ERR_CODE_STORESVR_ERRCODE_UPDATERECORDISNOTEXIST = -714;
+	ERR_CODE_STORESVR_ERRCODE_UPDATENOROWAFFECTED = -715;
+	ERR_CODE_STORESVR_ERRCODE_UPDATEFAILED = -716;
+	ERR_CODE_STORESVR_ERRCODE_UPDATEINSERTFAILED = -717;
+	ERR_CODE_STORESVR_ERRCODE_UNKNOWN = -718;
+	/////////////////////////协程模块错误码定义/////////////////////////////////////
+	ERR_CODE_CO_INVALID_PARAM = -801;
+	ERR_CODE_CO_NOT_IN_COROUTINE = -802;
+	ERR_CODE_CO_NOT_RUNNING = -803;
+	ERR_CODE_CO_START_TIMER_FAILED = -804;
+	ERR_CODE_CO_TIMEOUT = -805;
+	ERR_CODE_CO_CANNOT_RESUME_IN_COROUTINE = -806;
+	ERR_CODE_CO_COROUTINE_UNEXIST = -807;
+	ERR_CODE_CO_COROUTINE_STATUS_ERROR = -809;
+	/////////////////////////协程模块错误码定义/////////////////////////////////////
+	/////////////////////////共享内存bus通信错误/////////////////////////////////////
+	ERR_CODE_NFBUS_ERR_PARAMS = -901;
+	ERR_CODE_NFBUS_ERR_INNER = -902;
+	ERR_CODE_NFBUS_ERR_NO_DATA = -903;  // 无数据
+	ERR_CODE_NFBUS_ERR_BUFF_LIMIT = -904;  // 缓冲区不足
+	ERR_CODE_NFBUS_ERR_MALLOC = -905;  // 分配失败
+	ERR_CODE_NFBUS_ERR_SCHEME = -906;  // 协议错误
+	ERR_CODE_NFBUS_ERR_BAD_DATA = -907;  // 数据校验不通过
+	ERR_CODE_NFBUS_ERR_INVALID_SIZE = -908;  // 数据大小异常
+	ERR_CODE_NFBUS_ERR_NOT_INITED = -909;  // 未初始化
+	ERR_CODE_NFBUS_ERR_ALREADY_INITED = -910; // 已填充初始数据
+	ERR_CODE_NFBUS_ERR_ACCESS_DENY = -911; // 不允许的操作
+	ERR_CODE_NFBUS_ERR_UNPACK = -912; // 解包失败
+	ERR_CODE_NFBUS_ERR_PACK = -913; // 打包失败
+
+	ERR_CODE_NFBUS_ERR_NFNODE_NOT_FOUND = -920; // 查找不到目标节点
+	ERR_CODE_NFBUS_ERR_NFNODE_INVALID_ID = -901; // 不可用的ID
+	ERR_CODE_NFBUS_ERR_NFNODE_NO_CONNECTION = -903; // 无可用连接
+	ERR_CODE_NFBUS_ERR_NFNODE_FAULT_TOLERANT = -904; // 超出容错值
+	ERR_CODE_NFBUS_ERR_NFNODE_INVALID_MSG = -905; // 错误的消息
+	ERR_CODE_NFBUS_ERR_NFNODE_BUS_ID_NOT_MNFCH = -906; // Bus ID不匹配
+	ERR_CODE_NFBUS_ERR_NFNODE_TTL = -907; // ttl限制
+	ERR_CODE_NFBUS_ERR_NFNODE_MASK_CONFLICT = -908; // 域范围错误或冲突
+	ERR_CODE_NFBUS_ERR_NFNODE_ID_CONFLICT = -909; // ID冲突
+	ERR_CODE_NFBUS_ERR_NFNODE_SRC_DST_IS_SAME = -910; // 发送源和发送目标不能相同
+
+	ERR_CODE_NFBUS_ERR_CHANNEL_SIZE_TOO_SMALL = -911;
+	ERR_CODE_NFBUS_ERR_CHANNEL_BUFFER_INVALID = -912; // 缓冲区错误（已被其他模块使用或检测冲突）
+	ERR_CODE_NFBUS_ERR_CHANNEL_ADDR_INVALID = -913; // 地址错误
+	ERR_CODE_NFBUS_ERR_CHANNEL_CLOSING = -914; // 正在关闭
+	ERR_CODE_NFBUS_ERR_CHANNEL_NOT_SUPPORT = -915; // 不支持的通道
+	ERR_CODE_NFBUS_ERR_CHANNEL_UNSUPPORTED_VERSION = -916;   // 通道版本不受支持
+	ERR_CODE_NFBUS_ERR_CHANNEL_ALIGN_SIZE_MISMATCH = -917;   // 对齐参数不一致
+	ERR_CODE_NFBUS_ERR_CHANNEL_ARCH_SIZE_T_MISMATCH = -918;  // 架构size_t不匹配
+
+	ERR_CODE_NFBUS_ERR_NODE_BAD_BLOCK_NODE_NUM = -930; // 发现写坏的数据块 - 节点数量错误
+	ERR_CODE_NFBUS_ERR_NODE_BAD_BLOCK_BUFF_SIZE = -940; // 发现写坏的数据块 - 节点数量错误
+	ERR_CODE_NFBUS_ERR_NODE_BAD_BLOCK_WSEQ_ID = -950; // 发现写坏的数据块 - 写操作序列错误
+	ERR_CODE_NFBUS_ERR_NODE_BAD_BLOCK_CSEQ_ID = -960; // 发现写坏的数据块 - 检查操作序列错误
+
+	ERR_CODE_NFBUS_ERR_NODE_TIMEOUT = -970; // 操作超时
+
+	ERR_CODE_NFBUS_ERR_SHM_GET_FAILED = -980; // 连接共享内存出错，具体错误原因可以查看errno或类似的位置
+	ERR_CODE_NFBUS_ERR_SHM_NOT_FOUND = -981; // 共享内存未找到
+	ERR_CODE_NFBUS_ERR_SHM_CLOSE_FAILED = -982;  // 移除共享内存出错，具体错误原因可以查看errno或类似的位置
+	ERR_CODE_NFBUS_ERR_SHM_PATH_INVALID = -983;  // 共享内存地址错误
+	ERR_CODE_NFBUS_ERR_SHM_MAP_FAILED = -984;    // 共享内存地址映射错误
+
+	ERR_CODE_NFBUS_ERR_SOCK_BIND_FAILED = -990; // 绑定地址或端口失败
+	ERR_CODE_NFBUS_ERR_SOCK_LISTEN_FAILED = -991; // 监听失败
+	ERR_CODE_NFBUS_ERR_SOCK_CONNECT_FAILED = -992; // 连接失败
+
+	ERR_CODE_NFBUS_ERR_PIPE_BIND_FAILED = -1000; // 绑定地址或端口失败
+	ERR_CODE_NFBUS_ERR_PIPE_LISTEN_FAILED = -1001; // 监听失败
+	ERR_CODE_NFBUS_ERR_PIPE_CONNECT_FAILED = -1002; // 连接失败
+	ERR_CODE_NFBUS_ERR_PIPE_ADDR_TOO_LONG = -1003; // 地址路径过长，绝对路径长度要小于 sizeof(sockaddr_un.sun_pNFh) - 1
+	ERR_CODE_NFBUS_ERR_PIPE_REMOVE_FAILED = -1004; // 删除老socket失败
+
+	ERR_CODE_NFBUS_ERR_DNS_GETADDR_FAILED = -1010; // DNS解析失败
+	ERR_CODE_NFBUS_ERR_CONNECTION_NOT_FOUND = -1011; // 找不到连接
+	ERR_CODE_NFBUS_ERR_WRITE_FAILED = -1012; // 底层API写失败
+	ERR_CODE_NFBUS_ERR_READ_FAILED = -1013; // 底层API读失败
+	ERR_CODE_NFBUS_ERR_EV_RUN = -1015; // 底层API事件循环失败
+	ERR_CODE_NFBUS_ERR_NO_LISTEN = -1015; // 尚未监听（绑定）
+	ERR_CODE_NFBUS_ERR_CLOSING = -1016; // 正在关闭或已关闭
+  /////////////////////////共享内存bus通信错误/////////////////////////////////////
+	//////////////////////////////////////////////////////////////
+}

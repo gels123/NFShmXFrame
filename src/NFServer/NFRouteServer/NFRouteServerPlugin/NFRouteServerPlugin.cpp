@@ -41,6 +41,7 @@ std::string NFRouteServerPlugin::GetPluginName()
 
 void NFRouteServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_ROUTE_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIRouteServerModule, NFCRouteServerModule);
 }
 

@@ -9,12 +9,12 @@
 #pragma once
 
 #include <string>
-#include "NFObject.h"
+#include "NFBaseObj.h"
 
-class NFIModule : public NFObject
+class NFIModule : public NFBaseObj
 {
 public:
-    NFIModule(NFIPluginManager *p) : NFObject(p)
+    NFIModule(NFIPluginManager *p) : NFBaseObj(p)
     {
 
     }
@@ -106,7 +106,7 @@ public:
     }
 
     /*
-     * 停服之前，检查服务器是否满足停服条件
+     * 停服之前，检查服务器是否满足停服条件, 如果不满足执行StopServer()
      * */
     virtual bool CheckStopServer()
     {
@@ -114,17 +114,17 @@ public:
     }
 
     /*
-     * 停服之前，做一些操作，满足停服条件
+     * 停服之前，如果不满足停服条件， 做一些操作，满足停服条件
      * */
-    virtual bool OnStopServer()
+    virtual bool StopServer()
     {
         return true;
     }
 
     /*
-     * 满足停服条件, 停服之前保存需要的数据
+     * 服务器被杀掉之前，执行这个函数
      * */
-    virtual bool SaveDB()
+    virtual bool OnServerKilling()
     {
         return true;
     }

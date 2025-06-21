@@ -1,0 +1,13 @@
+syntax = "proto3";
+package NFrameEnum;
+
+import "nanopb.proto";
+
+enum FrameGlobalTestEnum
+{
+	SERVER_TEST_ENUM_NONE2 = 0;
+
+	FRAME_ENUM_STRING_NUM = 68;
+
+	FRAME_ENUM_DEFAULT_REPEATED = 2;
+}

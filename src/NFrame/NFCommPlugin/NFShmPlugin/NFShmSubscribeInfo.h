@@ -11,17 +11,15 @@
 
 #include "NFComm/NFCore/NFPlatform.h"
 #include "NFComm/NFPluginModule/NFLogMgr.h"
-#include <stddef.h>
-#include <string.h>
-#include <NFComm/NFShmCore/NFTypeDefines.h>
-#include "NFComm/NFShmCore/NFShmMgr.h"
-#include "NFComm/NFShmCore/NFShmObj.h"
-#include "NFComm/NFShmCore/NFShmPtr.h"
+#include <NFComm/NFObjCommon/NFTypeDefines.h>
+#include "NFComm/NFObjCommon/NFObject.h"
+#include "NFComm/NFObjCommon/NFObjPtr.h"
 #include "NFComm/NFShmStl/NFShmString.h"
-#include "NFComm/NFShmCore/NFShmNodeList.h"
+#include "NFComm/NFObjCommon/NFNodeList.h"
 #include "NFShmEventKey.h"
 
-enum {
+enum
+{
     NF_SHM_SUBSCRIBEINFO_EVENT_KEY_INDEX_0 = 0,
     NF_SHM_SUBSCRIBEINFO_SHM_OBJ_INDEX_1 = 1,
     NF_SHM_SUBSCRIBEINFO_MAX_INDEX_NUM = 2,
@@ -30,7 +28,7 @@ enum {
 /**
  *@brief 事件描述信息
  */
-class NFShmSubscribeInfo : public NFShmObjTemplate<NFShmSubscribeInfo, EOT_TYPE_SUBSCRIBEINFO_OBJ, NFShmObj>, public NFMultiListNodeObjWithGlobalID<NFShmSubscribeInfo, EOT_TYPE_SUBSCRIBEINFO_OBJ, NF_SHM_SUBSCRIBEINFO_MAX_INDEX_NUM>
+class NFShmSubscribeInfo final : public NFObjectTemplate<NFShmSubscribeInfo, EOT_TYPE_SUBSCRIBEINFO_OBJ, NFObject>, public NFMultiListNodeObjWithGlobalId<NFShmSubscribeInfo, NF_SHM_SUBSCRIBEINFO_MAX_INDEX_NUM>
 {
 public:
     NFShmSubscribeInfo();
@@ -49,30 +47,28 @@ public:
     */
     void Sub();
 
-    std::string ToString() const
-    {
-        return NF_FORMAT("refCount:{},removeFlag:{},desc:{},eventKey:{},shmObjId:{}", nRefCount, bRemoveFlag, szDesc.ToString(), m_eventKey.ToString(), m_shmObjId);
-    }
+    std::string ToString() const;
+
 public:
     /**
     *@brief 事件对象
     */
-    NFShmPtr<NFShmObj> pSink;
+    NFObjPtr<NFObject> m_pSink;
 
     /**
     *@brief 引用次数
     */
-    int32_t nRefCount;
+    int32_t m_refCount;
 
     /**
     *@brief 移除标志
     */
-    bool bRemoveFlag;
+    bool m_removeFlag;
 
     /**
     *@brief 描述信息
     */
-    NFShmString<32> szDesc;
+    NFShmString<32> m_szDesc;
 
     /**
      * @brief

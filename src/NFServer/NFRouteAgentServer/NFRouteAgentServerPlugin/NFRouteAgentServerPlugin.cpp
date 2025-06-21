@@ -41,6 +41,7 @@ std::string NFRouteAgentServerPlugin::GetPluginName()
 
 void NFRouteAgentServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_ROUTE_AGENT_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIRouteAgentServerModule, NFCRouteAgentServerModule);
 }
 

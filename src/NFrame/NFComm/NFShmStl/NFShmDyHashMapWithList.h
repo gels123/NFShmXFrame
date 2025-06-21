@@ -13,8 +13,8 @@
 #include "NFShmPair.h"
 
 template<class Key, class Tp,
-        class HashFcn = std::hash<Key>,
-        class EqualKey = std::equal_to<Key>>
+    class HashFcn = std::hash<Key>,
+    class EqualKey = std::equal_to<Key> >
 class NFShmDyHashMapWithList;
 
 template<class Key, class Tp, class HashFcn, class EqualKey>
@@ -22,7 +22,7 @@ class NFShmDyHashMapWithList
 {
 private:
     typedef NFShmDyHashTableWithList<NFShmPair<Key, Tp>, Key, HashFcn,
-            std::_Select1st<NFShmPair<Key, Tp> >, EqualKey> _Ht;
+        std::_Select1st<NFShmPair<Key, Tp> >, EqualKey> _Ht;
     _Ht m_hashTable;
 
 public:
@@ -50,7 +50,7 @@ public:
 public:
     NFShmDyHashMapWithList()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -75,7 +75,7 @@ public:
         return _Ht::CountSize(iObjectCount);
     }
 
-    virtual int Init(const char* pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
+    virtual int Init(const char *pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
     {
         return m_hashTable.Init(pBuffer, bufSize, iObjectCount, bResetShm);
     }
@@ -119,13 +119,19 @@ public:
         return m_hashTable.auto_erase(num);
     }
 
-    const NFShmDyList<int>& get_list() const { return m_hashTable.get_list(); }
+    const NFShmDyList<int> &get_list() const { return m_hashTable.get_list(); }
 
     void debug_string() { m_hashTable.debug_string(); }
+
 public:
     std::pair<iterator, bool> insert(const value_type &__obj) { return m_hashTable.insert_unique(__obj); }
-    std::pair<iterator, bool> emplace(const key_type&__key, const data_type& __data) { return m_hashTable.insert_unique(MakePair(__key, __data)); }
-    iterator emplace_hint(const key_type&__key, const data_type& __data) { auto pair = m_hashTable.insert_unique(MakePair(__key, __data)); return pair.first; }
+    std::pair<iterator, bool> emplace(const key_type &__key, const data_type &__data) { return m_hashTable.insert_unique(MakePair(__key, __data)); }
+
+    iterator emplace_hint(const key_type &__key, const data_type &__data)
+    {
+        auto pair = m_hashTable.insert_unique(MakePair(__key, __data));
+        return pair.first;
+    }
 
     template<class _InputIterator>
     void insert(_InputIterator __f, _InputIterator __l) { m_hashTable.insert_unique(__f, __l); }
@@ -173,8 +179,8 @@ public:
 };
 
 template<class Key, class Tp,
-        class HashFcn = std::hash<Key>,
-        class EqualKey = std::equal_to<Key>>
+    class HashFcn = std::hash<Key>,
+    class EqualKey = std::equal_to<Key> >
 class NFShmDyHashMultiMapWithList;
 
 template<class Key, class Tp, class HashFcn, class EqualKey>
@@ -182,7 +188,7 @@ class NFShmDyHashMultiMapWithList
 {
 private:
     typedef NFShmDyHashTableWithList<NFShmPair<const Key, Tp>, Key, HashFcn,
-            std::_Select1st<NFShmPair<const Key, Tp> >, EqualKey> _Ht;
+        std::_Select1st<NFShmPair<const Key, Tp> >, EqualKey> _Ht;
     _Ht m_hashTable;
 
 public:
@@ -214,7 +220,7 @@ public:
 public:
     NFShmDyHashMultiMapWithList()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -239,10 +245,11 @@ public:
         return m_hashTable.CountSize(iObjectCount);
     }
 
-    virtual int Init(const char* pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
+    virtual int Init(const char *pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
     {
         return m_hashTable.Init(pBuffer, bufSize, iObjectCount, bResetShm);
     }
+
 public:
     size_type size() const { return m_hashTable.size(); }
 
@@ -267,7 +274,7 @@ public:
     bool is_get_list() const { return m_hashTable.is_get_list(); }
     void set_get_list(bool flag) { m_hashTable.set_get_list(flag); }
 
-    const NFShmDyList<int>& get_list() const { return m_hashTable.get_list(); }
+    const NFShmDyList<int> &get_list() const { return m_hashTable.get_list(); }
 
     iterator get_iterator(int idx)
     {
@@ -283,6 +290,7 @@ public:
     {
         return m_hashTable.auto_erase(num);
     }
+
 public:
     iterator insert(const value_type &__obj) { return m_hashTable.insert_equal(__obj); }
 
@@ -326,4 +334,3 @@ public:
 
     size_type elems_in_bucket(size_type __n) const { return m_hashTable.elems_in_bucket(__n); }
 };
-

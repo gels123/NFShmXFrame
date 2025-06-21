@@ -10,7 +10,7 @@
 #include "NFIPluginManager.h"
 #include "NFITimerModule.h"
 
-NFTimerObj::NFTimerObj(NFIPluginManager* pPluginManager) : NFObject(pPluginManager)
+NFTimerObj::NFTimerObj(NFIPluginManager* pPluginManager) : NFBaseObj(pPluginManager)
 {
 }
 

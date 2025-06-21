@@ -10,7 +10,7 @@
 #pragma once
 
 #include "NFComm/NFPluginModule/NFNaming.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
 
 typedef enum {
     NF_USER_ROUTE,        ///< 用户自定义路由类型
@@ -34,7 +34,7 @@ public:
     int64_t GetRoute(uint64_t key, const std::vector<int64_t>& handles)
     {
         if (0 == handles.size()) {
-            return proto_ff::ERR_CODE_ROUTER_NONE_VALID_HANDLE;
+            return NFrame::ERR_CODE_ROUTER_NONE_VALID_HANDLE;
         }
         return handles[(m_round++) % handles.size()];
     }
@@ -48,7 +48,7 @@ public:
     int64_t GetRoute(uint64_t key, const std::vector<int64_t>& handles)
     {
         if (0 == handles.size()) {
-            return proto_ff::ERR_CODE_ROUTER_NONE_VALID_HANDLE;
+            return NFrame::ERR_CODE_ROUTER_NONE_VALID_HANDLE;
         }
         return handles[key % handles.size()];
     }

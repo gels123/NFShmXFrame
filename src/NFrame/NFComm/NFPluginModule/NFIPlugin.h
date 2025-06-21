@@ -85,12 +85,12 @@ public:
     /*
      * 停服之前，做一些操作，满足停服条件
      * */
-    virtual bool OnStopServer() override;
+    virtual bool StopServer() override;
 
     /*
      * 停服之前保存需要的数据
      * */
-    virtual bool SaveDB() override;
+    virtual bool OnServerKilling() override;
 
     virtual bool InitShmObjectRegister();
 

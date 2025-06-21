@@ -11,7 +11,6 @@
 
 #include "NFComm/NFPluginModule/NFIDynamicModule.h"
 #include "NFServerBindRpcService.h"
-#include "NFCommPlugin/NFXPlugin/NFLuaScriptPlugin/NFCLuaScriptModule.h"
 
 /**
  * @brief 业务服务器类似NFLogicServer,NFWorldServer,NFSnsServer，实现类似连接NFMasterServer,NFProxyAgentServer,NFRouteAgentServer等功能
@@ -19,7 +18,7 @@
 class NFWorkServerModule : public NFIDynamicModule
 {
 public:
-    NFWorkServerModule(NFIPluginManager *p, NF_SERVER_TYPES serverType) : NFIDynamicModule(p), m_serverType(serverType)
+    NFWorkServerModule(NFIPluginManager *p, NF_SERVER_TYPE serverType) : NFIDynamicModule(p), m_serverType(serverType)
     {
         SetConnectMasterServer(true);
         SetConnectRouteAgentServer(true);
@@ -51,9 +50,9 @@ public:
     virtual int OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message* pMessage) override;
 
 public:
-    NF_SERVER_TYPES GetServerType() const;
+    NF_SERVER_TYPE GetServerType() const;
 
-    void SetServerType(NF_SERVER_TYPES serverType);
+    void SetServerType(NF_SERVER_TYPE serverType);
 
     bool IsConnectMasterServer() const;
 
@@ -117,7 +116,7 @@ public:
      * @param xData
      * @return
      */
-    virtual int ConnectMasterServer(const proto_ff::ServerInfoReport &xData);
+    virtual int ConnectMasterServer(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 注册Master服务器
@@ -156,7 +155,7 @@ public:
      * @param packet
      * @return
      */
-    virtual int OnHandleOtherServerReportFromMasterServer(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleOtherServerReportFromMasterServer(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 每隔一段时间向Master服务器发送自身信息
@@ -171,7 +170,7 @@ public:
      * @param xData
      * @return
      */
-    virtual int OnHandleProxyAgentServerReport(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleProxyAgentServerReport(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 连接NFProxyAgentServer服务器网络事件处理
@@ -210,19 +209,19 @@ public:
      * @param unlinkId
      * @return
      */
-    virtual int OnHandleProxyServerRegister(const proto_ff::ServerInfoReport &xData, uint64_t unlinkId);
+    virtual int OnHandleProxyServerRegister(const NFrame::ServerInfoReport &xData, uint64_t unlinkId);
 
     //////////////////////////////////////////////////////////NFProxyServer,NFProxyAgentServer 服务器//////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////NFStoreServer服务器//////////////////////////////////////////////////////////////////
-    virtual int OnHandleStoreServerReport(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleStoreServerReport(const NFrame::ServerInfoReport &xData);
 
     //////////////////////////////////////////////////////////NFStoreServer服务器//////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////NFWorldServer服务器//////////////////////////////////////////////////////////////////
-    virtual int OnHandleWorldServerReport(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleWorldServerReport(const NFrame::ServerInfoReport &xData);
     //////////////////////////////////////////////////////////NFCenterServer服务器//////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////NFCenterServer服务器//////////////////////////////////////////////////////////////////
-    virtual int OnHandleCenterServerReport(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleCenterServerReport(const NFrame::ServerInfoReport &xData);
     //////////////////////////////////////////////////////////NFWorldServer服务器//////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////NFRouteAgent服务器//////////////////////////////////////////////////////////////////
@@ -231,7 +230,7 @@ public:
      * @param xData
      * @return
      */
-    virtual int OnHandleRouteAgentServerReport(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleRouteAgentServerReport(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 注册自身信息到NFRouteAgentServer
@@ -265,7 +264,7 @@ public:
     virtual int OnHandleRouteAgentServerOtherMessage(uint64_t unLinkId, NFDataPackage &packet);
     //////////////////////////////////////////////////////////NFRouteAgent服务器//////////////////////////////////////////////////////////////////
 protected:
-    NF_SERVER_TYPES m_serverType;
+    NF_SERVER_TYPE m_serverType;
     bool m_connectMasterServer;
     bool m_connectRouteAgentServer;
     bool m_connectProxyAgentServer;

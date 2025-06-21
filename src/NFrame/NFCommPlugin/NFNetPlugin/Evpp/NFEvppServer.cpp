@@ -1,35 +1,38 @@
 
 #include "NFEvppServer.h"
 
+#include <evpp/tcp_server.h>
+
 
 bool NFEvppServer::Init()
 {
     m_eventLoop.reset(NF_NEW evpp::EventLoopThread());
-    m_eventLoop->set_name(GetServerName(mServerType));
+    m_eventLoop->set_name(GetServerName(m_serverType));
     m_eventLoop->Start(true);
 
     std::string listenAddr;
-    if (mFlag.mStrIp == "127.0.0.1")
+    if (m_flag.mStrIp == "127.0.0.1")
     {
-        listenAddr = NF_FORMAT("{}:{}", mFlag.mStrIp, mFlag.nPort);
-    } else
+        listenAddr = NF_FORMAT("{}:{}", m_flag.mStrIp, m_flag.nPort);
+    }
+    else
     {
-        listenAddr = NF_FORMAT("0.0.0.0:{}", mFlag.nPort);
+        listenAddr = NF_FORMAT("0.0.0.0:{}", m_flag.nPort);
     }
 
-    m_tcpServer.reset(NF_NEW evpp::TCPServer(m_eventLoop->loop(), listenAddr, GetServerName(mServerType), mFlag.nNetThreadNum, mFlag.mMaxConnectNum));
+    m_tcpServer.reset(NF_NEW evpp::TCPServer(m_eventLoop->loop(), listenAddr, GetServerName(m_serverType), m_flag.nNetThreadNum, m_flag.mMaxConnectNum));
     if (!m_tcpServer)
     {
         return false;
     }
 
-    mConnectionType = NF_CONNECTION_TYPE_TCP_SERVER;
+    m_connectionType = NF_CONNECTION_TYPE_TCP_SERVER;
 
     //链接回调是在别的线程里运行的
-    m_tcpServer->SetConnectionCallback(mConnCallback);
+    m_tcpServer->SetConnectionCallback(m_connCallback);
 
     //消息回调是在别的线程里运行的
-    m_tcpServer->SetMessageCallback(mMessageCallback);
+    m_tcpServer->SetMessageCallback(m_messageCallback);
 
     if (m_tcpServer->Init())
     {
@@ -43,12 +46,13 @@ bool NFEvppServer::Init()
 
 bool NFEvppServer::Shut()
 {
-    m_eventLoop->loop()->RunAfter(100.0, [this]()
+    m_eventLoop->loop()->RunAfter(100.0, [this]
     {
         m_tcpServer->Stop();
     });
 
-    while (!m_tcpServer->IsStopped()) {
+    while (!m_tcpServer->IsStopped())
+    {
         NFSLEEP(1);
     }
 

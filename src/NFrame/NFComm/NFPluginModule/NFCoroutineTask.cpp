@@ -11,7 +11,7 @@
 #include "NFComm/NFPluginModule/NFICoroutineModule.h"
 
 
-NFCoroutineTask::NFCoroutineTask(NFIPluginManager *pPluginManager) : NFObject(pPluginManager), id_(-1) {
+NFCoroutineTask::NFCoroutineTask(NFIPluginManager *pPluginManager) : NFBaseObj(pPluginManager), id_(-1) {
 
 }
 

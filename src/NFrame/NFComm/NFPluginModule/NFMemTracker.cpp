@@ -61,7 +61,7 @@ void NFMemTracker::TrackFree(void* ptr)
     size_t num = ptr_track_map_.erase(ptr);
     if (num != 1)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "error, num:%lu\n", num);
+        NFLogError(NF_LOG_DEFAULT, 0, "error, num:%lu\n", num);
     }
     NF_ASSERT(num == 1);
 }
@@ -83,7 +83,7 @@ void NFMemTracker::PrintMemLink(const std::string& output_filename)
     {
         std::string no_link_mem("OK, No Memory Link\n");
         content += no_link_mem;
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, no_link_mem.c_str());
+        //NFLogInfo(NF_LOG_DEFAULT, 0, no_link_mem);
     }
     else
     {
@@ -95,7 +95,7 @@ void NFMemTracker::PrintMemLink(const std::string& output_filename)
             NFTrackData& trackData = iter->second;
             std::string temp = NF_FORMAT("{}({}) {} link memory\n", trackData.file_name_.c_str(), trackData.line_no_, trackData.func_name_.c_str());
             content += temp;
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "{}", temp);
+            NFLogError(NF_LOG_DEFAULT, 0, "{}", temp);
         }
     }
 

@@ -42,12 +42,12 @@ public:
 	int RegisterMasterServer(uint32_t serverState);
 	int ServerReport();
 
-	int OnHandleRouteServerReport(const proto_ff::ServerInfoReport& xData);
+	int OnHandleRouteServerReport(const NFrame::ServerInfoReport& xData);
 	int OnRouteServerSocketEvent(eMsgType nEvent, uint64_t unLinkId);
 	int OnHandleRouteOtherMessage(uint64_t unLinkId, NFDataPackage& packet);
 	int RegisterRouteServer(uint64_t unLinkId);
 
-	int RegisterServerInfoToRouteSvr(const proto_ff::ServerInfoReportList& xData);
+	int RegisterServerInfoToRouteSvr(const NFrame::ServerInfoReportList& xData);
     int RegisterAllServerInfoToRouteSvr();
 
 	int OnHandleServerDisconnect(uint64_t unLinkId);
@@ -55,7 +55,7 @@ public:
 	/*
 		处理Master服务器链接事件和未注册消息
 	*/
-    int ConnectMasterServer(const proto_ff::ServerInfoReport& xData);
+    int ConnectMasterServer(const NFrame::ServerInfoReport& xData);
 	int OnMasterSocketEvent(eMsgType nEvent, uint64_t unLinkId);
 	int OnHandleMasterOtherMessage(uint64_t unLinkId, NFDataPackage& packet);
 };

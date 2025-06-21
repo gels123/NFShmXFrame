@@ -9,7 +9,7 @@
 
 #include "NFSchedule.h"
 #include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
 #include "NFComm/NFPluginModule/NFIKernelModule.h"
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
@@ -36,7 +36,7 @@ static void mainfunc(uint32_t low32, uint32_t hi32) {
 
     S->co_hash_map.erase(id);
     S->running = -1;
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} is deleted.", id);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} is deleted.", id);
 }
 #else
 static void mainfunc(intptr_t ptr) {
@@ -63,7 +63,7 @@ static void mainfunc(intptr_t ptr) {
 
 	S->co_hash_map.erase(id);
 	S->running = -1;
-	NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} is deleted.", id);
+	NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} is deleted.", id);
 	
 	SwitchToFiber(S->main);
 }
@@ -126,11 +126,11 @@ NFCoroutine *NFSchedule::NewCoroutine(NFCoroutineFunc func, void *ud)
 	return co;
 }
 
-bool NFSchedule::OnStopServer()
+bool NFSchedule::CheckStopServer()
 {
     if (co_hash_map.size() > 0)
     {
-        NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "NFSchedule OnStopServer, co size:{}", co_hash_map.size());
+        NFLogInfo(NF_LOG_DEFAULT, 0, "NFSchedule StopServer, co size:{}", co_hash_map.size());
         return false;
     }
     return true;
@@ -142,7 +142,7 @@ int64_t NFSchedule::CreateCoroutine(const std::function<void()>& std_func)
     int64_t id = NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIKernelModule>()->Get64UUID();
     co_hash_map[id] = co;
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} is created.", id);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} is created.", id);
     return id;
 }
 
@@ -160,7 +160,7 @@ int64_t NFSchedule::CreateCoroutine(NFCoroutineFunc func, void *ud)
     int64_t id = NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIKernelModule>()->Get64UUID();
     co_hash_map[id] = co;
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} is created.", id);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} is created.", id);
     return id;
 }
 
@@ -173,27 +173,27 @@ int64_t NFSchedule::CreateCoroutine(NFCoroutineFunc func, void *ud)
 int32_t NFSchedule::CoroutineResume(int64_t id, int32_t result)
 {
 	if (running != -1) {
-		return proto_ff::ERR_CODE_CO_CANNOT_RESUME_IN_COROUTINE;
+		return NFrame::ERR_CODE_CO_CANNOT_RESUME_IN_COROUTINE;
 	}
 	auto pos = co_hash_map.find(id);
 
 	// 如果在协程哈希表中没有找到，或者找到的协程内容为空
 	if (pos == co_hash_map.end()) {
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "coroutine {} can't find in co_map", id);
-		return proto_ff::ERR_CODE_CO_COROUTINE_UNEXIST;
+		NFLogError(NF_LOG_DEFAULT, 0, "coroutine {} can't find in co_map", id);
+		return NFrame::ERR_CODE_CO_COROUTINE_UNEXIST;
 	}
 
 	NFCoroutine *C = pos->second;
 	if (NULL == C) {
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "coroutine {} instance is NULL", id);
-		return proto_ff::ERR_CODE_CO_COROUTINE_UNEXIST;
+		NFLogError(NF_LOG_DEFAULT, 0, "coroutine {} instance is NULL", id);
+		return NFrame::ERR_CODE_CO_COROUTINE_UNEXIST;
 	}
 
 	C->result = result;
 	int status = C->status;
 	switch (status) {
 		case NF_COROUTINE_READY: {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} status is COROUTINE_READY, begin to execute...", id);
+            NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} status is COROUTINE_READY, begin to execute...", id);
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 			getcontext(&C->ctx);
 			C->ctx.uc_stack.ss_sp = C->stack;
@@ -225,7 +225,7 @@ int32_t NFSchedule::CoroutineResume(int64_t id, int32_t result)
 			break;
 		}
 		case NF_COROUTINE_SUSPEND: {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} status is COROUTINE_SUSPEND,"
+            NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} status is COROUTINE_SUSPEND,"
 					"begin to resume...", id);
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 			running = id;
@@ -241,8 +241,8 @@ int32_t NFSchedule::CoroutineResume(int64_t id, int32_t result)
 		}
 
 		default:
-			NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} status is failed, can not to be resume...", id);
-			return proto_ff::ERR_CODE_CO_COROUTINE_STATUS_ERROR;
+			NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} status is failed, can not to be resume...", id);
+			return NFrame::ERR_CODE_CO_COROUTINE_STATUS_ERROR;
 	}
 
 	return 0;
@@ -255,7 +255,7 @@ int32_t NFSchedule::CoroutineResume(int64_t id, int32_t result)
 int NFSchedule::CoroutineStatus(int64_t id)
 {
     if (id < 0) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} not exist", id);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} not exist", id);
         return NF_COROUTINE_DEAD;
     }
 
@@ -272,7 +272,7 @@ int NFSchedule::CoroutineStatus(int64_t id)
 google::protobuf::Message *NFSchedule::CoroutineUserData(int64_t id)
 {
     if (id < 0) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} not exist", id);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} not exist", id);
         return NULL;
     }
 
@@ -280,7 +280,7 @@ google::protobuf::Message *NFSchedule::CoroutineUserData(int64_t id)
 
     // 如果在协程哈希表中没有找到，或者找到的协程内容为空
     if (pos == co_hash_map.end()) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "cann't find coroutine {}", id);
+        NFLogTrace(NF_LOG_DEFAULT, 0, "cann't find coroutine {}", id);
         return NULL;
     }
 
@@ -290,16 +290,16 @@ google::protobuf::Message *NFSchedule::CoroutineUserData(int64_t id)
 int NFSchedule::CoroutineSetUserData(int64_t id, google::protobuf::Message *pUserData)
 {
     if (id < 0) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} not exist", id);
-        return proto_ff::ERR_CODE_CO_NOT_IN_COROUTINE;
+        NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} not exist", id);
+        return NFrame::ERR_CODE_CO_NOT_IN_COROUTINE;
     }
 
     auto pos = co_hash_map.find(id);
 
     // 如果在协程哈希表中没有找到，或者找到的协程内容为空
     if (pos == co_hash_map.end()) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "cann't find coroutine {}", id);
-        return proto_ff::ERR_CODE_CO_COROUTINE_UNEXIST;
+        NFLogTrace(NF_LOG_DEFAULT, 0, "cann't find coroutine {}", id);
+        return NFrame::ERR_CODE_CO_COROUTINE_UNEXIST;
     }
 
     (pos->second)->userData = pUserData;
@@ -321,22 +321,22 @@ int32_t NFSchedule::CoroutineYield()
 {
 	int64_t id = running;
 	if (id < 0) {
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "have no running coroutine, can't yield.");
-		return proto_ff::ERR_CODE_CO_NOT_IN_COROUTINE;;
+		NFLogError(NF_LOG_DEFAULT, 0, "have no running coroutine, can't yield.");
+		return NFrame::ERR_CODE_CO_NOT_IN_COROUTINE;;
 	}
 
 	assert(id >= 0);
 	NFCoroutine * C = co_hash_map[id];
 
 	if (C->status != NF_COROUTINE_RUNNING) {
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "coroutine {} status is SUSPEND, can't yield again.", id);
-		return proto_ff::ERR_CODE_CO_NOT_RUNNING;
+		NFLogError(NF_LOG_DEFAULT, 0, "coroutine {} status is SUSPEND, can't yield again.", id);
+		return NFrame::ERR_CODE_CO_NOT_RUNNING;
 	}
 
 	C->status = NF_COROUTINE_SUSPEND;
 	running = -1;
 
-	NFLogTrace(NF_LOG_SYSTEMLOG, 0, "coroutine {} will be yield, swith to main loop...", id);
+	NFLogTrace(NF_LOG_DEFAULT, 0, "coroutine {} will be yield, swith to main loop...", id);
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 	swapcontext(&C->ctx, &main);
 #else

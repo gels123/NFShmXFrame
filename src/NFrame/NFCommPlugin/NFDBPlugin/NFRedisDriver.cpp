@@ -48,7 +48,7 @@ bool NFRedisDriver::Connect(const std::string &ip, const int port, const std::st
             {
                 if (!AUTH(GetAuthKey()))
                 {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "Redis AUTH failed! ip:{} port:{} auth:{}", ip, port, auth);
+                    NFLogError(NF_LOG_DEFAULT, 0, "Redis AUTH failed! ip:{} port:{} auth:{}", ip, port, auth);
                     return false;
                 }
             }
@@ -113,12 +113,59 @@ bool NFRedisDriver::Execute()
     return true;
 }
 
-int NFRedisDriver::SelectByCond(const storesvr_sqldata::storesvr_sel &select, const std::string &privateKey,
+int NFRedisDriver::SelectByCond(const NFrame::storesvr_sel& select, std::string& privateKey, std::unordered_set<std::string>& fields, std::unordered_set<std::string>& privateKeySet)
+{
+    std::string className = select.baseinfo().clname();
+    std::string packageName = select.baseinfo().package_name();
+
+    int iRet = GetPrivateKey(packageName, className, privateKey);
+    CHECK_ERR(0, iRet, "GetPrivateKey Failed, packageName:{}, className:{}", packageName, className);
+
+    if (select.baseinfo().sel_fields_size() > 0)
+    {
+        for (int i = 0; i < (int)select.baseinfo().sel_fields_size(); i++)
+        {
+            fields.insert(select.baseinfo().sel_fields(i));
+        }
+    }
+
+    for (int i = 0; i < select.cond().private_keys_size(); ++i)
+    {
+        privateKeySet.insert(select.cond().private_keys(i));
+    }
+
+    return 0;
+}
+
+int NFRedisDriver::GetPrivateKey(const std::string& packageName, const std::string& className, std::string& privateKey)
+{
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+
+    std::string full_name;
+    if (packageName.empty())
+    {
+        full_name = DEFINE_DEFAULT_PROTO_PACKAGE_ADD + className;
+    }
+    else
+    {
+        full_name = packageName + "." + className;
+    }
+
+    const google::protobuf::Descriptor* pDescriptor = NFProtobufCommon::Instance()->FindDynamicMessageTypeByName(full_name);
+    CHECK_EXPR(pDescriptor, -1, "NFProtobufCommon::FindDynamicMessageTypeByName:{} Failed", full_name);
+
+    int iRet = NFProtobufCommon::GetPrivateKeyFromMessage(pDescriptor, privateKey);
+    CHECK_EXPR(iRet == 0, -1, "NFProtobufCommon::GetPrivateKeyFromMessage:{} Failed", full_name);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
+    return iRet;
+}
+
+int NFRedisDriver::SelectByCond(const NFrame::storesvr_sel &select, const std::string &privateKey,
                                 const std::unordered_set<std::string> &fields,
                                 const std::unordered_set<std::string> &privateKeySet, std::unordered_set<std::string> &leftPrivateKeySet,
-                                ::google::protobuf::RepeatedPtrField<storesvr_sqldata::storesvr_sel_res> &vecSelectRes)
+                                ::google::protobuf::RepeatedPtrField<NFrame::storesvr_sel_res> &vecSelectRes)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
     std::string className = select.baseinfo().clname();
@@ -128,11 +175,11 @@ int NFRedisDriver::SelectByCond(const storesvr_sqldata::storesvr_sel &select, co
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
         return 1;
     }
 
-    storesvr_sqldata::storesvr_sel_res *select_res = NULL;
+    NFrame::storesvr_sel_res *select_res = NULL;
     if (vecSelectRes.size() == 0)
     {
         select_res = vecSelectRes.Add();
@@ -187,25 +234,25 @@ int NFRedisDriver::SelectByCond(const storesvr_sqldata::storesvr_sel &select, co
     if (leftPrivateKeySet.empty())
     {
         select_res->set_is_lastbatch(true);
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SelectByCond Success");
+        NFLogInfo(NF_LOG_DEFAULT, 0, "SelectByCond Success");
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::DeleteByCond(const storesvr_sqldata::storesvr_del &select, const std::string &privateKey,
+int NFRedisDriver::DeleteByCond(const NFrame::storesvr_del &select, const std::string &privateKey,
                                 const std::unordered_set<std::string> &privateKeySet,
-                                storesvr_sqldata::storesvr_del_res &select_res)
+                                NFrame::storesvr_del_res &select_res)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
 
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
         return 1;
     }
 
@@ -215,16 +262,16 @@ int NFRedisDriver::DeleteByCond(const storesvr_sqldata::storesvr_del &select, co
         DEL(db_key);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "DeleteByCond Success");
+    NFLogInfo(NF_LOG_DEFAULT, 0, "DeleteByCond Success");
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFRedisDriver::GetObjFields(const std::string& packageName, const std::string& className, const std::string& record, std::map<std::string, std::string> &keyMap,
                               std::map<std::string, std::string> &kevValueMap)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     std::string full_name;
     if (packageName.empty())
@@ -238,19 +285,19 @@ int NFRedisDriver::GetObjFields(const std::string& packageName, const std::strin
     google::protobuf::Message *pMessageObject = NFProtobufCommon::Instance()->CreateDynamicMessageByName(full_name);
     CHECK_EXPR(pMessageObject, -1, "NFProtobufCommon::CreateMessageByName:{} Failed", full_name);
     CHECK_EXPR(pMessageObject->ParsePartialFromString(record), -1, "ParsePartialFromString Failed:{}", full_name);
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "CreateSql From message:{}", pMessageObject->DebugString());
+    NFLogTrace(NF_LOG_DEFAULT, 0, "CreateSql From message:{}", pMessageObject->DebugString());
 
-    NFProtobufCommon::GetMapFieldsFromMessage(*pMessageObject, keyMap, kevValueMap);
+    NFProtobufCommon::GetMapDBFieldsFromMessage(*pMessageObject, keyMap, kevValueMap);
     delete pMessageObject;
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::UpdateByCond(const storesvr_sqldata::storesvr_update &select, const std::string& privateKey,
+int NFRedisDriver::UpdateByCond(const NFrame::storesvr_update &select, const std::string& privateKey,
                  const std::unordered_set<std::string>& privateKeySet, std::unordered_set<std::string>& leftPrivateKeySet,
-                 storesvr_sqldata::storesvr_update_res &select_res)
+                 NFrame::storesvr_update_res &select_res)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
     std::string className = select.baseinfo().clname();
@@ -260,7 +307,7 @@ int NFRedisDriver::UpdateByCond(const storesvr_sqldata::storesvr_update &select,
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
         return 1;
     }
 
@@ -289,24 +336,24 @@ int NFRedisDriver::UpdateByCond(const storesvr_sqldata::storesvr_update &select,
         bool bRet = HMSET(db_key, vecFieldValues);
         if (!bRet)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "HMSET:{} Failed! dbName:{} ", db_key, tableName);
+            NFLogError(NF_LOG_DEFAULT, 0, "HMSET:{} Failed! dbName:{} ", db_key, tableName);
             return -1;
         }
 
         EXPIRE(db_key, PRIVATE_KEY_EXIST_TIME);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "UpdateByCond Success");
+    NFLogInfo(NF_LOG_DEFAULT, 0, "UpdateByCond Success");
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::ModifyByCond(const storesvr_sqldata::storesvr_mod &select, const std::string& privateKey,
+int NFRedisDriver::ModifyByCond(const NFrame::storesvr_mod &select, const std::string& privateKey,
                  const std::unordered_set<std::string>& privateKeySet, std::unordered_set<std::string>& leftPrivateKeySet,
-                 storesvr_sqldata::storesvr_mod_res &select_res)
+                 NFrame::storesvr_mod_res &select_res)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
     std::string className = select.baseinfo().clname();
@@ -316,7 +363,7 @@ int NFRedisDriver::ModifyByCond(const storesvr_sqldata::storesvr_mod &select, co
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
         return -1;
     }
 
@@ -325,7 +372,7 @@ int NFRedisDriver::ModifyByCond(const storesvr_sqldata::storesvr_mod &select, co
     int iRet = GetObjFields(packageName, className, select.record(), keyMap, kevValueMap);
     if (iRet != 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, tableName);
         return -1;
     }
 
@@ -346,16 +393,16 @@ int NFRedisDriver::ModifyByCond(const storesvr_sqldata::storesvr_mod &select, co
         bool bRet = HMSET(db_key, vecFieldValues);
         if (!bRet)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "HMSET:{} Failed! dbName:{} ", db_key, tableName);
+            NFLogError(NF_LOG_DEFAULT, 0, "HMSET:{} Failed! dbName:{} ", db_key, tableName);
             return -1;
         }
 
         EXPIRE(db_key, PRIVATE_KEY_EXIST_TIME);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "ModifyByCond Success");
+    NFLogInfo(NF_LOG_DEFAULT, 0, "ModifyByCond Success");
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
@@ -363,7 +410,7 @@ int NFRedisDriver::TransTableRowToMessage(const std::vector<std::string> &vecFie
                                           const std::string &packageName, const std::string &className,
                                           google::protobuf::Message **pMessage)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin --");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin --");
     CHECK_EXPR(vecFields.size() == vecValues.size(), -1, "TransTableRowToMessage Failed");
 
     std::string proto_fullname;
@@ -391,7 +438,7 @@ int NFRedisDriver::TransTableRowToMessage(const std::vector<std::string> &vecFie
         mapResult.emplace(vecFields[i], vecValues[i]);
     }
     NFProtobufCommon::GetDBMessageFromMapFields(mapResult, pMessageObject);
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
@@ -419,7 +466,7 @@ bool NFRedisDriver::GetObj(const std::string &packageName, const std::string &cl
     std::vector<std::string> vecFields;
     if (fields.empty())
     {
-        NFProtobufCommon::GetFieldsFromDesc(pDesc, vecFields);
+        NFProtobufCommon::GetDBFieldsFromDesc(pDesc, vecFields);
     }
     else
     {
@@ -430,7 +477,7 @@ bool NFRedisDriver::GetObj(const std::string &packageName, const std::string &cl
     bool bRet = HMGET(key, vecFields, vecValues);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, className);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, className);
         return false;
     }
 
@@ -444,12 +491,12 @@ bool NFRedisDriver::GetObj(const std::string &packageName, const std::string &cl
     int iRet = TransTableRowToMessage(vecFields, vecValues, packageName, className, &pMessage);
     if (iRet == 0 && pMessage != NULL)
     {
-        value = pMessage->SerializeAsString();
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "{}", pMessage->Utf8DebugString());
+        value = pMessage->SerializePartialAsString();
+        NFLogTrace(NF_LOG_DEFAULT, 0, "{}", pMessage->Utf8DebugString());
     }
     else
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "TransTableRowToMessage Failed, fields:{} values:{} className:{}", NFCommon::tostr(vecFields),
+        NFLogError(NF_LOG_DEFAULT, 0, "TransTableRowToMessage Failed, fields:{} values:{} className:{}", NFCommon::tostr(vecFields),
                    NFCommon::tostr(vecValues), className);
         return false;
     }
@@ -458,7 +505,7 @@ bool NFRedisDriver::GetObj(const std::string &packageName, const std::string &cl
         NF_SAFE_DELETE(pMessage);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "GetObj:{} Success", key);
+    NFLogInfo(NF_LOG_DEFAULT, 0, "GetObj:{} Success", key);
 
     return true;
 }
@@ -480,26 +527,26 @@ bool NFRedisDriver::SetObj(const std::string &packageName, const std::string &cl
     CHECK_EXPR(pMessageObject->ParsePartialFromString(value), false, "ParsePartialFromString Failed:{}", full_name);
 
     std::map<std::string, std::string> resultMap;
-    NFProtobufCommon::GetMapFieldsFromMessage(*pMessageObject, resultMap);
+    NFProtobufCommon::GetDBMapFieldsFromMessage(*pMessageObject, resultMap);
     delete pMessageObject;
 
     std::vector<string_pair> values(resultMap.begin(), resultMap.end());
     bool bRet = HMSET(key, values);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, className);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} ", NFREDIS_DB1, className);
         return false;
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SetObj:{} Success", key);
+    NFLogInfo(NF_LOG_DEFAULT, 0, "SetObj:{} Success", key);
 
     return true;
 }
 
-int NFRedisDriver::SelectObj(const storesvr_sqldata::storesvr_selobj &select,
-                             storesvr_sqldata::storesvr_selobj_res &select_res)
+int NFRedisDriver::SelectObj(const NFrame::storesvr_selobj &select,
+                             NFrame::storesvr_selobj_res &select_res)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
     std::string className = select.baseinfo().clname();
@@ -520,7 +567,7 @@ int NFRedisDriver::SelectObj(const storesvr_sqldata::storesvr_selobj &select,
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
         return -1;
     }
 
@@ -533,7 +580,7 @@ int NFRedisDriver::SelectObj(const storesvr_sqldata::storesvr_selobj &select,
     bRet = GetObj(packageName, className, db_key, value);
     if (!bRet)
     {
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SelectObj:{} storesvr_selobj Failed", db_key);
+        NFLogInfo(NF_LOG_DEFAULT, 0, "SelectObj:{} storesvr_selobj Failed", db_key);
         return 1;
     }
 
@@ -541,22 +588,22 @@ int NFRedisDriver::SelectObj(const storesvr_sqldata::storesvr_selobj &select,
 
     select_res.set_record(value);
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SelectObj:{} storesvr_selobj Success", db_key);
+    NFLogInfo(NF_LOG_DEFAULT, 0, "SelectObj:{} storesvr_selobj Success", db_key);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFRedisDriver::SaveObj(const std::string &packageName, const std::string &tableName, const std::string &clasname, const std::string& privateKey,
                            const std::map<std::string, std::string> &recordsMap)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
 
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{}", NFREDIS_DB1, tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{}", NFREDIS_DB1, tableName);
         return -1;
     }
 
@@ -574,15 +621,15 @@ int NFRedisDriver::SaveObj(const std::string &packageName, const std::string &ta
         EXPIRE(db_key, PRIVATE_KEY_EXIST_TIME);
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SaveObj Success");
+    NFLogInfo(NF_LOG_DEFAULT, 0, "SaveObj Success");
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFRedisDriver::SaveObj(const std::string& packageName, const std::string& tableName, const std::string& className, const std::string& record)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     int iRet = 0;
     std::string field;
@@ -601,7 +648,7 @@ int NFRedisDriver::SaveObj(const std::string& packageName, const std::string& ta
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} fieldKey:{}", NFREDIS_DB1, tableName, fieldKey);
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} fieldKey:{}", NFREDIS_DB1, tableName, fieldKey);
         return -1;
     }
 
@@ -612,14 +659,14 @@ int NFRedisDriver::SaveObj(const std::string& packageName, const std::string& ta
     }
 
     EXPIRE(db_key, PRIVATE_KEY_EXIST_TIME);
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "SaveObj tbName:{} field:{} fieldKey:{} Success", tableName, field, fieldKey);
+    NFLogInfo(NF_LOG_DEFAULT, 0, "SaveObj tbName:{} field:{} fieldKey:{} Success", tableName, field, fieldKey);
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::SaveObj(const storesvr_sqldata::storesvr_selobj &select,
-                           storesvr_sqldata::storesvr_selobj_res &select_res)
+int NFRedisDriver::SaveObj(const NFrame::storesvr_selobj &select,
+                           NFrame::storesvr_selobj_res &select_res)
 {
     *select_res.mutable_baseinfo() = select.baseinfo();
     select_res.mutable_opres()->set_mod_key(select.mod_key());
@@ -638,21 +685,21 @@ bool NFRedisDriver::ExistObj(const std::string& db_key)
     return EXISTS(db_key);
 }
 
-int NFRedisDriver::SaveObj(const storesvr_sqldata::storesvr_modobj &select, storesvr_sqldata::storesvr_modobj_res& select_res)
+int NFRedisDriver::SaveObj(const NFrame::storesvr_modobj &select, NFrame::storesvr_modobj_res& select_res)
 {
     *select_res.mutable_baseinfo() = select.baseinfo();
     select_res.mutable_opres()->set_mod_key(select.mod_key());
     return SaveObj(select.baseinfo().package_name(), select.baseinfo().tbname(), select.baseinfo().clname(), select.record());
 }
 
-int NFRedisDriver::SaveObj(const storesvr_sqldata::storesvr_updateobj &select, storesvr_sqldata::storesvr_updateobj_res& select_res)
+int NFRedisDriver::SaveObj(const NFrame::storesvr_updateobj &select, NFrame::storesvr_updateobj_res& select_res)
 {
     *select_res.mutable_baseinfo() = select.baseinfo();
     select_res.mutable_opres()->set_mod_key(select.mod_key());
     return SaveObj(select.baseinfo().package_name(), select.baseinfo().tbname(), select.baseinfo().clname(), select.record());
 }
 
-int NFRedisDriver::SaveObj(const storesvr_sqldata::storesvr_insertobj &select, storesvr_sqldata::storesvr_insertobj_res& select_res)
+int NFRedisDriver::SaveObj(const NFrame::storesvr_insertobj &select, NFrame::storesvr_insertobj_res& select_res)
 {
     *select_res.mutable_baseinfo() = select.baseinfo();
     select_res.mutable_opres()->set_mod_key(select.mod_key());
@@ -667,7 +714,7 @@ std::string NFRedisDriver::GetPrivateKeys(const std::string &tbname, const std::
 int NFRedisDriver::GetPrivateFields(const std::string &packageName, const std::string &className, const std::string &record, std::string &field,
                                     std::string &fieldValue)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string full_name;
     if (packageName.empty())
     {
@@ -683,13 +730,13 @@ int NFRedisDriver::GetPrivateFields(const std::string &packageName, const std::s
 
     int iRet = NFProtobufCommon::GetPrivateFieldsFromMessage(*pMessageObject, field, fieldValue);
     delete pMessageObject;
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return iRet;
 }
 
-int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_delobj &select)
+int NFRedisDriver::DeleteObj(const NFrame::storesvr_delobj &select)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
 
@@ -702,7 +749,7 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_delobj &select)
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
         return -1;
     }
 
@@ -716,13 +763,13 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_delobj &select)
         }
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_insertobj &select)
+int NFRedisDriver::DeleteObj(const NFrame::storesvr_insertobj &select)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
 
@@ -735,7 +782,7 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_insertobj &select)
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
         return -1;
     }
 
@@ -749,13 +796,13 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_insertobj &select)
         }
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_modobj &select)
+int NFRedisDriver::DeleteObj(const NFrame::storesvr_modobj &select)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     std::string tableName = select.baseinfo().tbname();
     CHECK_EXPR(tableName.size() > 0, -1, "talbeName empty!");
 
@@ -769,7 +816,7 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_modobj &select)
     bool bRet = SelectDB(NFREDIS_DB1);
     if (!bRet)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
+        NFLogError(NF_LOG_DEFAULT, 0, "SelectDB:{} Failed! dbName:{} modkey:{}", NFREDIS_DB1, select.baseinfo().tbname(), select.mod_key());
         return -1;
     }
 
@@ -783,13 +830,13 @@ int NFRedisDriver::DeleteObj(const storesvr_sqldata::storesvr_modobj &select)
         }
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
 int NFRedisDriver::GetObjKey(const std::string& packageName, const std::string& tableName, const std::string& className, const std::string& record, std::string& privateKey, std::string& privateKeyValue, std::string& db_key)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
 
     std::string full_name;
     if (packageName.empty())
@@ -811,7 +858,7 @@ int NFRedisDriver::GetObjKey(const std::string& packageName, const std::string& 
     {
         db_key = GetPrivateKeys(tableName, privateKey, privateKeyValue);
     }
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return iRet;
 }
 

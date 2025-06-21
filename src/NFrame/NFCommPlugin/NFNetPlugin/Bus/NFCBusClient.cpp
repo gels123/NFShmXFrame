@@ -8,13 +8,14 @@
 // -------------------------------------------------------------------------
 
 #include "NFCBusClient.h"
-#include "NFComm/NFPluginModule/NFLogMgr.h"
+#include <sstream>
+#include <string.h>
+#include <NFCommPlugin/NFNetPlugin/NFPacketParseMgr.h>
 #include "NFComm/NFCore/NFServerIDUtil.h"
 #include "NFComm/NFPluginModule/NFIMessageModule.h"
-#include "../NFIPacketParse.h"
+#include "NFComm/NFPluginModule/NFLogMgr.h"
 #include "NFComm/NFPluginModule/NFNetPackagePool.h"
-#include <string.h>
-#include <sstream>
+
 #include "NFComm/NFPluginModule/NFCheck.h"
 
 NFCBusClient::~NFCBusClient()
@@ -29,10 +30,10 @@ bool NFCBusClient::Execute()
 
 bool NFCBusClient::Init()
 {
-    uint64_t linkId = ConnectServer(mFlag, m_bindFlag);
+    uint64_t linkId = ConnectServer(m_flag, m_bindFlag);
     if (linkId == 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "ConnectServer Failed!");
+        NFLogError(NF_LOG_DEFAULT, 0, "ConnectServer Failed!");
         return false;
     }
     return true;
@@ -53,46 +54,46 @@ bool NFCBusClient::Finalize()
 *
 * @return 是否成功
 */
-uint64_t NFCBusClient::ConnectServer(const NFMessageFlag& flag, const NFMessageFlag& bindFlag)
+uint64_t NFCBusClient::ConnectServer(const NFMessageFlag& flag, const NFMessageFlag&)
 {
     if (flag.mBusId <= 0 || flag.mBusLength <= 4096)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "busid:{} busLength:{} error!", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId), flag.mBusLength);
+        NFLogError(NF_LOG_DEFAULT, 0, "busid:{} busLength:{} error!", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId), flag.mBusLength);
         return 0;
     }
 
-    int ret = AttachShm((key_t)flag.mBusId, (size_t)flag.mBusLength);
+    int ret = AttachShm(static_cast<key_t>(flag.mBusId), flag.mBusLength);
     if (ret < 0)
     {
-        ret = InitShm((key_t)flag.mBusId, (size_t)flag.mBusLength);
+        ret = InitShm(static_cast<key_t>(flag.mBusId), flag.mBusLength);
     }
 
     if (ret < 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "bus init failed:{} ", ret);
+        NFLogError(NF_LOG_DEFAULT, 0, "bus init failed:{} ", ret);
         return 0;
     }
 
     NFShmRecordType * pShmRecord = GetShmRecord();
-    if (pShmRecord == NULL)
+    if (pShmRecord == nullptr)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "GetShmRecord failed, busid:{} ", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId));
+        NFLogError(NF_LOG_DEFAULT, 0, "GetShmRecord failed, busid:{} ", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId));
         return 0;
     }
 
     pShmRecord->m_nOwner = false;
     pShmRecord->m_nBusId = flag.mBusId;
-    pShmRecord->m_nBusLenth = flag.mBusLength;
-    pShmRecord->mPacketParseType = flag.mPacketParseType;
-    pShmRecord->m_nUnLinkId = GetUnLinkId(NF_IS_BUS, mServerType, flag.mBusId, 0);
+    pShmRecord->m_nBusLength = flag.mBusLength;
+    pShmRecord->m_packetParseType = flag.mPacketParseType;
+    pShmRecord->m_nUnLinkId = GetUnLinkId(NF_IS_BUS, m_serverType, flag.mBusId, 0);
     SetLinkId(pShmRecord->m_nUnLinkId);
     SetConnectionType(NF_CONNECTION_TYPE_TCP_CLIENT);
 
     bool find = false;
-    NFShmChannelHead *head = (NFShmChannelHead *)pShmRecord->m_nBuffer;
-    for(size_t i = 0; i < ARRAYSIZE(head->m_nShmAddr.mSrcLinkId); i++)
+    auto head = (NFShmChannelHead*)pShmRecord->m_nBuffer;
+    for (size_t i = 0; i < ARRAYSIZE(head->m_nShmAddr.m_srcLinkId); i++)
     {
-        if (head->m_nShmAddr.mSrcLinkId[i] == m_bindFlag.mLinkId)
+        if (head->m_nShmAddr.m_srcLinkId[i] == m_bindFlag.mLinkId)
         {
             find = true;
             break;
@@ -101,27 +102,27 @@ uint64_t NFCBusClient::ConnectServer(const NFMessageFlag& flag, const NFMessageF
 
     if (!find)
     {
-        for(size_t i = 0; i < ARRAYSIZE(head->m_nShmAddr.mSrcLinkId); i++)
+        for (size_t i = 0; i < ARRAYSIZE(head->m_nShmAddr.m_srcLinkId); i++)
         {
-            if (head->m_nShmAddr.mSrcLinkId[i] == m_bindFlag.mLinkId)
+            if (head->m_nShmAddr.m_srcLinkId[i] == m_bindFlag.mLinkId)
             {
                 break;
             }
 
             uint64_t curValue = 0;
-            bool f = head->m_nShmAddr.mSrcLinkId[i].compare_exchange_strong(curValue, (uint64_t)m_bindFlag.mLinkId);
+            bool f = head->m_nShmAddr.m_srcLinkId[i].compare_exchange_strong(curValue, m_bindFlag.mLinkId);
             if (f)
             {
                 find = true;
-                head->m_nShmAddr.mSrcBusLength[i] = m_bindFlag.mBusLength;
-                head->m_nShmAddr.mSrcParseType[i] = m_bindFlag.mPacketParseType;
+                head->m_nShmAddr.m_srcBusLength[i] = m_bindFlag.mBusLength;
+                head->m_nShmAddr.m_srcParseType[i] = m_bindFlag.mPacketParseType;
                 if (flag.bActivityConnect)
                 {
-                    head->m_nShmAddr.bActiveConnect[i] = true;
+                    head->m_nShmAddr.m_bActiveConnect[i] = true;
                 }
                 else
                 {
-                    head->m_nShmAddr.bActiveConnect[i] = false;
+                    head->m_nShmAddr.m_bActiveConnect[i] = false;
                 }
                 break;
             }
@@ -130,30 +131,30 @@ uint64_t NFCBusClient::ConnectServer(const NFMessageFlag& flag, const NFMessageF
 
     if (!find)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "ConnectServer:{} failed! the bus no seat, too many connection!", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId));
+        NFLogError(NF_LOG_DEFAULT, 0, "ConnectServer:{} failed! the bus no seat, too many connection!", NFServerIDUtil::GetBusNameFromBusID(flag.mBusId));
     }
 
     if (flag.bActivityConnect)
     {
-        SendBusConnectMsg(m_bindFlag.mBusId, (uint64_t)m_bindFlag.mBusLength);
+        SendBusConnectMsg(m_bindFlag.mBusId, m_bindFlag.mBusLength);
     }
 
-    return (int64_t)pShmRecord->m_nUnLinkId;
+    return static_cast<int64_t>(pShmRecord->m_nUnLinkId);
 }
 
-bool NFCBusClient::Send(NFShmChannel *pChannel, int packetParseType, NFDataPackage& codePackage, const char* msg, uint32_t nLen)
+bool NFCBusClient::Send(NFShmChannel* pChannel, int packetParseType, const NFDataPackage& packet, const char* msg, uint32_t nLen)
 {
-    mxBuffer.Clear();
-    NFIPacketParse::EnCode(packetParseType, codePackage, msg, nLen, mxBuffer, m_bindFlag.mLinkId);
+    m_buffer.Clear();
+    NFPacketParseMgr::EnCode(packetParseType, packet, msg, nLen, m_buffer, m_bindFlag.mLinkId);
 
-    int iRet = ShmSend(pChannel, mxBuffer.ReadAddr(), mxBuffer.ReadableSize());
+    int iRet = ShmSend(pChannel, m_buffer.ReadAddr(), m_buffer.ReadableSize());
     if (iRet == 0)
     {
         return true;
     }
     else
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "ShmSend from:{} to:{} error:{}", NFServerIDUtil::GetBusNameFromBusID(m_bindFlag.mBusId), NFServerIDUtil::GetBusNameFromBusID(mFlag.mBusId), iRet);
+        NFLogError(NF_LOG_DEFAULT, 0, "ShmSend from:{} to:{} error:{}", NFServerIDUtil::GetBusNameFromBusID(m_bindFlag.mBusId), NFServerIDUtil::GetBusNameFromBusID(m_flag.mBusId), iRet);
     }
     return false;
 }
@@ -161,27 +162,27 @@ bool NFCBusClient::Send(NFShmChannel *pChannel, int packetParseType, NFDataPacka
 bool NFCBusClient::Send(NFDataPackage& packet, const char* msg, uint32_t nLen)
 {
     NFShmRecordType * pShmRecord = GetShmRecord();
-    if (pShmRecord == NULL)
+    if (pShmRecord == nullptr)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "GetShmRecord failed,");
+        NFLogError(NF_LOG_DEFAULT, 0, "GetShmRecord failed,");
         return false;
     }
 
     if (pShmRecord->m_nOwner == true)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "bus owner can't send data, uslinkId:{} ", pShmRecord->m_nUnLinkId);
+        NFLogError(NF_LOG_DEFAULT, 0, "bus owner can't send data, unlinkId:{} ", pShmRecord->m_nUnLinkId);
         return false;
     }
 
-    if (pShmRecord->m_nBuffer == NULL)
+    if (pShmRecord->m_nBuffer == nullptr)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "buffer = null, uslinkId:{} ", pShmRecord->m_nUnLinkId);
+        NFLogError(NF_LOG_DEFAULT, 0, "buffer = null, unlinkId:{} ", pShmRecord->m_nUnLinkId);
         return false;
     }
 
 
-    NFShmChannelHead *head = (NFShmChannelHead *)pShmRecord->m_nBuffer;
-    NFShmChannel *pChannel = NULL;//&head->m_nShmChannel;
+    auto head = (NFShmChannelHead*)pShmRecord->m_nBuffer;
+    NFShmChannel* pChannel = nullptr; //&head->m_nShmChannel;
     if (NFGlobalSystem::Instance()->IsSpecialMsg(packet.mModuleId, packet.nMsgId))
     {
         pChannel = &head->m_nConnectChannel;
@@ -192,7 +193,7 @@ bool NFCBusClient::Send(NFDataPackage& packet, const char* msg, uint32_t nLen)
 
     if (pChannel)
     {
-        return Send(pChannel, pShmRecord->mPacketParseType, packet, msg, nLen);
+        return Send(pChannel, pShmRecord->m_packetParseType, packet, msg, nLen);
     }
 
     return false;
@@ -200,16 +201,16 @@ bool NFCBusClient::Send(NFDataPackage& packet, const char* msg, uint32_t nLen)
 
 bool NFCBusClient::Send(NFDataPackage& packet, const google::protobuf::Message& xData)
 {
-    mxSendBuffer.Clear();
+    m_sendBuffer.Clear();
     int byteSize = xData.ByteSize();
-    CHECK_EXPR((int)mxSendBuffer.WritableSize() >= byteSize, false, "mxSendBuffer.WritableSize():{} < byteSize:{} msg:{}", mxSendBuffer.WritableSize(), byteSize, xData.DebugString());
+    CHECK_EXPR(static_cast<int>(m_sendBuffer.WritableSize()) >= byteSize, false, "mxSendBuffer.WritableSize():{} < byteSize:{} msg:{}", m_sendBuffer.WritableSize(), byteSize, xData.DebugString());
 
-    uint8_t* start = reinterpret_cast<uint8_t*>(mxSendBuffer.WriteAddr());
+    auto start = reinterpret_cast<uint8_t*>(m_sendBuffer.WriteAddr());
     uint8_t* end = xData.SerializeWithCachedSizesToArray(start);
     CHECK_EXPR(end - start == byteSize, false, "xData.SerializeWithCachedSizesToArray Failed:{}", xData.DebugString());
-    mxSendBuffer.Produce(byteSize);
+    m_sendBuffer.Produce(byteSize);
 
-    return Send(packet, mxSendBuffer.ReadAddr(), mxSendBuffer.ReadableSize());
+    return Send(packet, m_sendBuffer.ReadAddr(), m_sendBuffer.ReadableSize());
 }
 
 bool NFCBusClient::IsConnected()

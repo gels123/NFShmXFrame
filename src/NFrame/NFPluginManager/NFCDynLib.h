@@ -21,7 +21,7 @@
 #    define DYNLIB_UNLOAD( a ) FreeLibrary( a )
 
 struct HINSTANCE__;
-typedef struct HINSTANCE__* hInstance;
+typedef HINSTANCE__* hInstance;
 
 #elif NF_PLATFORM == NF_PLATFORM_LINUX || NF_PLATFORM == NF_PLATFORM_ANDROID
 #include <dlfcn.h>
@@ -44,17 +44,16 @@ class _NFExport NFCDynLib
 {
 
 public:
-
-    NFCDynLib(const std::string& strName)
+    explicit NFCDynLib(const std::string& strName)
     {
-        mstrName = strName;
-		mInst = NULL;
+        m_strName = strName;
+		m_inst = nullptr;
 #if NF_PLATFORM == NF_PLATFORM_WIN
-        mstrName.append(".dll");
+        m_strName.append(".dll");
 #elif NF_PLATFORM == NF_PLATFORM_LINUX || NF_PLATFORM == NF_PLATFORM_ANDROID
-        mstrName = "lib" + mstrName + ".so";
+        m_strName = "lib" + m_strName + ".so";
 #elif NF_PLATFORM == NF_PLATFORM_APPLE || NF_PLATFORM == NF_PLATFORM_APPLE_IOS
-        mstrName = "lib" + mstrName + ".so";
+        m_strName = "lib" + m_strName + ".so";
 #endif
     }
 
@@ -68,18 +67,18 @@ public:
     bool UnLoad();
 
     /// Get the name of the library
-    const std::string& GetName(void) const
+    const std::string& GetName() const
     {
-        return mstrName;
+        return m_strName;
     }
 
     void* GetSymbol(const char* szProcName);
 
 protected:
 
-    std::string mstrName;
+    std::string m_strName;
 
-    DYNLIB_HANDLE mInst;
+    DYNLIB_HANDLE m_inst;
 };
 
 #endif

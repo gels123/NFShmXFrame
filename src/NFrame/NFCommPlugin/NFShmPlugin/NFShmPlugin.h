@@ -1,8 +1,8 @@
 // -------------------------------------------------------------------------
-//    @FileName         :    NFKernelPlugin.h
-//    @Author           :    LvSheng.Huang
+//    @FileName         :    NFShmPlugin.h
+//    @Author           :    gaoyi
 //    @Date             :   2022-09-18
-//    @Module           :    NFKernelPlugin
+//    @Module           :    NFShmPlugin
 //
 // -------------------------------------------------------------------------
 
@@ -12,28 +12,27 @@
 #include "NFComm/NFPluginModule/NFIPluginManager.h"
 
 //////////////////////////////////////////////////////////////////////////
-class NFShmPlugin : public NFIPlugin
+class NFShmPlugin final : public NFIPlugin
 {
 public:
-	explicit NFShmPlugin(NFIPluginManager* p):NFIPlugin(p)
-	{
-
-	}
-
-	virtual ~NFShmPlugin()
+	explicit NFShmPlugin(NFIPluginManager* p): NFIPlugin(p)
 	{
 	}
 
-	virtual int GetPluginVersion() override;
+	~NFShmPlugin() override
+	{
+	}
 
-	virtual std::string GetPluginName() override;
+	int GetPluginVersion() override;
 
-	virtual void Install() override;
+	std::string GetPluginName() override;
 
-	virtual void Uninstall() override;
+	void Install() override;
 
-	virtual bool IsDynamicLoad() override;
+	void Uninstall() override;
 
-	virtual bool InitShmObjectRegister() override;
+	bool IsDynamicLoad() override;
+
+	bool InitShmObjectRegister() override;
 };
 

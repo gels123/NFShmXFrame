@@ -11,10 +11,10 @@
 
 #include "NFServerComm/NFDescStorePlugin/NFDescStoreDefine.h"
 #include "NFIDescStoreModule.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
-#include "NFComm/NFShmCore/NFShmObj.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
+#include "NFComm/NFObjCommon/NFObject.h"
 #include "NFComm/NFShmStl/NFShmString.h"
-#include "NFComm/NFShmCore/NFResDb.h"
+#include "NFComm/NFObjCommon/NFResDb.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -35,7 +35,7 @@
     NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIDescStoreModule>()->RegisterDescStoreEx(#className, className::GetStaticClassType());\
     REGISTER_SINGLETON_SHM_OBJ_GLOBAL(className)      \
 
-class NFIDescStore : public NFShmObj
+class NFIDescStore : public NFObject
 {
 public:
     NFIDescStore();
@@ -46,9 +46,9 @@ public:
 
     int ResumeInit();
 
-    virtual int Load(NFResDB *pDB) = 0;
+    virtual int Load(NFResDb *pDB) = 0;
 
-    virtual int Reload(NFResDB *pDB) = 0;
+    virtual int Reload(NFResDb *pDB) = 0;
 
     virtual int CheckWhenAllDataLoaded() = 0;
 

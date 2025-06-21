@@ -9,7 +9,6 @@
 
 #include "NFTestPlugin.h"
 #include "NFCTestModule.h"
-#include "NFStoreServerTest/NFStoreServerTest.h"
 //
 //
 #ifdef NF_DYNAMIC_PLUGIN
@@ -41,11 +40,9 @@ std::string NFTestPlugin::GetPluginName()
 void NFTestPlugin::Install()
 {
 	REGISTER_MODULE(m_pObjPluginManager, NFCTestModule, NFCTestModule);
-    REGISTER_MODULE(m_pObjPluginManager, NFStoreServerTest, NFStoreServerTest);
 }
 
 void NFTestPlugin::Uninstall()
 {
 	UNREGISTER_MODULE(m_pObjPluginManager, NFCTestModule, NFCTestModule);
-    UNREGISTER_MODULE(m_pObjPluginManager, NFStoreServerTest, NFStoreServerTest);
 }

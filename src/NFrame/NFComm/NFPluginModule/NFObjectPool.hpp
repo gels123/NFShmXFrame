@@ -38,7 +38,7 @@ public:
 
     uint32_t MemSize()
     {
-        return mem_size_;
+        return m_memSize;
     }
 };
 
@@ -77,7 +77,7 @@ inline TYPE *NFObjectPool<TYPE>::Alloc()
 template<class TYPE>
 inline bool NFObjectPool<TYPE>::Free(TYPE *obj)
 {
-    MMO_ASSERT(obj);
+    NF_ASSERT(obj);
     obj->~TYPE();
     return FreeChunk(obj);
 }

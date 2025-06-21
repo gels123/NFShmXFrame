@@ -9,9 +9,6 @@
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFComm/NFShmCore/NFShmMgr.h"
-#include "NFComm/NFPluginModule/NFCheck.h"
 #include "NFShmStl.h"
 #include <iterator>
 #include <algorithm>
@@ -21,7 +18,7 @@ struct NFShmDyListNodeBase
 {
     NFShmDyListNodeBase()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -54,7 +51,7 @@ struct NFShmDyListNode : public NFShmDyListNodeBase
 {
     NFShmDyListNode()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -90,17 +87,19 @@ struct NFShmDyListIteratorBase
     NFShmDyListNodeBase *m_node;
 
     explicit NFShmDyListIteratorBase(const Container *pContainer, size_t iPos)
-            : m_pContainer(const_cast<Container *>(pContainer))
+        : m_pContainer(const_cast<Container *>(pContainer))
     {
         m_node = m_pContainer->GetNode(iPos);
     }
 
     explicit NFShmDyListIteratorBase(const Container *pContainer, const NFShmDyListNodeBase *pNode)
-            : m_pContainer(const_cast<Container *>(pContainer)), m_node(const_cast<NFShmDyListNodeBase *>(pNode))
+        : m_pContainer(const_cast<Container *>(pContainer)), m_node(const_cast<NFShmDyListNodeBase *>(pNode))
     {
     }
 
-    NFShmDyListIteratorBase() : m_pContainer(NULL), m_node(NULL) {}
+    NFShmDyListIteratorBase() : m_pContainer(NULL), m_node(NULL)
+    {
+    }
 
     void _M_incr() { m_node = m_pContainer->GetNode(m_node->m_next); }
 
@@ -133,7 +132,6 @@ struct NFShmDyListIterator : public NFShmDyListIteratorBase<Container>
 
     explicit NFShmDyListIterator(const Container *pContainer, size_t iPos) : NFShmDyListIteratorBase<Container>(pContainer, iPos)
     {
-
     }
 
     explicit NFShmDyListIterator(const Container *pContainer, const NFShmDyListNodeBase *pNode) : NFShmDyListIteratorBase<Container>(pContainer, pNode)
@@ -142,12 +140,10 @@ struct NFShmDyListIterator : public NFShmDyListIteratorBase<Container>
 
     NFShmDyListIterator()
     {
-
     }
 
     NFShmDyListIterator(const iterator &__x) : NFShmDyListIteratorBase<Container>(__x.m_pContainer, __x.m_node)
     {
-
     }
 
     reference operator*() const { return ((_Node *) m_node)->m_data; }
@@ -187,7 +183,7 @@ class NFShmDyListBase
 public:
     NFShmDyListBase()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -261,25 +257,25 @@ public:
     static size_t CountSize(int iObjectCount)
     {
         //size + maxSize + freeStart + sizeof(NFShmDyListNode<Tp>) * (iObjectCount + 1)
-        return sizeof(size_t) + sizeof(size_t) + sizeof(ptrdiff_t) + sizeof(NFShmDyListNode<Tp>) * (iObjectCount+1);
+        return sizeof(size_t) + sizeof(size_t) + sizeof(ptrdiff_t) + sizeof(NFShmDyListNode<Tp>) * (iObjectCount + 1);
     }
 
-    virtual int Init(const char* pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
+    virtual int Init(const char *pBuffer, int bufSize, int iObjectCount, bool bResetShm = true)
     {
-        CHECK_NULL(pBuffer);
-        CHECK_EXPR(iObjectCount >= 0, -1, "iObjectCount:{}",iObjectCount);
+        CHECK_EXPR(pBuffer != NULL, -1, "");
+        CHECK_EXPR(iObjectCount >= 0, -1, "iObjectCount:%lu", iObjectCount);
         int iCountSize = CountSize(iObjectCount);
-        NF_ASSERT_MSG(bufSize >= iCountSize, "bufSize:{} iCountSize:{}", bufSize, iCountSize);
+        NF_ASSERT_MSG(bufSize >= iCountSize, "bufSize:%lu iCountSize:%lu", bufSize, iCountSize);
 
-        m_pBuffer = (char*)pBuffer;
-        m_pSize = (size_t*)pBuffer;
-        m_pMaxSize = (size_t*)(pBuffer+sizeof(size_t));
-        m_pFreeStart = (ptrdiff_t*)(pBuffer+sizeof(size_t) + sizeof(size_t));
-        m_node = (NFShmDyListNode<Tp>*)(pBuffer + sizeof(size_t) + sizeof(size_t)+sizeof(ptrdiff_t));
+        m_pBuffer = (char *) pBuffer;
+        m_pSize = (size_t *) pBuffer;
+        m_pMaxSize = (size_t *) (pBuffer + sizeof(size_t));
+        m_pFreeStart = (ptrdiff_t *) (pBuffer + sizeof(size_t) + sizeof(size_t));
+        m_node = (NFShmDyListNode<Tp> *) (pBuffer + sizeof(size_t) + sizeof(size_t) + sizeof(ptrdiff_t));
 
         if (bResetShm)
         {
-            memset((void*)pBuffer, 0, bufSize);
+            memset((void *) pBuffer, 0, bufSize);
             *m_pMaxSize = iObjectCount;
             size_t MAX_SIZE = *m_pMaxSize;
             for (size_t i = 0; i < MAX_SIZE; i++)
@@ -297,8 +293,8 @@ public:
         }
         else
         {
-            NF_ASSERT_MSG(*m_pSize <= *m_pMaxSize, "size:{} max_size:{}", *m_pSize, *m_pMaxSize);
-            NF_ASSERT_MSG(*m_pMaxSize == iObjectCount, "max size:{} object count:{}", *m_pMaxSize, iObjectCount);
+            NF_ASSERT_MSG(*m_pSize <= *m_pMaxSize, "size:%lu max_size:%lu", *m_pSize, *m_pMaxSize);
+            NF_ASSERT_MSG(*m_pMaxSize == iObjectCount, "max size:%lu object count:%lu", *m_pMaxSize, iObjectCount);
             if (!std::numeric_limits<Tp>::is_specialized)
             {
                 size_t MAX_SIZE = *m_pMaxSize;
@@ -314,20 +310,23 @@ public:
 
         return 0;
     }
+
 protected:
-    char* m_pBuffer;
-    NFShmDyListNode<Tp>* m_node;
-    ptrdiff_t* m_pFreeStart;
-    size_t* m_pSize;
-    size_t* m_pMaxSize;
+    char *m_pBuffer;
+    NFShmDyListNode<Tp> *m_node;
+    ptrdiff_t *m_pFreeStart;
+    size_t *m_pSize;
+    size_t *m_pMaxSize;
 };
 
 template<class Tp>
 class NFShmDyList : public NFShmDyListBase<Tp>
 {
     typedef NFShmDyListBase<Tp> _Base;
+
 protected:
     typedef void *_Void_pointer;
+
 public:
     typedef NFShmDyList<Tp> ListType;
     typedef Tp value_type;
@@ -351,6 +350,7 @@ protected:
     using _Base::m_pFreeStart;
     using _Base::m_pSize;
     using _Base::m_pMaxSize;
+
 protected:
     /**
      * @brief This function creates a node with the given data and assigns it to the free start position.
@@ -395,7 +395,7 @@ protected:
         NF_ASSERT(pNode);
         NF_ASSERT(pNode->m_valid);
 
-		std::_Destroy(&(pNode->m_data));
+        std::_Destroy(&(pNode->m_data));
 
         pNode->m_valid = false;
         pNode->m_next = *m_pFreeStart;
@@ -405,7 +405,7 @@ protected:
 public:
     explicit NFShmDyList()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        if (SHM_CREATE_MODE)
         {
             CreateInit();
         }
@@ -427,7 +427,6 @@ public:
 
     ~NFShmDyList()
     {
-
     }
 
     NFShmDyList<Tp> &operator=(const NFShmDyList<Tp> &__x);
@@ -485,38 +484,40 @@ public:
 
     const_reference back() const { return *(--end()); }
 
-    void swap(NFShmDyList<Tp> &__x) {}
+    void swap(NFShmDyList<Tp> &__x)
+    {
+    }
 
     _Node *GetNode(size_t index)
     {
-        CHECK_EXPR(index <= *m_pMaxSize, NULL, "index out of range:{}", index);
+        CHECK_EXPR(index <= *m_pMaxSize, NULL, "index out of range:%lu", index);
         return &m_node[index];
     }
 
     const _Node *GetNode(size_t index) const
     {
-        CHECK_EXPR(index <= *m_pMaxSize, NULL, "index out of range:{}", index);
+        CHECK_EXPR(index <= *m_pMaxSize, NULL, "index out of range:%lu", index);
         return &m_node[index];
     }
 
     iterator GetIterator(size_t index)
     {
-        CHECK_EXPR(index <= *m_pMaxSize, end(), "index out of range:{}", index);
+        CHECK_EXPR(index <= *m_pMaxSize, end(), "index out of range:%lu", index);
         return iterator(this, index);
     }
 
     const_iterator GetIterator(size_t index) const
     {
-        CHECK_EXPR(index <= *m_pMaxSize, end(), "index out of range:{}", index);
+        CHECK_EXPR(index <= *m_pMaxSize, end(), "index out of range:%lu", index);
         return const_iterator(this, index);
     }
 
-    iterator GetIterator(_Node* pNode)
+    iterator GetIterator(_Node *pNode)
     {
         return iterator(this, pNode);
     }
 
-    const_iterator GetIterator(_Node* pNode) const
+    const_iterator GetIterator(_Node *pNode) const
     {
         return const_iterator(this, pNode);
     }
@@ -532,7 +533,7 @@ public:
     {
         if (full())
         {
-            NFLogWarning(NF_LOG_SYSTEMLOG, 0, "The List Space Not Enough, Insert Failed");
+            LOG_WARN(0, -1, "The List Space Not Enough, Insert Failed");
             return end();
         }
         _Node *__tmp = _M_create_node(__x);
@@ -591,7 +592,7 @@ public:
         }
         ptrdiff_t __next_node = __position.m_node->m_next;
         ptrdiff_t __prev_node = __position.m_node->m_prev;
-        _M_recycle_node(static_cast<_Node*>(__position.m_node));
+        _M_recycle_node(static_cast<_Node *>(__position.m_node));
         m_node[__prev_node].m_next = __next_node;
         m_node[__next_node].m_prev = __prev_node;
         (*m_pSize)--;
@@ -625,34 +626,41 @@ public:
     }
 
 protected:
-    void transfer(iterator __position, iterator __first, iterator __last) {
+    void transfer(iterator __position, iterator __first, iterator __last)
+    {
         NF_ASSERT(this == __position.m_pContainer);
         NF_ASSERT(this == __first.m_pContainer);
         NF_ASSERT(this == __last.m_pContainer);
-        if (__position != __last) {
+        if (__position != __last)
+        {
             // Remove [first, last) from its old position.
-            GetNode(__last.m_node->m_prev)->m_next     = __position.m_node->m_self;
-            GetNode(__first.m_node->m_prev)->m_next    = __last.m_node->m_self;
+            GetNode(__last.m_node->m_prev)->m_next = __position.m_node->m_self;
+            GetNode(__first.m_node->m_prev)->m_next = __last.m_node->m_self;
             GetNode(__position.m_node->m_prev)->m_next = __first.m_node->m_self;
 
             // Splice [first, last) into its new position.
-            ptrdiff_t __tmp      = __position.m_node->m_prev;
+            ptrdiff_t __tmp = __position.m_node->m_prev;
             __position.m_node->m_prev = __last.m_node->m_prev;
-            __last.m_node->m_prev     = __first.m_node->m_prev;
-            __first.m_node->m_prev    = __tmp;
+            __last.m_node->m_prev = __first.m_node->m_prev;
+            __first.m_node->m_prev = __tmp;
         }
     }
+
 public:
-    void splice(iterator __position, iterator __i) {
+    void splice(iterator __position, iterator __i)
+    {
         iterator __j = __i;
         ++__j;
         if (__position == __i || __position == __j) return;
         this->transfer(__position, __i, __j);
     }
-    void splice(iterator __position, iterator __first, iterator __last) {
+
+    void splice(iterator __position, iterator __first, iterator __last)
+    {
         if (__first != __last)
             this->transfer(__position, __first, __last);
     }
+
 public:
     void remove(const Tp &__value);
 
@@ -690,7 +698,7 @@ protected:
     }
 
     template<class _InputIterator>
-	void _M_insert_dispatch(iterator __pos, _InputIterator __first, _InputIterator __last, std::__false_type);
+    void _M_insert_dispatch(iterator __pos, _InputIterator __first, _InputIterator __last, std::__false_type);
 
 
     template<class _Integer>
@@ -739,7 +747,7 @@ void NFShmDyList<_Tp>::_M_insert_dispatch(iterator __position, _InputIter __firs
 
 template<class Tp>
 void NFShmDyList<Tp>::insert(iterator __position,
-                                     const Tp *__first, const Tp *__last)
+                             const Tp *__first, const Tp *__last)
 {
     for (; __first != __last; ++__first)
         insert(__position, *__first);
@@ -747,7 +755,7 @@ void NFShmDyList<Tp>::insert(iterator __position,
 
 template<class Tp>
 void NFShmDyList<Tp>::insert(iterator __position,
-                                     const_iterator __first, const_iterator __last)
+                             const_iterator __first, const_iterator __last)
 {
     for (; __first != __last; ++__first)
         insert(__position, *__first);
@@ -755,7 +763,7 @@ void NFShmDyList<Tp>::insert(iterator __position,
 
 template<class _Tp>
 void NFShmDyList<_Tp>::_M_fill_insert(iterator __position,
-                                              size_type __n, const _Tp &__x)
+                                      size_type __n, const _Tp &__x)
 {
     for (; __n > 0; --__n)
         insert(__position, __x);
@@ -763,7 +771,7 @@ void NFShmDyList<_Tp>::_M_fill_insert(iterator __position,
 
 template<class _Tp>
 typename NFShmDyList<_Tp>::iterator NFShmDyList<_Tp>::erase(iterator __first,
-                                                                            iterator __last)
+                                                            iterator __last)
 {
     while (__first != __last)
         erase(__first++);
@@ -778,7 +786,7 @@ void NFShmDyList<_Tp>::resize(size_type __new_size, const _Tp &__x)
     for (; __i != end() && __len < __new_size; ++__i, ++__len);
     if (__len == __new_size)
         erase(__i, end());
-    else                          // __i == end()
+    else // __i == end()
         insert(end(), __new_size - __len, __x);
 }
 

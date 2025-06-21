@@ -12,14 +12,19 @@
 #include "NFComm/NFCore/NFPlatform.h"
 #include "NFComm/NFPluginModule/NFIDynamicModule.h"
 
-class NFCShmOtherModule : public NFIDynamicModule
+class NFCShmOtherModule final : public NFIDynamicModule
 {
 public:
-    NFCShmOtherModule(NFIPluginManager *p);
+    explicit NFCShmOtherModule(NFIPluginManager* p);
 
-    virtual ~NFCShmOtherModule();
+    ~NFCShmOtherModule() override;
+
 public:
-    virtual bool Awake() override;
+    bool Awake() override;
 
-    virtual int OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message *pMessage) override;
+    int OnExecute(uint32_t serverType, uint32_t eventId, uint32_t srcType, uint64_t srcId, const google::protobuf::Message* pMessage) override;
+
+    bool CheckStopServer() override;
+
+    bool StopServer() override;
 };

@@ -271,7 +271,7 @@ public:
         m_nFireLayer++;
         if (m_nFireLayer >= EVENT_FIRE_MAX_LAYER)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0,
+            NFLogError(NF_LOG_DEFAULT, 0,
                        "[Event] m_nFireLayer >= EVENT_FIRE_MAX_LAYER.....skey:{}, fireLayer:{}",
                        skey.ToString(), m_nFireLayer);
             m_nFireLayer--;
@@ -286,7 +286,7 @@ public:
                 SubscribeInfo *pSubscribeInfo = &(*iter);
                 if (pSubscribeInfo->nRefCount >= EVENT_REF_MAX_CNT)
                 {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0,
+                    NFLogError(NF_LOG_DEFAULT, 0,
                                "[Event] pSubscribeInfo->nRefCount >= EVENT_REF_MAX_CNT....skey:{}, refcont:{}, removeflag:{}, szdesc:{}",
                                skey.ToString(), pSubscribeInfo->nRefCount,
                                static_cast<int32_t>(pSubscribeInfo->bRemoveFlag), pSubscribeInfo->szDesc);
@@ -307,7 +307,7 @@ public:
                     }
                     catch (...)
                     {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0,
+                        NFLogError(NF_LOG_DEFAULT, 0,
                                    "[Event] pSubscribeInfo->nRefCount >= EVENT_REF_MAX_CNT....skey:{}, refcont:{}, removeflag:{}, szdesc:{}",
                                    skey.ToString(), pSubscribeInfo->nRefCount,
                                    static_cast<int32_t>(pSubscribeInfo->bRemoveFlag), pSubscribeInfo->szDesc);
@@ -324,7 +324,7 @@ public:
                     }
                     if (bRes != 0)
                     {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0,
+                        NFLogError(NF_LOG_DEFAULT, 0,
                                    "[Event] ret != 0 ....skey:{}, refcont:{}, removeflag:{}, szdesc:{}",
                                    skey.ToString(), pSubscribeInfo->nRefCount,
                                    static_cast<int32_t>(pSubscribeInfo->bRemoveFlag), pSubscribeInfo->szDesc);

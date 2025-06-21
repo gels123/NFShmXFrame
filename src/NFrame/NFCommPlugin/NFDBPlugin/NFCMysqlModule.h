@@ -49,7 +49,7 @@ public:
      * @param  pMessage sheet_fullname的protobuf的数据结构，携带返回数据
      *  比如 message Sheet_GameRoomDesc
      *		{
-     *			repeated GameRoomDesc GameRoomDesc_List = 1  [(yd_fieldoptions.field_arysize)=100];
+     *			repeated GameRoomDesc GameRoomDesc_List = 1  [(nanopb).max_count=100];
      *		}
      * 代表一个Excel表格GameRoomDesc, 同时数据库有一个表GameRoomDesc
      * 都用这个数据结构来表达，以及存取数据
@@ -67,7 +67,7 @@ public:
      * @param  pMessage sheet_fullname的protobuf的数据结构，携带返回数据
      *  比如 message Sheet_GameRoomDesc
      *		{
-     *			repeated GameRoomDesc GameRoomDesc_List = 1  [(yd_fieldoptions.field_arysize)=100];
+     *			repeated GameRoomDesc GameRoomDesc_List = 1  [(nanopb).max_count=100];
      *		}
      * 代表一个Excel表格GameRoomDesc, 同时数据库有一个表GameRoomDesc
      * 都用这个数据结构来表达，以及存取数据
@@ -84,8 +84,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int SelectByCond(const std::string& serverID, const storesvr_sqldata::storesvr_sel &select,
-                             storesvr_sqldata::storesvr_sel_res &select_res) override;
+    virtual int SelectByCond(const std::string& serverID, const NFrame::storesvr_sel &select,
+                             NFrame::storesvr_sel_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -105,8 +105,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int SelectObj(const std::string& serverID, const storesvr_sqldata::storesvr_selobj &select,
-                          storesvr_sqldata::storesvr_selobj_res &select_res) override;
+    virtual int SelectObj(const std::string& serverID, const NFrame::storesvr_selobj &select,
+                          NFrame::storesvr_selobj_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -115,8 +115,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int DeleteByCond(const std::string& serverID, const storesvr_sqldata::storesvr_del &select,
-                             storesvr_sqldata::storesvr_del_res &select_res) override;
+    virtual int DeleteByCond(const std::string& serverID, const NFrame::storesvr_del &select,
+                             NFrame::storesvr_del_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -125,8 +125,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int DeleteObj(const std::string& serverID, const storesvr_sqldata::storesvr_delobj &select,
-                          storesvr_sqldata::storesvr_delobj_res &select_res) override;
+    virtual int DeleteObj(const std::string& serverID, const NFrame::storesvr_delobj &select,
+                          NFrame::storesvr_delobj_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -145,8 +145,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int InsertObj(const std::string& serverID, const storesvr_sqldata::storesvr_insertobj &select,
-                          storesvr_sqldata::storesvr_insertobj_res &select_res) override;
+    virtual int InsertObj(const std::string& serverID, const NFrame::storesvr_insertobj &select,
+                          NFrame::storesvr_insertobj_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -165,8 +165,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int ModifyObj(const std::string& serverID, const storesvr_sqldata::storesvr_modobj &select,
-                          storesvr_sqldata::storesvr_modobj_res &select_res) override;
+    virtual int ModifyObj(const std::string& serverID, const NFrame::storesvr_modobj &select,
+                          NFrame::storesvr_modobj_res &select_res) override;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -185,8 +185,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int UpdateObj(const std::string& serverID, const storesvr_sqldata::storesvr_updateobj &select,
-                          storesvr_sqldata::storesvr_updateobj_res &select_res) override;
+    virtual int UpdateObj(const std::string& serverID, const NFrame::storesvr_updateobj &select,
+                          NFrame::storesvr_updateobj_res &select_res) override;
 
     /**
      * @brief 查询数据

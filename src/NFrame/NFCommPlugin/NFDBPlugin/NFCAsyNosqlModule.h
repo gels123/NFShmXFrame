@@ -2,68 +2,101 @@
 //    @FileName         :    NFCAsyNoSqlModule.h
 //    @Author           :    gaoyi
 //    @Date             :    23-8-15
-//    @Email			:    445267987@qq.com
+//    @Email            :    445267987@qq.com
 //    @Module           :    NFCAsyNoSqlModule
 //
 // -------------------------------------------------------------------------
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFIAsyDBModule.h"
-#include "NFComm/NFPluginModule/NFIEventModule.h"
 #include "NFCMysqlDriverManager.h"
-#include "NFCMysqlDriver.h"
-#include "NFComm/NFPluginModule/NFEventDefine.h"
 #include "NFComm/NFPluginModule/NFIAsyNosqlModule.h"
 
-class NFCAsyNosqlModule : public NFIAsyNosqlModule
+class NFCAsyNosqlModule final : public NFIAsyNosqlModule
 {
 public:
-    NFCAsyNosqlModule(NFIPluginManager* p);
-
-    virtual ~NFCAsyNosqlModule();
-    virtual bool Execute() override;
-
-    virtual bool InitActorPool(int maxTaskGroup, int maxActorNum = 0) override;
     /**
-     * @brief 添加Mysql链接
-     *
-     * @return bool					成功或失败
+     * @brief NFCAsyNosqlModule 构造函数
+     * @param pPluginManager NFIPluginManager 指针，用于插件管理
      */
-    virtual int AddDBServer(const std::string& nServerID, const std::string& noSqlIp, int nosqlPort, const std::string& noSqlPass) override;
+    explicit NFCAsyNosqlModule(NFIPluginManager* pPluginManager);
 
     /**
-     * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
-     *
-     * @param  select 查询语句
-     * @param  message 表结构体
-     * @param  select_res 查询结果
-     * @return int =0执行成功, != 0失败
+     * @brief NFCAsyNosqlModule 析构函数
+     * 用于清理资源，释放内存
      */
-    virtual int SelectObj(const std::string& nServerID, const storesvr_sqldata::storesvr_selobj &select, const SelectObj_CB& cb) override;
+    ~NFCAsyNosqlModule() override;
 
     /**
-     * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
-     *
-     * @param  select 查询语句
-     * @param  select_res 查询结果
-     * @return int =0执行成功, != 0失败
+     * @brief 执行模块的主要逻辑
+     * @return 返回执行结果，成功返回 true，失败返回 false
      */
-    virtual int DeleteObj(const std::string& nServerID, const storesvr_sqldata::storesvr_delobj &select, const DeleteObj_CB& cb) override;
+    bool Execute() override;
 
     /**
-     * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
-     *
-     * @param  select 查询语句
-     * @param  select_res 查询结果
-     * @return int =0执行成功, != 0失败
+     * @brief 初始化 Actor 池
+     * @param iMaxTaskGroup 最大任务组数
+     * @param iMaxActorNum 最大 Actor 数量，默认为 0
+     * @return 返回初始化结果，成功返回 true，失败返回 false
      */
-    virtual int InsertObj(const std::string& nServerID, const storesvr_sqldata::storesvr_insertobj &select, const InsertObj_CB& cb) override;
+    bool InitActorPool(int iMaxTaskGroup, int iMaxActorNum = 0) override;
 
-    virtual int ModifyObj(const std::string& nServerID, const storesvr_sqldata::storesvr_modobj &select, const ModifyObj_CB& cb) override;
+    /**
+     * @brief 添加数据库服务器
+     * @param strServerId 服务器 ID
+     * @param strNoSqlIp NoSQL 数据库的 IP 地址
+     * @param iNosqlPort NoSQL 数据库的端口号
+     * @param strNoSqlPass NoSQL 数据库的密码
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int AddDBServer(const std::string& strServerId, const std::string& strNoSqlIp, int iNosqlPort, const std::string& strNoSqlPass) override;
 
-    virtual int UpdateObj(const std::string& nServerID, const storesvr_sqldata::storesvr_updateobj &select, const UpdateObj_CB& cb) override;
+    /**
+     * @brief 查询对象
+     * @param strServerId 服务器 ID
+     * @param stSelect 查询条件
+     * @param fCallback 查询完成后的回调函数
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int SelectObj(const std::string& strServerId, const NFrame::storesvr_selobj& stSelect, const SelectObjCb& fCallback) override;
+
+    /**
+     * @brief 删除对象
+     * @param strServerId 服务器 ID
+     * @param stSelect 删除条件
+     * @param fCallback 删除完成后的回调函数
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int DeleteObj(const std::string& strServerId, const NFrame::storesvr_delobj& stSelect, const DeleteObjCb& fCallback) override;
+
+    /**
+     * @brief 插入对象
+     * @param strServerId 服务器 ID
+     * @param stSelect 插入条件
+     * @param bCallback 插入完成后的回调函数
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int InsertObj(const std::string& strServerId, const NFrame::storesvr_insertobj& stSelect, const InsertObjCb& bCallback) override;
+
+    /**
+     * @brief 修改对象
+     * @param strServerId 服务器 ID
+     * @param stSelect 修改条件
+     * @param fCallback 修改完成后的回调函数
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int ModifyObj(const std::string& strServerId, const NFrame::storesvr_modobj& stSelect, const ModifyObjCb& fCallback) override;
+
+    /**
+     * @brief 更新对象
+     * @param strServerId 服务器 ID
+     * @param stSelect 更新条件
+     * @param fCallback 更新完成后的回调函数
+     * @return 返回操作结果，成功返回 0，失败返回其他值
+     */
+    int UpdateObj(const std::string& strServerId, const NFrame::storesvr_updateobj& stSelect, const UpdateObjCb& fCallback) override;
+
 private:
-    uint64_t mnLastCheckTime;
-    bool m_initComponet;
+    uint64_t m_ullLastCheckTime;
+    bool m_bInitComponent;
 };

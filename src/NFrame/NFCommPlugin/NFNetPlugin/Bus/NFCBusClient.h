@@ -9,60 +9,60 @@
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFIBusModule.h"
-#include "NFComm/NFCore/NFSpinLock.h"
-#include "NFBusHash.h"
-#include "NFBusDefine.h"
-#include "NFBusShm.h"
-#include "../NFINetMessage.h"
-#include "../NFNetDefine.h"
-#include "NFComm/NFCore/NFBuffer.h"
-#include "NFIBusConnection.h"
 #include <map>
+#include "NFBusShm.h"
+#include "NFIBusConnection.h"
+#include "../NFINetMessage.h"
+#include "NFComm/NFCore/NFBuffer.h"
+#include "NFComm/NFCore/NFSpinLock.h"
+#include "NFComm/NFPluginModule/NFIBusModule.h"
+#include "NFComm/NFPluginModule/NFNetDefine.h"
 
-class NFCBusClient : public NFIBusConnection
+class NFCBusClient final : public NFIBusConnection
 {
 public:
-    explicit NFCBusClient(NFIPluginManager* p, NF_SERVER_TYPES serverType, const NFMessageFlag& flag, const NFMessageFlag& bindFlag):NFIBusConnection(p, serverType, flag)
+    explicit NFCBusClient(NFIPluginManager* p, NF_SERVER_TYPE serverType, const NFMessageFlag& flag, const NFMessageFlag& bindFlag):NFIBusConnection(p, serverType, flag)
     {
         m_bindFlag = bindFlag;
-        mxSendBuffer.AssureSpace(MAX_SEND_BUFFER_SIZE);
+        m_sendBuffer.AssureSpace(MAX_SEND_BUFFER_SIZE);
         m_isConnected = false;
     }
 
-    virtual ~NFCBusClient();
+    ~NFCBusClient() override;
 
-    virtual bool Execute() override;
+    bool Execute() override;
 
-    virtual bool Init() override;
+    bool Init() override;
 
-    virtual bool Shut() override;
+    bool Shut() override;
 
-    virtual bool Finalize() override;
+    bool Finalize() override;
 
-    virtual bool IsConnected() override;
+    bool IsConnected() override;
 
-    virtual void SetConnected(bool connected) override;
+    void SetConnected(bool connected) override;
+
 public:
     /**
     * @brief	初始化
     *
     * @return 是否成功
     */
-    virtual uint64_t ConnectServer(const NFMessageFlag& flag, const NFMessageFlag& bindFlag);
+    uint64_t ConnectServer(const NFMessageFlag& flag, const NFMessageFlag& bindFlag);
 
     /**
      * @brief	发送数据 不包含数据头
      *
-     * @param pData		发送的数据,
-     * @param unSize	数据的大小
+     * @param packet
+     * @param msg		发送的数据,
+     * @param nLen	数据的大小
      * @return
      */
-    virtual bool Send(NFDataPackage& packet, const char* msg, uint32_t nLen) override;
-    virtual bool Send(NFDataPackage& packet, const google::protobuf::Message& xData) override;
+    bool Send(NFDataPackage& packet, const char* msg, uint32_t nLen) override;
+    bool Send(NFDataPackage& packet, const google::protobuf::Message& xData) override;
 
-    virtual bool Send(NFShmChannel *pChannel, int packetParseType, NFDataPackage& packet, const char* msg, uint32_t nLen);
+    bool Send(NFShmChannel* pChannel, int packetParseType, const NFDataPackage& packet, const char* msg, uint32_t nLen);
 private:
-    NFBuffer mxSendBuffer;
+    NFBuffer m_sendBuffer;
     bool m_isConnected;
 };

@@ -119,8 +119,8 @@ int NFCTaskModule::RequireActor(int actorGroup)
 int NFCTaskModule::SendMsgToActor(int actorGroup, const int nActorIndex, NFTask* pData)
 {
     CHECK_EXPR(actorGroup >= 0 && actorGroup < (int)m_taskGroups.size() && m_taskGroups[actorGroup], -1, "actorGroup:{} not exist", actorGroup);
-    CHECK_NULL(m_taskGroups[actorGroup]);
-    CHECK_NULL(pData);
+    CHECK_NULL(0, m_taskGroups[actorGroup]);
+    CHECK_NULL(0, pData);
     pData->m_runActorGroup = actorGroup;
     pData->m_nextActorGroup = actorGroup;
     return m_taskGroups[actorGroup]->SendMsgToActor(nActorIndex, pData);
@@ -136,9 +136,9 @@ int NFCTaskModule::SendMsgToActor(int actorGroup, const int nActorIndex, NFTask*
 int NFCTaskModule::SendMsgToActor(int actorGroup, NFTaskActor* pActor, NFTask* pData)
 {
     CHECK_EXPR(actorGroup >= 0 && actorGroup < (int)m_taskGroups.size() && m_taskGroups[actorGroup], -1, "actorGroup:{} not exist", actorGroup);
-    CHECK_NULL(m_taskGroups[actorGroup]);
-    CHECK_NULL(pActor);
-    CHECK_NULL(pData);
+    CHECK_NULL(0, m_taskGroups[actorGroup]);
+    CHECK_NULL(0, pActor);
+    CHECK_NULL(0, pData);
     pData->m_runActorGroup = actorGroup;
     pData->m_nextActorGroup = actorGroup;
     return m_taskGroups[actorGroup]->SendMsgToActor(pActor, pData);
@@ -177,8 +177,8 @@ NFTaskActor* NFCTaskModule::GetActor(int actorGroup, const int nActorIndex)
 int NFCTaskModule::AddActorComponent(int actorGroup, const int nActorIndex, NFITaskComponent* pComonnet)
 {
     CHECK_EXPR(actorGroup >= 0 && actorGroup < (int)m_taskGroups.size(), -1, "actorGroup:{} not exist", actorGroup);
-    CHECK_NULL(pComonnet);
-    CHECK_NULL(m_taskGroups[actorGroup]);
+    CHECK_NULL(0, pComonnet);
+    CHECK_NULL(0, m_taskGroups[actorGroup]);
     return m_taskGroups[actorGroup]->AddActorComponent(nActorIndex, pComonnet);
 }
 
@@ -217,8 +217,8 @@ int NFCTaskModule::CloseActorPool()
 int NFCTaskModule::AddTask(int actorGroup, NFTask* pTask)
 {
     CHECK_EXPR(actorGroup >= 0 && actorGroup < (int)m_taskGroups.size(), -1, "actorGroup:{} not exist", actorGroup);
-    CHECK_NULL(pTask);
-    CHECK_NULL(m_taskGroups[actorGroup]);
+    CHECK_NULL(0, pTask);
+    CHECK_NULL(0, m_taskGroups[actorGroup]);
     pTask->m_runActorGroup = actorGroup;
     pTask->m_nextActorGroup = actorGroup;
     return m_taskGroups[actorGroup]->AddTask(pTask);
@@ -227,8 +227,8 @@ int NFCTaskModule::AddTask(int actorGroup, NFTask* pTask)
 int NFCTaskModule::AddTask(int actorGroup, int actorId, NFTask* pTask)
 {
     CHECK_EXPR(actorGroup >= 0 && actorGroup < (int)m_taskGroups.size(), -1, "actorGroup:{} not exist", actorGroup);
-    CHECK_NULL(pTask);
-    CHECK_NULL(m_taskGroups[actorGroup]);
+    CHECK_NULL(0, pTask);
+    CHECK_NULL(0, m_taskGroups[actorGroup]);
     pTask->m_runActorGroup = actorGroup;
     pTask->m_nextActorGroup = actorGroup;
     return m_taskGroups[actorGroup]->AddTask(actorId, pTask);

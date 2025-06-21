@@ -30,6 +30,16 @@ public:
 
 	virtual bool OnReloadConfig() override;
 
+	/*
+	 * 停服之前，检查服务器是否满足停服条件
+	 * */
+	virtual bool CheckStopServer() override;
+
+	/*
+	 * 停服之前，做一些操作，满足停服条件
+	 * */
+	virtual bool StopServer() override;
+
 	virtual void RegisterDescStore(const std::string& strClassName, int objType, const std::string& dbName) override;
     virtual void RegisterDescStore(const std::string& strClassName, int objType) override;
     virtual void RegisterDescStoreEx(const std::string& strClassName, int objType) override;
@@ -74,23 +84,23 @@ public:
 
 	int GetFileContainMD5(const std::string& strFileName, std::string& fileMd5);
 
-    NFResDB *CreateResDBFromRealDB();
+    NFResDb *CreateResDBFromRealDB();
 
-    NFResDB *CreateResDBFromFiles(const std::string& dir);
+    NFResDb *CreateResDBFromFiles(const std::string& dir);
 
     virtual int OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message* pMessage) override;
 
     virtual void runAfterShmInit();
 public:
-    virtual int GetDescStoreByRpc(NF_SERVER_TYPES eType, const std::string& dbName, const std::string &table_name, google::protobuf::Message *pMessage) override;
+    virtual int GetDescStoreByRpc(NF_SERVER_TYPE eType, const std::string& dbName, const std::string &table_name, google::protobuf::Message *pMessage) override;
 private:
 	std::unordered_map<std::string, NFIDescStore*> mDescStoreMap;
     std::unordered_map<std::string, NFIDescStore*> mDescStoreFileMap;
 	std::unordered_map<std::string, int> mDescStoreRegister;
     std::vector<std::string> mDescStoreRegisterList;    //记录注册顺序，根据顺序来加载
 	std::unordered_map<std::string, std::string> mDescStoreDBNameMap;
-    NFResDB* m_pResFileDB;
-    NFResDB* m_pResSqlDB;
+    NFResDb* m_pResFileDB;
+    NFResDb* m_pResSqlDB;
     bool m_bStartInit;
     bool m_bFinishAllLoaded;
 private:

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package NFrame;
+
+import "nanopb.proto";
+import "FrameTestEnum.proto";
+import "FrameTestComm.proto";
+
+message wxWorkRobotTextMore
+{
+	repeated NFrameComm.wxWorkRobotTextTest test_map = 1[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_UNORDERED_MAP", (nanopb).use_stl_key="id"];
+	repeated NFrameComm.wxWorkRobotTextTest test_set = 2[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+}

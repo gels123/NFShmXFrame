@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "NFStringUtility.h"
 #include "NFTimeUtil.h"
 
 class NFTimeUtility

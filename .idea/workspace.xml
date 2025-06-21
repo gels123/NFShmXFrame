@@ -1,168 +1,1823 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="BackendCodeEditorMiscSettings">
+    <option name="/Default/CodeEditing/CppDocumentationComment/AddBriefTag/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Environment/Hierarchy/GeneratedFilesCacheKey/Timestamp/@EntryValue" value="6" type="long" />
+    <option name="/Default/Environment/UserInterface/HierarchyView/ViewStyle/@EntryValue" value="SuperTypes" type="string" />
+    <option name="/Default/Housekeeping/FeatureSuggestion/FeatureSuggestionManager/DisabledSuggesters/=SwitchToGoToActionSuggester/@EntryIndexedValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/GlobalSettingsUpgraded/IsUpgraded/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/LiveTemplatesHousekeeping/HotspotSessionHintIsShown/@EntryValue" value="true" type="bool" />
+    <option name="/Default/Housekeeping/OptionsDialog/SelectedPageId/@EntryValue" value="CppFormatterOtherPage" type="string" />
+    <option name="/Default/RiderDebugger/RiderRestoreDecompile/RestoreDecompileSetting/@EntryValue" value="false" type="bool" />
   </component>
   <component name="CMakePresetLoader">{
   &quot;useNewFormat&quot;: true
 }</component>
+  <component name="CMakeProjectFlavorService">
+    <option name="flavorId" value="CMakePlainProjectFlavor" />
+  </component>
   <component name="CMakeReloadState">
     <option name="reloaded" value="true" />
   </component>
   <component name="CMakeRunConfigurationManager">
-    <generated />
+    <generated>
+      <config projectName="ShmNFrame" targetName="NFMMOCommonPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOProxyPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOSnsCommon" />
+      <config projectName="ShmNFrame" targetName="NFLuaScriptPlugin" />
+      <config projectName="ShmNFrame" targetName="NFGameCommon" />
+      <config projectName="ShmNFrame" targetName="Behavior" />
+      <config projectName="ShmNFrame" targetName="NF3rdCommon" />
+      <config projectName="ShmNFrame" targetName="NFLogicServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFSnsServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFRouteAgentServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFGameServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFProxyServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOGuildPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFServerController" />
+      <config projectName="ShmNFrame" targetName="NFMMORobotPlugin" />
+      <config projectName="ShmNFrame" targetName="NFShmPlugin" />
+      <config projectName="ShmNFrame" targetName="NFNetPlugin" />
+      <config projectName="ShmNFrame" targetName="NFNavMeshServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOLogicPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFCore" />
+      <config projectName="ShmNFrame" targetName="NFCenterServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOCenterPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOCityPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFTutorialPlugin" />
+      <config projectName="ShmNFrame" targetName="NFrameStatic" />
+      <config projectName="ShmNFrame" targetName="protobuf-nanopb" />
+      <config projectName="ShmNFrame" targetName="NFExcelProcess" />
+      <config projectName="ShmNFrame" targetName="NFMMOSnsCommonPlugin" />
+      <config projectName="ShmNFrame" targetName="NFProxyAgentServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMasterServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFKernelMessage" />
+      <config projectName="ShmNFrame" targetName="NFStoreServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFDescStorePlugin" />
+      <config projectName="ShmNFrame" targetName="NFTestPlugin" />
+      <config projectName="ShmNFrame" targetName="Sqlite3" />
+      <config projectName="ShmNFrame" targetName="NFLoginServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFServerCommonPlugin" />
+      <config projectName="ShmNFrame" targetName="mysqlpp" />
+      <config projectName="ShmNFrame" targetName="NFOnlineServerPlugin" />
+      <config projectName="ShmNFrame" targetName="evpp" />
+      <config projectName="ShmNFrame" targetName="NFMMOLogicCommon" />
+      <config projectName="ShmNFrame" targetName="NFMMOResStore" />
+      <config projectName="ShmNFrame" targetName="NFServerMessage" />
+      <config projectName="ShmNFrame" targetName="NFKernelPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOWorldPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFPluginLoader" />
+      <config projectName="ShmNFrame" targetName="RecastNavigation" />
+      <config projectName="ShmNFrame" targetName="NFMatchServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFTest" />
+      <config projectName="ShmNFrame" targetName="NFWorldServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFProxyClientPlugin" />
+      <config projectName="ShmNFrame" targetName="NFPluginModule" />
+      <config projectName="ShmNFrame" targetName="NFObjCommon" />
+      <config projectName="ShmNFrame" targetName="NFRouteServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFServerStatic" />
+      <config projectName="ShmNFrame" targetName="NFMMOLogicMessage" />
+      <config projectName="ShmNFrame" targetName="NFCityServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFDBPlugin" />
+      <config projectName="ShmNFrame" targetName="NFServerCommon" />
+      <config projectName="ShmNFrame" targetName="NFCheckServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFLuaBind" />
+      <config projectName="ShmNFrame" targetName="NFMMOSnsPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMemPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMOGamePlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFLieRenStatic" />
+      <config projectName="ShmNFrame" targetName="NFMMOOnlinePlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFPluginManager" />
+      <config projectName="ShmNFrame" targetName="NFWebServerPlugin" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
-      <configuration PROFILE_NAME="Debug" ENABLED="true" GENERATION_DIR="Build/build64_debug" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DCMAKE_BUILD_TYPE=DynamicDebug" NO_GENERATOR="true" />
+      <configuration PROFILE_NAME="Debug-Visual Studio" ENABLED="true" GENERATION_DIR="Build" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio" GENERATION_OPTIONS="-G Ninja -DCMAKE_BUILD_TYPE=Debug" />
+      <configuration PROFILE_NAME="build_tools" ENABLED="true" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Visual Studio" GENERATION_OPTIONS="-G Ninja DCMAKE_BUILD_TYPE=Debug  -DCMAKE_BUILD_TOOLS:BOOL=True" />
+      <configuration PROFILE_NAME="Release-Visual Studio" ENABLED="false" CONFIG_NAME="Release" GENERATION_OPTIONS="-G Ninja -DCMAKE_BUILD_TYPE=Release" />
+      <configuration PROFILE_NAME="tools_release" ENABLED="false" CONFIG_NAME="Release" TOOLCHAIN_NAME="Visual Studio" GENERATION_OPTIONS="-G Ninja DCMAKE_BUILD_TYPE=Release  -DCMAKE_BUILD_TOOLS:BOOL=True" />
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bf52a576-2ff4-44f5-8280-5ec018815a4f" name="更改" comment="lua login">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/game/CMakeLists.txt" afterDir="false" />
-    </list>
+    <list default="true" id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ChangesViewManager">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:build_tools" />
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
+    <option name="SIGN_OFF_COMMIT" value="true" />
   </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;yigao&quot;
-  }
-}</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: []
-}</component>
-  <component name="GitLabMergeRequestsSettings">{}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/yigao/NFShmServer.git&quot;,
-    &quot;accountId&quot;: &quot;45894cda-87c5-4976-a6d3-49dad2b6a142&quot;
-  }
-}</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/game/Fish/NFFishLoader/NFCLoadStaticPlugin.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/game/MMO/NFLogicComm/NFServerLogicMessage/Com.pb.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmCore/NFAutoFree.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmCore/NFLinearQueue.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmStl/NFShmTree.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFXPlugin/NFLuaThreadScriptPlugin/NFCLuaScriptComponent.cpp" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFXPlugin/NFLuaThreadScriptPlugin/NFCLuaThreadModule.h" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file:///usr/include/c++/4.8.2/functional" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///dummy.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt/corecrt.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt/ctype.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt/stdio.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/ucrt/time.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um/WinSock2.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files (x86)/Windows Kits/10/Include/10.0.22621.0/um/processthreadsapi.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/functional" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/iosfwd" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/limits.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/list" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/memory" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/type_traits" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/vcruntime_typeinfo.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/xmemory" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/xstring" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/xtr1common" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://C:/Program Files/Microsoft Visual Studio/2022/Professional/VC/Tools/MSVC/14.40.33807/include/xutility" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/CustomPacketParse.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFItemCreator.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFItemDefine.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFItemDefine.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFLogicShmTypeDefines.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFMMODynamicModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFMMODynamicModule.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommon/NFOperatingStatistcsMgr.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFLogicCommonPlugin/NFMMOCommonPlugin.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_common.nanopb.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_common.nanopb.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_common.pb.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_cs.nanopb.cc" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_cs.nanopb.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/NFServerLogicMessage/proto_cs.pb.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStore/AchievementDesc.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStore/EquipDesc.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStore/TransferDesc.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStoreEx/CityDescEx.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStoreEx/EquipdataDescEx.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStoreEx/QuestDescEx.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/DescStoreEx/TransferDescEx.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/ResMetaS/E_Achievement.nanopb.cc" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFLogicComm/ResStore/ResMetaS/E_Itemdata.nanopb.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Account/NFPlayerAccount.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/BagPageOp/NFBagPageOp.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/BagPageOp/NFBagPageOpDefine.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/BagPageOp/NFBagPageOpMgr.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/BagPageOp/interface/NFBagPageInterface.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFBagPage.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFPackagePart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFPackagePart.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFPackageUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFServicePackage.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Bag/NFServicePackage.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Base/NFPacketSendUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Base/NFServerUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Event/NFEventDisp.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Event/NFEventDisp.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Hero/NFHeroPart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Hero/NFHeroUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Hero/NFServiceHero.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Level/NFServiceLevel.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Login/NFLoginModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Map/NFMapPart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Map/NFMapPart.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/NFLogicDynamicModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/NFMMOLogicPlayerPlugin.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/NoviceGuide/NFNoviceGuidePart.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Part/NFPart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Part/NFPart.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Player/NFPlayer.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Player/NFPlayer.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Player/NFPlayerBase.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Player/NFPlayerBase.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Player/NFPlayerUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Quest/NFQuestPart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Quest/NFQuestUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Quest/NFServiceQuest.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/ServerLevel/NFServerLevelMgr.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Session/NFSession.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Skill/NFServiceSkill.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Skill/NFSkillPart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Skill/NFSkillPart.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Skill/NFSkillUtil.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFLogicServer/NFLogicServerPlayerPlugin/Trade/NFTradePart.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/LieRen/NFServerLogic/NFOnlineServer/NFOnlineServerPlayerPlugin/OnlineAcc/NFOnlineAcc.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/game/NFGameCommon/Behavior/src/common/workspace.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFServer/NFServerComm/NFServerCommon/NFIDescTemplate.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTest/main/dllmain.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTest/main/main.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/ExcelJsonParse.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/ExcelParse.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/ExcelToBin.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/ExcelToMakefile.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/ExcelToProto.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/dllmain.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFTools/NFExcelProcess/main.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFCore/NFMD5.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFCore/NFStringUtility.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFCore/NFStringUtility.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFKernelMessage/FrameTestComm.nanopb.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFObjCommon/NFNodeList.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFCheck.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFLogMgr.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFProtobufCommon.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFProtobufCommon.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmStl/NFShmBitMap.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmStl/NFShmBitSet.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmStl/NFShmHashMap.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFComm/NFShmStl/NFShmVector.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFKernelPlugin/NFCKernelModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFKernelPlugin/NFConsoleModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFKernelPlugin/NFCoroutine.h" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFKernelPlugin/NFMonitorModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFMemPlugin/NFMemEventMgr.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFMemPlugin/NFMemTimer.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFMemPlugin/NFMemTimerMng.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFNetPlugin/Bus/NFIBusConnection.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFCSharedMem.cpp" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFCShmMngModule.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmEventMgr.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmGlobalId.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmIdx.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmObjSeg.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmObjSeg.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmTimerMng.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFCommPlugin/NFShmPlugin/NFShmTransMng.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/NFrame/NFPluginLoader/main.cpp" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/thirdparty/common/spdlog/fmt/bundled/core.h" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/thirdparty/common/spdlog/fmt/bundled/format.h" root0="FORCE_HIGHLIGHTING" />
   </component>
-  <component name="ProjectApplicationVersion">
-    <option name="ide" value="CLion" />
-    <option name="majorVersion" value="2024" />
-    <option name="minorVersion" value="1" />
-    <option name="productBranch" value="Nova" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="groupByToolId" value="true" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
-  &quot;associatedIndex&quot;: 5
+  &quot;associatedIndex&quot;: 1
 }</component>
-  <component name="ProjectId" id="2chlPjCVKt01csHnN1EvJACAQDJ" />
+  <component name="ProjectId" id="2iUv2jLSnxLtIAi8uTHdH6k6kVV" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;CMake 应用程序.NFPluginLoader.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.CrossLieRenStatic.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.GameServer2_2.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.LieRenStatic2.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFExcelProcess.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFLieRenStatic.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFLogicServerPlugin.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFServerController.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFTest.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.NFrameStatic.executor&quot;: &quot;Debug&quot;,
+    &quot;CMake 应用程序.ProxyServer.executor&quot;: &quot;Debug&quot;,
+    &quot;Makefile 目标.NFShmCore\\fast.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.RadMigrateCodeStyle&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.west.config.association.type.startup.service&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;bazel.project.detector.is.bazel.project&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.has.clang-format&quot;: &quot;true&quot;,
+    &quot;cf.advertisement.text.overridden&quot;: &quot;true&quot;,
+    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/gaoyi/NFShmServer/Build/build64_debug&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.appearance&quot;
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/nfshm-xframe/Install/Bin/Debug&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CMakeSettings&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager">
-    <configuration name="NFPluginLoader" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=AllServer --ID=1.1.13.1 --Config=../../Config/Fish --Plugin=../../FishPlugin --restart --game=Fish" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Project" TARGET_NAME="NFPluginLoader" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="Project" RUN_TARGET_NAME="NFPluginLoader">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\nfshm-xframe\Install\Bin\Debug" />
+      <recent name="E:\nfshm-xframe\src\NFTools\NFServerController" />
+      <recent name="E:\nfshm-xframe\src\NFrame\NFComm\NFShmStl" />
+      <recent name="E:\nfshm-xframe\tools" />
+      <recent name="E:\nfshm-xframe\thirdparty\gtest" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\nfshm-xframe\src\NFTools" />
+      <recent name="E:\nfshm-xframe\src\NFrame\NFComm\tempCode" />
+      <recent name="E:\nfshm-xframe\src\NFTest\main" />
+      <recent name="E:\nfshm-xframe\game\LieRen\NFServerLogic\NFSnsServer\NFSnsServerPlayerPlugin\Trans" />
+      <recent name="E:\nfshm-xframe\game\LieRen\NFLogicComm\NFLogicCommon" />
+    </key>
+  </component>
+  <component name="RunManager" selected="CMake 应用程序.NFExcelProcess">
     <configuration default="true" type="lua.app" factoryName="Lua Application">
-      <option name="program" value="/usr/local/bin/lua" />
+      <option name="program" value="lua.exe" />
       <option name="file" value="" />
-      <option name="workingDir" value="$PROJECT_DIR$/game/Fish/NFServerLogic/NFLoginServer/NFLoginServerPlayerPlugin/NFFishLoginPlayerPlugin.cpp" />
-      <option name="debuggerType" value="2" />
+      <option name="workingDir" value="$PROJECT_DIR$/CMakeLists.txt" />
+      <option name="debuggerType" value="1" />
       <option name="params" value="" />
       <option name="charset" value="UTF-8" />
       <option name="showConsole" value="true" />
       <method v="2" />
     </configuration>
+    <configuration name="Behavior" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="Behavior" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CrossLieRenStatic" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=CrossAllServer --ID=1.13.20.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLieRenStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GameServer2_2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=GameServer --ID=1.14.10.2 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLieRenStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LieRenStatic2" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=AllServer2 --ID=1.14.1.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLieRenStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NF3rdCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NF3rdCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFCenterServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFCenterServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFCheckServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFCheckServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFCityServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFCityServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFCore" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFCore" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFDBPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFDBPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFDescStorePlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFDescStorePlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFExcelProcess" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--work=&quot;exceltoproto&quot; --excel_json=../../../game/LieRen/Excel/excel.json --src=../../../game/LieRen/Excel/Welfare.xlsx --dst=../../../Build/game/LieRen/makefile/temp" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" WORKING_DIR="file://$PROJECT_DIR$/game/LieRen/makefiles" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFExcelProcess" CONFIG_NAME="build_tools" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFExcelProcess">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFGameCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFGameCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFGameServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFGameServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFKernelMessage" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFKernelMessage" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFKernelPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFKernelPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFLieRenStatic" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=AllServer --ID=1.13.1.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLieRenStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFLogicServerPlugin" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=CrossAllServer --ID=1.13.20.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLogicServerPlugin" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFLoginServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLoginServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFLuaBind" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLuaBind" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFLuaScriptPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLuaScriptPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOCenterPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOCenterPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOCityPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOCityPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOGamePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOGamePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOGuildPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOGuildPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOLogicCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOLogicCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOLogicMessage" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOLogicMessage" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOLogicPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOLogicPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOOnlinePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOOnlinePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOProxyPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOProxyPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOResStore" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOResStore" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMORobotPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMORobotPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOSnsCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOSnsCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOSnsCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOSnsCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOSnsPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOSnsPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMMOWorldPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOWorldPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMasterServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMasterServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMatchServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMatchServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFMemPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMemPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFNavMeshServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFNavMeshServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFNetPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFNetPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFObjCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFObjCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFOnlineServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFOnlineServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFPluginLoader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFPluginLoader" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFPluginLoader">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFPluginManager" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFPluginManager" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFPluginModule" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFPluginModule" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFProxyAgentServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFProxyAgentServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFProxyClientPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFProxyClientPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFProxyServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFProxyServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFRouteAgentServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFRouteAgentServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFRouteServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFRouteServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFServerCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFServerCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFServerCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFServerCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFServerController" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="restart MasterServer" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFServerController" CONFIG_NAME="build_tools" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFServerController">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFServerMessage" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFServerMessage" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFServerStatic" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFServerStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFServerStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFShmPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFShmPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFSnsServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFSnsServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFStoreServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFStoreServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFTest" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFTest" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFTest">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFTestPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFTestPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFTutorialPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFTutorialPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFWebServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFWebServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFWorldServerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFWorldServerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFrameStatic" type="CMakeRunConfiguration" factoryName="Application" singleton="false" PROGRAM_PARAMS="--Server=TestAllServer --ID=1.13.1.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFrameStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFrameStatic">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="RecastNavigation" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="RecastNavigation" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Sqlite3" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="Sqlite3" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="evpp" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="evpp" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="mysqlpp" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="mysqlpp" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="protobuf-nanopb" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="protobuf-nanopb" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake 应用程序.CrossLieRenStatic" />
+      <item itemvalue="CMake 应用程序.GameServer2_2" />
+      <item itemvalue="CMake 应用程序.LieRenStatic2" />
+      <item itemvalue="CMake 应用程序.NFExcelProcess" />
+      <item itemvalue="CMake 应用程序.NFServerController" />
+      <item itemvalue="CMake 应用程序.NF3rdCommon" />
+      <item itemvalue="CMake 应用程序.evpp" />
+      <item itemvalue="CMake 应用程序.NFLuaBind" />
+      <item itemvalue="CMake 应用程序.mysqlpp" />
+      <item itemvalue="CMake 应用程序.protobuf-nanopb" />
+      <item itemvalue="CMake 应用程序.Sqlite3" />
+      <item itemvalue="CMake 应用程序.NFLieRenStatic" />
+      <item itemvalue="CMake 应用程序.NFMMOLogicCommon" />
+      <item itemvalue="CMake 应用程序.NFMMOCommonPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOLogicMessage" />
+      <item itemvalue="CMake 应用程序.NFMMOResStore" />
+      <item itemvalue="CMake 应用程序.NFMMOCenterPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOCityPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOGamePlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOLogicPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOOnlinePlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOProxyPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOGuildPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOSnsCommon" />
+      <item itemvalue="CMake 应用程序.NFMMOSnsCommonPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOSnsPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMOWorldPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMORobotPlugin" />
+      <item itemvalue="CMake 应用程序.Behavior" />
+      <item itemvalue="CMake 应用程序.NFGameCommon" />
+      <item itemvalue="CMake 应用程序.RecastNavigation" />
+      <item itemvalue="CMake 应用程序.NFCore" />
+      <item itemvalue="CMake 应用程序.NFKernelMessage" />
+      <item itemvalue="CMake 应用程序.NFObjCommon" />
+      <item itemvalue="CMake 应用程序.NFPluginModule" />
+      <item itemvalue="CMake 应用程序.NFDBPlugin" />
+      <item itemvalue="CMake 应用程序.NFKernelPlugin" />
+      <item itemvalue="CMake 应用程序.NFMemPlugin" />
+      <item itemvalue="CMake 应用程序.NFNetPlugin" />
+      <item itemvalue="CMake 应用程序.NFShmPlugin" />
+      <item itemvalue="CMake 应用程序.NFPluginLoader" />
+      <item itemvalue="CMake 应用程序.NFPluginManager" />
+      <item itemvalue="CMake 应用程序.NFLogicServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFLoginServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMasterServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMatchServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFNavMeshServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFOnlineServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFProxyAgentServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFProxyClientPlugin" />
+      <item itemvalue="CMake 应用程序.NFProxyServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFRouteAgentServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFRouteServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFDescStorePlugin" />
+      <item itemvalue="CMake 应用程序.NFServerCommon" />
+      <item itemvalue="CMake 应用程序.NFServerCommonPlugin" />
+      <item itemvalue="CMake 应用程序.NFServerMessage" />
+      <item itemvalue="CMake 应用程序.NFServerStatic" />
+      <item itemvalue="CMake 应用程序.NFSnsServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFStoreServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFWebServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFWorldServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFLuaScriptPlugin" />
+      <item itemvalue="CMake 应用程序.NFTest" />
+      <item itemvalue="CMake 应用程序.NFTestPlugin" />
+      <item itemvalue="CMake 应用程序.NFTutorialPlugin" />
+      <item itemvalue="CMake 应用程序.NFrameStatic" />
+      <item itemvalue="CMake 应用程序.NFCenterServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFCheckServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFCityServerPlugin" />
+      <item itemvalue="CMake 应用程序.NFGameServerPlugin" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="默认任务">
-      <changelist id="bf52a576-2ff4-44f5-8280-5ec018815a4f" name="更改" comment="" />
-      <created>1708571669230</created>
+      <changelist id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="" />
+      <created>1719557766213</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1708571669230</updated>
-      <workItem from="1708571672175" duration="212000" />
-      <workItem from="1708908797067" duration="20000" />
-      <workItem from="1708928942402" duration="184000" />
-      <workItem from="1708929133186" duration="133000" />
-      <workItem from="1708929279260" duration="74000" />
-      <workItem from="1708930693469" duration="605000" />
-      <workItem from="1708932642251" duration="56000" />
-      <workItem from="1708932927275" duration="59000" />
-      <workItem from="1708939163957" duration="32000" />
-      <workItem from="1708995571936" duration="162000" />
-      <workItem from="1708996293022" duration="117000" />
-      <workItem from="1708996463634" duration="34000" />
-      <workItem from="1708997998944" duration="88000" />
-      <workItem from="1709255637009" duration="2462000" />
-      <workItem from="1709341111771" duration="3935000" />
-      <workItem from="1709687603913" duration="263000" />
-      <workItem from="1709688563406" duration="134000" />
-      <workItem from="1710068962379" duration="15000" />
-      <workItem from="1710207307713" duration="2130000" />
-      <workItem from="1710221857267" duration="1229000" />
-      <workItem from="1710229588362" duration="3689000" />
-      <workItem from="1710292127686" duration="3731000" />
-      <workItem from="1710297190775" duration="7056000" />
-      <workItem from="1710832547356" duration="1594000" />
-      <workItem from="1710897785646" duration="1058000" />
-      <workItem from="1711437371749" duration="5015000" />
-      <workItem from="1712542194593" duration="8601000" />
-      <workItem from="1712628514350" duration="3204000" />
-      <workItem from="1712889489323" duration="2692000" />
-      <workItem from="1713493358666" duration="151000" />
-      <workItem from="1715672480246" duration="74000" />
-      <workItem from="1715672561869" duration="46000" />
-      <workItem from="1715672624261" duration="613000" />
-      <workItem from="1715927461492" duration="79000" />
+      <updated>1719557766213</updated>
+      <workItem from="1719557768067" duration="7572000" />
+      <workItem from="1719799629322" duration="28298000" />
+      <workItem from="1722216856753" duration="67000" />
+      <workItem from="1722216932336" duration="9110000" />
+      <workItem from="1723079376551" duration="117000" />
+      <workItem from="1723079505238" duration="1176000" />
+      <workItem from="1723099382920" duration="36000" />
+      <workItem from="1723431458617" duration="6202000" />
+      <workItem from="1723438501844" duration="16338000" />
+      <workItem from="1723512011278" duration="12109000" />
+      <workItem from="1723528442194" duration="6343000" />
+      <workItem from="1723534825952" duration="13700000" />
+      <workItem from="1723601381973" duration="24297000" />
+      <workItem from="1723685078375" duration="313000" />
+      <workItem from="1723686577938" duration="230000" />
+      <workItem from="1723686824608" duration="12000" />
+      <workItem from="1723686844082" duration="117000" />
+      <workItem from="1723687080537" duration="10345000" />
+      <workItem from="1723702025131" duration="28389000" />
+      <workItem from="1723783577333" duration="4457000" />
+      <workItem from="1723793117740" duration="6211000" />
+      <workItem from="1723801238810" duration="188000" />
+      <workItem from="1723802105101" duration="4755000" />
+      <workItem from="1724202501604" duration="29976000" />
+      <workItem from="1724287337589" duration="52289000" />
+      <workItem from="1724393803854" duration="23754000" />
+      <workItem from="1724644585064" duration="154000" />
+      <workItem from="1724661194665" duration="38697000" />
+      <workItem from="1724811430465" duration="36803000" />
+      <workItem from="1724914132867" duration="4222000" />
+      <workItem from="1724921770825" duration="19509000" />
+      <workItem from="1724998453731" duration="15768000" />
+      <workItem from="1725239593025" duration="50222000" />
+      <workItem from="1725360156904" duration="1116000" />
+      <workItem from="1725411682152" duration="2243000" />
+      <workItem from="1725414677417" duration="1472000" />
+      <workItem from="1725429939455" duration="31866000" />
+      <workItem from="1725584230065" duration="14456000" />
+      <workItem from="1725604958228" duration="10916000" />
+      <workItem from="1725844788771" duration="45000" />
+      <workItem from="1725844844215" duration="50086000" />
+      <workItem from="1726104854508" duration="20127000" />
+      <workItem from="1727315968892" duration="699000" />
+      <workItem from="1731986776458" duration="216000" />
+      <workItem from="1731998224239" duration="3901000" />
+      <workItem from="1732002592153" duration="135000" />
+      <workItem from="1732004408363" duration="120000" />
+      <workItem from="1732004554977" duration="154000" />
+      <workItem from="1732004714976" duration="423000" />
+      <workItem from="1732005146552" duration="1011000" />
+      <workItem from="1732006464593" duration="417000" />
+      <workItem from="1732006891033" duration="181000" />
+      <workItem from="1732007083412" duration="323000" />
+      <workItem from="1732007417257" duration="73000" />
+      <workItem from="1732007497579" duration="219000" />
+      <workItem from="1732007892205" duration="68000" />
+      <workItem from="1732010076141" duration="16000" />
+      <workItem from="1732010766615" duration="14000" />
+      <workItem from="1732010788195" duration="1133000" />
+      <workItem from="1732068479676" duration="1474000" />
+      <workItem from="1732070221802" duration="3751000" />
+      <workItem from="1732073990541" duration="7148000" />
+      <workItem from="1732086645196" duration="2647000" />
+      <workItem from="1732089342993" duration="4953000" />
+      <workItem from="1732094343916" duration="438000" />
+      <workItem from="1732094793771" duration="384000" />
+      <workItem from="1732095191112" duration="981000" />
+      <workItem from="1732096863968" duration="53000" />
+      <workItem from="1732153105930" duration="1224000" />
+      <workItem from="1732154404417" duration="408000" />
+      <workItem from="1732155157812" duration="98000" />
+      <workItem from="1732155265943" duration="115000" />
+      <workItem from="1732155390724" duration="358000" />
+      <workItem from="1732155825206" duration="51000" />
+      <workItem from="1732155889209" duration="1284000" />
+      <workItem from="1732157195817" duration="7823000" />
+      <workItem from="1732516277671" duration="4687000" />
+      <workItem from="1732521196157" duration="26504000" />
+      <workItem from="1733103856795" duration="28922000" />
+      <workItem from="1733278665824" duration="6387000" />
+      <workItem from="1733898307404" duration="16708000" />
+      <workItem from="1733969159480" duration="6698000" />
+      <workItem from="1733985696405" duration="8631000" />
+      <workItem from="1734314921295" duration="625000" />
+      <workItem from="1734399668856" duration="87280000" />
+      <workItem from="1734666718572" duration="18941000" />
+      <workItem from="1735004415420" duration="55533000" />
+      <workItem from="1735178803991" duration="26387000" />
+      <workItem from="1735524983088" duration="15348000" />
+      <workItem from="1735782481330" duration="57638000" />
+      <workItem from="1735952837773" duration="25924000" />
+      <workItem from="1736129603356" duration="1311000" />
+      <workItem from="1736147226383" duration="7889000" />
+      <workItem from="1736214941491" duration="35860000" />
+      <workItem from="1736472589768" duration="2989000" />
+      <workItem from="1736733205676" duration="9055000" />
+      <workItem from="1736742314985" duration="313000" />
+      <workItem from="1736742643799" duration="821000" />
+      <workItem from="1736743480191" duration="3657000" />
+      <workItem from="1736819923480" duration="1102000" />
+      <workItem from="1736821061638" duration="83977000" />
+      <workItem from="1737096308578" duration="84000" />
+      <workItem from="1737096406248" duration="19071000" />
+      <workItem from="1737163473637" duration="10025000" />
+      <workItem from="1737173536869" duration="16163000" />
+      <workItem from="1737337766982" duration="59365000" />
+      <workItem from="1737603070226" duration="584000" />
+      <workItem from="1737604626728" duration="1838000" />
+      <workItem from="1738892966339" duration="5433000" />
+      <workItem from="1738910685703" duration="8247000" />
+      <workItem from="1738978312161" duration="9917000" />
+      <workItem from="1738997615757" duration="2488000" />
+      <workItem from="1739000174521" duration="7223000" />
+      <workItem from="1739152161239" duration="1340000" />
+      <workItem from="1739416906162" duration="634000" />
+      <workItem from="1739418647125" duration="1188000" />
+      <workItem from="1739429865217" duration="1201000" />
+      <workItem from="1739497351571" duration="772000" />
+      <workItem from="1739498959421" duration="6745000" />
+      <workItem from="1739515111309" duration="1331000" />
+      <workItem from="1739516460884" duration="829000" />
+      <workItem from="1739518385261" duration="245000" />
+      <workItem from="1739519097123" duration="230000" />
+      <workItem from="1739521380162" duration="646000" />
+      <workItem from="1739522697965" duration="4538000" />
+      <workItem from="1739756599436" duration="1011000" />
+      <workItem from="1739758358484" duration="2693000" />
+      <workItem from="1739761151086" duration="1771000" />
+      <workItem from="1739772321979" duration="18000" />
+      <workItem from="1739772347724" duration="376000" />
+      <workItem from="1739772738703" duration="53000" />
+      <workItem from="1739773319502" duration="11134000" />
+      <workItem from="1739785504039" duration="9701000" />
+      <workItem from="1739859305531" duration="1113000" />
+      <workItem from="1739860433975" duration="9591000" />
+      <workItem from="1739937351854" duration="11584000" />
+      <workItem from="1739954641293" duration="21550000" />
+      <workItem from="1740015668215" duration="91000" />
+      <workItem from="1740015769157" duration="96000" />
+      <workItem from="1740015877922" duration="18975000" />
+      <workItem from="1740102871944" duration="64000" />
+      <workItem from="1740102957125" duration="5894000" />
+      <workItem from="1740119281795" duration="116000" />
+      <workItem from="1740119418139" duration="3690000" />
+      <workItem from="1740123136271" duration="121000" />
+      <workItem from="1740123273055" duration="4891000" />
+      <workItem from="1740460002498" duration="90000" />
+      <workItem from="1740460106456" duration="34783000" />
+      <workItem from="1740644372251" duration="82000" />
+      <workItem from="1740644467032" duration="12691000" />
+      <workItem from="1740971468379" duration="5973000" />
+      <workItem from="1740984901689" duration="14780000" />
+      <workItem from="1741054006922" duration="8287000" />
+      <workItem from="1741078820346" duration="7426000" />
+      <workItem from="1741086294866" duration="65432000" />
+      <workItem from="1741581236083" duration="103752000" />
+      <workItem from="1742174586909" duration="1167000" />
+      <workItem from="1742176115104" duration="64623000" />
+      <workItem from="1742356263347" duration="13326000" />
+      <workItem from="1742434664681" duration="2002000" />
+      <workItem from="1742622134931" duration="1780000" />
+      <workItem from="1742623931820" duration="206000" />
+      <workItem from="1742624147556" duration="15157000" />
+      <workItem from="1742779924082" duration="22667000" />
+      <workItem from="1742869483749" duration="49729000" />
+      <workItem from="1743218614718" duration="22191000" />
+      <workItem from="1743385521261" duration="3256000" />
+      <workItem from="1743388867971" duration="104596000" />
+      <workItem from="1744162763645" duration="54126000" />
+      <workItem from="1744334950550" duration="29287000" />
+      <workItem from="1744365114831" duration="7002000" />
+      <workItem from="1744593670024" duration="29174000" />
+      <workItem from="1744766772273" duration="59796000" />
+      <workItem from="1744971851145" duration="88000" />
+      <workItem from="1744971974836" duration="94000" />
+      <workItem from="1744972090179" duration="37000" />
+      <workItem from="1744972147935" duration="61000" />
+      <workItem from="1744972223109" duration="2165000" />
+      <workItem from="1744974406638" duration="4851000" />
+      <workItem from="1745199171581" duration="21777000" />
+      <workItem from="1745394082019" duration="604000" />
+      <workItem from="1745394715172" duration="211000" />
+      <workItem from="1745395226167" duration="20000" />
+      <workItem from="1745459354991" duration="27000" />
+      <workItem from="1745459415963" duration="152000" />
+      <workItem from="1745460218951" duration="640000" />
+      <workItem from="1745461770938" duration="120000" />
+      <workItem from="1745461907190" duration="821000" />
+      <workItem from="1745463069271" duration="121000" />
+      <workItem from="1745463208961" duration="11000" />
+      <workItem from="1745463269479" duration="321000" />
+      <workItem from="1745463623402" duration="23000" />
+      <workItem from="1745474855019" duration="36000" />
+      <workItem from="1745474971545" duration="70000" />
+      <workItem from="1745475127107" duration="32000" />
+      <workItem from="1745475178370" duration="343000" />
+      <workItem from="1745475540672" duration="231000" />
+      <workItem from="1745475798339" duration="17000" />
+      <workItem from="1745475834209" duration="53000" />
+      <workItem from="1745475911429" duration="68226000" />
+      <workItem from="1746494652881" duration="551000" />
+      <workItem from="1746688835537" duration="4510000" />
+      <workItem from="1746694856020" duration="2807000" />
+      <workItem from="1746697682483" duration="16180000" />
+      <workItem from="1747124721785" duration="1574000" />
+      <workItem from="1747126421368" duration="29109000" />
+      <workItem from="1747300894513" duration="14821000" />
+      <workItem from="1747446849538" duration="361000" />
+      <workItem from="1747447224476" duration="492000" />
+      <workItem from="1747447731251" duration="413000" />
+      <workItem from="1747448159618" duration="56000" />
+      <workItem from="1747448236845" duration="5633000" />
+      <workItem from="1747619428806" duration="104000" />
+      <workItem from="1747619546841" duration="2167000" />
+      <workItem from="1747621742295" duration="1000" />
+      <workItem from="1747622525264" duration="299000" />
+      <workItem from="1747623599002" duration="74000" />
+      <workItem from="1747623762050" duration="1509000" />
+      <workItem from="1747625297370" duration="12825000" />
+      <workItem from="1747644527206" duration="743000" />
+      <workItem from="1747645286859" duration="9743000" />
+      <workItem from="1747708398202" duration="5031000" />
+      <workItem from="1747791478235" duration="22036000" />
+      <workItem from="1747878269057" duration="81000" />
+      <workItem from="1747878375219" duration="79000" />
+      <workItem from="1747878470681" duration="2794000" />
+      <workItem from="1747881287821" duration="1547000" />
+      <workItem from="1747882950366" duration="2687000" />
+      <workItem from="1747885760635" duration="40289000" />
+      <workItem from="1748223819392" duration="4144000" />
+      <workItem from="1748230625308" duration="84197000" />
+      <workItem from="1748574204282" duration="22731000" />
+      <workItem from="1748914779056" duration="48507000" />
+      <workItem from="1749346426644" duration="11911000" />
+      <workItem from="1749432508023" duration="37992000" />
+      <workItem from="1750036954134" duration="14144000" />
     </task>
-    <task id="LOCAL-00001" summary="lua login">
+    <task id="LOCAL-00453" summary="refactor(NFShmHashTable): 重构共享内存哈希表实现&#10;&#10;- 重新设计类结构，增加详细注释说明&#10;-优化迭代器实现，增强与STL兼容性&#10;- 扩展接口功能，支持更多STL标准操作&#10;- 改进内存管理，提高共享内存利用率&#10;-修复部分函数逻辑，提升代码稳定性">
       <option name="closed" value="true" />
-      <created>1710312604296</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
+      <created>1748510784369</created>
+      <option name="number" value="00453" />
+      <option name="presentableId" value="LOCAL-00453" />
       <option name="project" value="LOCAL" />
-      <updated>1710312604296</updated>
+      <updated>1748510784369</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00454" summary="refactor: 移除 CMakeLists.txt 中的冗余代码- 删除了用于检测操作系统发行版的回退方法&#10;- 该方法在现代系统中已不再需要，因为 CMake 内置方法通常能够正确检测&#10;- 移除这部分代码可以简化构建过程并提高可维护性">
+      <option name="closed" value="true" />
+      <created>1748511074769</created>
+      <option name="number" value="00454" />
+      <option name="presentableId" value="LOCAL-00454" />
+      <option name="project" value="LOCAL" />
+      <updated>1748511074769</updated>
+    </task>
+    <task id="LOCAL-00455" summary="refactor: 移除 CMakeLists.txt 中的冗余代码- 删除了用于检测操作系统发行版的回退方法&#10;- 该方法在现代系统中已不再需要，因为 CMake 内置方法通常能够正确检测&#10;- 移除这部分代码可以简化构建过程并提高可维护性">
+      <option name="closed" value="true" />
+      <created>1748511283879</created>
+      <option name="number" value="00455" />
+      <option name="presentableId" value="LOCAL-00455" />
+      <option name="project" value="LOCAL" />
+      <updated>1748511283879</updated>
+    </task>
+    <task id="LOCAL-00456" summary="feat(build): 添加项目依赖自动检测和安装功能&#10;&#10;- 在 CMakeLists.txt 中添加了依赖库检测和自动安装逻辑&#10;- 新增 install_dependencies.sh 脚本用于手动安装依赖&#10;- 创建 README_Dependencies.md 文件详细说明依赖安装步骤&#10;- 支持 CentOS/RHEL 和 Ubuntu/Debian 系统的自动安装&#10;- 提供了手动安装和验证依赖的方法">
+      <option name="closed" value="true" />
+      <created>1748512161944</created>
+      <option name="number" value="00456" />
+      <option name="presentableId" value="LOCAL-00456" />
+      <option name="project" value="LOCAL" />
+      <updated>1748512161944</updated>
+    </task>
+    <task id="LOCAL-00457" summary="refactor: 移除 CMakeLists.txt 中的冗余代码- 删除了用于检测操作系统发行版的回退方法&#10;- 该方法在现代系统中已不再需要，因为 CMake 内置方法通常能够正确检测&#10;- 移除这部分代码可以简化构建过程并提高可维护性">
+      <option name="closed" value="true" />
+      <created>1748515271989</created>
+      <option name="number" value="00457" />
+      <option name="presentableId" value="LOCAL-00457" />
+      <option name="project" value="LOCAL" />
+      <updated>1748515271989</updated>
+    </task>
+    <task id="LOCAL-00458" summary="refactor(game): 移除系统信息相关代码&#10;&#10;- 删除了 NFSystemInfo 类及相关代码&#10;-移除了与 sigar 相关的系统信息收集功能&#10;- 更新了相关模块的头文件和实现">
+      <option name="closed" value="true" />
+      <created>1748571367536</created>
+      <option name="number" value="00458" />
+      <option name="presentableId" value="LOCAL-00458" />
+      <option name="project" value="LOCAL" />
+      <updated>1748571367536</updated>
+    </task>
+    <task id="LOCAL-00459" summary="refactor(NFIMonitorModule): 移除未使用的 NFSystemInfo 包含&#10;&#10;- 删除了 NFIMonitorModule.h 中未使用的 NFSystemInfo 包含&#10;-此更改不会影响功能，仅清理冗余代码">
+      <option name="closed" value="true" />
+      <created>1748572201611</created>
+      <option name="number" value="00459" />
+      <option name="presentableId" value="LOCAL-00459" />
+      <option name="project" value="LOCAL" />
+      <updated>1748572201611</updated>
+    </task>
+    <task id="LOCAL-00460" summary="refactor(NFIMonitorModule): 移除未使用的 NFSystemInfo 包含&#10;&#10;- 删除了 NFIMonitorModule.h 中未使用的 NFSystemInfo 包含&#10;-此更改不会影响功能，仅清理冗余代码">
+      <option name="closed" value="true" />
+      <created>1748572292735</created>
+      <option name="number" value="00460" />
+      <option name="presentableId" value="LOCAL-00460" />
+      <option name="project" value="LOCAL" />
+      <updated>1748572292735</updated>
+    </task>
+    <task id="LOCAL-00461" summary="refactor(game): 移除未使用的系统信息相关代码&#10;&#10;- 删除了 NFIMonitorModule 中与系统信息相关的函数声明&#10;- 移除了 CMakeLists.txt 中的 sigar 相关路径&#10;- 删除了 NFIPluginManager 中对 NFSystemInfo 的引用">
+      <option name="closed" value="true" />
+      <created>1748573718601</created>
+      <option name="number" value="00461" />
+      <option name="presentableId" value="LOCAL-00461" />
+      <option name="project" value="LOCAL" />
+      <updated>1748573718601</updated>
+    </task>
+    <task id="LOCAL-00462" summary="feat(game): 添加系统信息监控功能&#10;&#10;- 在 NFIMonitorModule 中添加了获取系统信息、用户数量、CPU 使用率和内存使用量的方法&#10;- 在 NFIPluginManager 中包含了 NFSystemInfo 头文件&#10;- 更新了 CMakeLists.txt，添加了对 sigar 库的引用">
+      <option name="closed" value="true" />
+      <created>1748574513059</created>
+      <option name="number" value="00462" />
+      <option name="presentableId" value="LOCAL-00462" />
+      <option name="project" value="LOCAL" />
+      <updated>1748574513059</updated>
+    </task>
+    <task id="LOCAL-00463" summary="build:移除 COMPILE_CHECK_STRING_FORMAT 宏定义&#10;&#10;移除了 CMakeLists.txt 中的 COMPILE_CHECK_STRING_FORMAT 宏定义，并在 NFLogMgr.h 中添加了一个空行。这些更改可能是为了调整日志格式检查机制。">
+      <option name="closed" value="true" />
+      <created>1748574790959</created>
+      <option name="number" value="00463" />
+      <option name="presentableId" value="LOCAL-00463" />
+      <option name="project" value="LOCAL" />
+      <updated>1748574790959</updated>
+    </task>
+    <task id="LOCAL-00464" summary="hash erase">
+      <option name="closed" value="true" />
+      <created>1748589508066</created>
+      <option name="number" value="00464" />
+      <option name="presentableId" value="LOCAL-00464" />
+      <option name="project" value="LOCAL" />
+      <updated>1748589508066</updated>
+    </task>
+    <task id="LOCAL-00465" summary="hash">
+      <option name="closed" value="true" />
+      <created>1748593861301</created>
+      <option name="number" value="00465" />
+      <option name="presentableId" value="LOCAL-00465" />
+      <option name="project" value="LOCAL" />
+      <updated>1748593861301</updated>
+    </task>
+    <task id="LOCAL-00466" summary="hash">
+      <option name="closed" value="true" />
+      <created>1748594298409</created>
+      <option name="number" value="00466" />
+      <option name="presentableId" value="LOCAL-00466" />
+      <option name="project" value="LOCAL" />
+      <updated>1748594298409</updated>
+    </task>
+    <task id="LOCAL-00467" summary="hash">
+      <option name="closed" value="true" />
+      <created>1748595188327</created>
+      <option name="number" value="00467" />
+      <option name="presentableId" value="LOCAL-00467" />
+      <option name="project" value="LOCAL" />
+      <updated>1748595188327</updated>
+    </task>
+    <task id="LOCAL-00468" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748598321569</created>
+      <option name="number" value="00468" />
+      <option name="presentableId" value="LOCAL-00468" />
+      <option name="project" value="LOCAL" />
+      <updated>1748598321569</updated>
+    </task>
+    <task id="LOCAL-00469" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748600270394</created>
+      <option name="number" value="00469" />
+      <option name="presentableId" value="LOCAL-00469" />
+      <option name="project" value="LOCAL" />
+      <updated>1748600270395</updated>
+    </task>
+    <task id="LOCAL-00470" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748600425727</created>
+      <option name="number" value="00470" />
+      <option name="presentableId" value="LOCAL-00470" />
+      <option name="project" value="LOCAL" />
+      <updated>1748600425727</updated>
+    </task>
+    <task id="LOCAL-00471" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748600509499</created>
+      <option name="number" value="00471" />
+      <option name="presentableId" value="LOCAL-00471" />
+      <option name="project" value="LOCAL" />
+      <updated>1748600509499</updated>
+    </task>
+    <task id="LOCAL-00472" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748601146834</created>
+      <option name="number" value="00472" />
+      <option name="presentableId" value="LOCAL-00472" />
+      <option name="project" value="LOCAL" />
+      <updated>1748601146834</updated>
+    </task>
+    <task id="LOCAL-00473" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748601913322</created>
+      <option name="number" value="00473" />
+      <option name="presentableId" value="LOCAL-00473" />
+      <option name="project" value="LOCAL" />
+      <updated>1748601913322</updated>
+    </task>
+    <task id="LOCAL-00474" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748602234170</created>
+      <option name="number" value="00474" />
+      <option name="presentableId" value="LOCAL-00474" />
+      <option name="project" value="LOCAL" />
+      <updated>1748602234170</updated>
+    </task>
+    <task id="LOCAL-00475" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748603307061</created>
+      <option name="number" value="00475" />
+      <option name="presentableId" value="LOCAL-00475" />
+      <option name="project" value="LOCAL" />
+      <updated>1748603307061</updated>
+    </task>
+    <task id="LOCAL-00476" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748603351501</created>
+      <option name="number" value="00476" />
+      <option name="presentableId" value="LOCAL-00476" />
+      <option name="project" value="LOCAL" />
+      <updated>1748603351501</updated>
+    </task>
+    <task id="LOCAL-00477" summary="hash tree">
+      <option name="closed" value="true" />
+      <created>1748603816341</created>
+      <option name="number" value="00477" />
+      <option name="presentableId" value="LOCAL-00477" />
+      <option name="project" value="LOCAL" />
+      <updated>1748603816341</updated>
+    </task>
+    <task id="LOCAL-00478" summary="refactor(NFComm): 优化日志管理和哈希容器相关代码&#10;&#10;- 调整日志格式处理逻辑，提高日志输出效率&#10;- 完善哈希容器赋值操作，确保容器正确更新&#10;- 修正哈希表节点获取逻辑，增强代码健壮性&#10;- 更新哈希容器测试用例，提高测试覆盖率">
+      <option name="closed" value="true" />
+      <created>1749003525213</created>
+      <option name="number" value="00478" />
+      <option name="presentableId" value="LOCAL-00478" />
+      <option name="project" value="LOCAL" />
+      <updated>1749003525213</updated>
+    </task>
+    <task id="LOCAL-00479" summary="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749190368208</created>
+      <option name="number" value="00479" />
+      <option name="presentableId" value="LOCAL-00479" />
+      <option name="project" value="LOCAL" />
+      <updated>1749190368208</updated>
+    </task>
+    <task id="LOCAL-00480" summary="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749192844675</created>
+      <option name="number" value="00480" />
+      <option name="presentableId" value="LOCAL-00480" />
+      <option name="project" value="LOCAL" />
+      <updated>1749192844675</updated>
+    </task>
+    <task id="LOCAL-00481" summary="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749193689862</created>
+      <option name="number" value="00481" />
+      <option name="presentableId" value="LOCAL-00481" />
+      <option name="project" value="LOCAL" />
+      <updated>1749193689862</updated>
+    </task>
+    <task id="LOCAL-00482" summary="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749193904703</created>
+      <option name="number" value="00482" />
+      <option name="presentableId" value="LOCAL-00482" />
+      <option name="project" value="LOCAL" />
+      <updated>1749193904703</updated>
+    </task>
+    <task id="LOCAL-00483" summary="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749194088041</created>
+      <option name="number" value="00483" />
+      <option name="presentableId" value="LOCAL-00483" />
+      <option name="project" value="LOCAL" />
+      <updated>1749194088041</updated>
+    </task>
+    <task id="LOCAL-00484" summary="refactor(NFComm):">
+      <option name="closed" value="true" />
+      <created>1749196696052</created>
+      <option name="number" value="00484" />
+      <option name="presentableId" value="LOCAL-00484" />
+      <option name="project" value="LOCAL" />
+      <updated>1749196696052</updated>
+    </task>
+    <task id="LOCAL-00485" summary="feat(NFShmHashTableWithList): 增加链表功能和 LRU 支持&#10;&#10;- 新增链表迭代器接口，支持按插入顺序遍历&#10;- 增加 LRU（最近最少使用）访问模式支持&#10;- 实现链表头尾指针管理，优化插入和删除操作- 添加链表完整性验证函数，提高数据一致性&#10;- 更新文档注释，详细说明新功能使用方法">
+      <option name="closed" value="true" />
+      <created>1749200025728</created>
+      <option name="number" value="00485" />
+      <option name="presentableId" value="LOCAL-00485" />
+      <option name="project" value="LOCAL" />
+      <updated>1749200025728</updated>
+    </task>
+    <task id="LOCAL-00486" summary="fix: 添加 hash list">
+      <option name="closed" value="true" />
+      <created>1749203939603</created>
+      <option name="number" value="00486" />
+      <option name="presentableId" value="LOCAL-00486" />
+      <option name="project" value="LOCAL" />
+      <updated>1749203939603</updated>
+    </task>
+    <task id="LOCAL-00487" summary="fix: 添加 hash list">
+      <option name="closed" value="true" />
+      <created>1749206625113</created>
+      <option name="number" value="00487" />
+      <option name="presentableId" value="LOCAL-00487" />
+      <option name="project" value="LOCAL" />
+      <updated>1749206625113</updated>
+    </task>
+    <task id="LOCAL-00488" summary="refactor(NFComm): 优化 NFShmList 和 NFShmVector 类的 swap 函数&#10;&#10;- 为 NFShmList 和 NFShmVector 的 swap 函数添加 noexcept 声明&#10;-优化 NFShmVector 的 swap函数实现&#10;- 删除 NFShmVector 中未使用的 Compare 模板参数&#10;- 修复 NFShmVector 的一些小问题，如使用 m_size 替代 m_data.size() 等">
+      <option name="closed" value="true" />
+      <created>1749260407523</created>
+      <option name="number" value="00488" />
+      <option name="presentableId" value="LOCAL-00488" />
+      <option name="project" value="LOCAL" />
+      <updated>1749260407523</updated>
+    </task>
+    <task id="LOCAL-00489" summary="docs(NFShmRBTree): 完善红黑树文档并优化代码结构&#10;&#10;- 添加详细的类和函数注释，说明红黑树的特性、使用方法和与STL的对比&#10;- 重新组织代码结构，按功能模块分组相关函数&#10;- 增加调试和诊断接口的文档说明&#10;- 优化部分函数的实现，提高代码可读性和维护性">
+      <option name="closed" value="true" />
+      <created>1749264817472</created>
+      <option name="number" value="00489" />
+      <option name="presentableId" value="LOCAL-00489" />
+      <option name="project" value="LOCAL" />
+      <updated>1749264817472</updated>
+    </task>
+    <task id="LOCAL-00490" summary="docs(NFShmHashTable):完善哈希表文档并添加使用示例&#10;&#10;- 在 NFShmHashTable.h 文件中添加了详细的文档注释&#10;- 包含了容器特性、使用示例、性能分析等内容&#10;- 对比了 STL 容器的使用方式- 提供了创建、插入、查找、删除等操作的示例代码">
+      <option name="closed" value="true" />
+      <created>1749265865329</created>
+      <option name="number" value="00490" />
+      <option name="presentableId" value="LOCAL-00490" />
+      <option name="project" value="LOCAL" />
+      <updated>1749265865329</updated>
+    </task>
+    <task id="LOCAL-00491" summary="docs(NFComm): 更新 NFShmHashMap 和 NFShmHashMultiMap 容器文档&#10;&#10;-为 NFShmHashMap 和 NFShmHashMultiMap 容器添加详细文档注释&#10;- 文档内容包括概述、核心特性、API 兼容性、使用示例、性能说明和迁移指南等- 对比 STL 标准容器，阐述共享内存容器的优势和差异&#10;- 提供代码示例，演示容器的基本用法、容量管理、共享内存使用和 STL 容器互操作">
+      <option name="closed" value="true" />
+      <created>1749267152538</created>
+      <option name="number" value="00491" />
+      <option name="presentableId" value="LOCAL-00491" />
+      <option name="project" value="LOCAL" />
+      <updated>1749267152538</updated>
+    </task>
+    <task id="LOCAL-00492" summary="docs(NFShmHashMapWithList): 完善代码文件注释和使用说明&#10;&#10;- 增加了 NFShmHashMapWithList 容器的详细说明和使用示例&#10;- 添加了与 std::unordered_map 的对比分析&#10;- 说明了容器的核心特性、API 兼容性和使用场景&#10;- 提供了基础用法、LRU 缓存使用、访问模式跟踪等示例&#10;- 讲解了共享内存使用和 STL容器互操作的方法&#10;-总结了性能特点和迁移指南">
+      <option name="closed" value="true" />
+      <created>1749268860715</created>
+      <option name="number" value="00492" />
+      <option name="presentableId" value="LOCAL-00492" />
+      <option name="project" value="LOCAL" />
+      <updated>1749268860715</updated>
+    </task>
+    <task id="LOCAL-00493" summary="添加NFShmRBTreeWithList">
+      <option name="closed" value="true" />
+      <created>1749276363384</created>
+      <option name="number" value="00493" />
+      <option name="presentableId" value="LOCAL-00493" />
+      <option name="project" value="LOCAL" />
+      <updated>1749276363384</updated>
+    </task>
+    <task id="LOCAL-00494" summary="添加NFShmRBTreeWithList">
+      <option name="closed" value="true" />
+      <created>1749290919146</created>
+      <option name="number" value="00494" />
+      <option name="presentableId" value="LOCAL-00494" />
+      <option name="project" value="LOCAL" />
+      <updated>1749290919146</updated>
+    </task>
+    <task id="LOCAL-00495" summary="添加NFShmRBTreeWithList">
+      <option name="closed" value="true" />
+      <created>1749346504588</created>
+      <option name="number" value="00495" />
+      <option name="presentableId" value="LOCAL-00495" />
+      <option name="project" value="LOCAL" />
+      <updated>1749346504588</updated>
+    </task>
+    <task id="LOCAL-00496" summary="添加NFShmRBTreeWithList">
+      <option name="closed" value="true" />
+      <created>1749527891243</created>
+      <option name="number" value="00496" />
+      <option name="presentableId" value="LOCAL-00496" />
+      <option name="project" value="LOCAL" />
+      <updated>1749527891244</updated>
+    </task>
+    <task id="LOCAL-00497" summary="refactor(game): 优化代码结构和性能&#10;&#10;- 移除了多处冗余的迭代器获取和检查逻辑&#10;- 使用 list_begin() 和 list_end() 替代 get_list().begin() 和 get_list().end()&#10;- 删除了不必要的 NF_ASSERT 检查&#10;- 优化了部分变量命名和循环逻辑">
+      <option name="closed" value="true" />
+      <created>1749545779108</created>
+      <option name="number" value="00497" />
+      <option name="presentableId" value="LOCAL-00497" />
+      <option name="project" value="LOCAL" />
+      <updated>1749545779108</updated>
+    </task>
+    <task id="LOCAL-00498" summary="build: 更新代码检查规则&#10;&#10;- 新增 CppCStyleCast 和 CppDFATimeOver检查工具&#10;- 修改现有检查工具的配置&#10;- 优化 XML 文件格式">
+      <option name="closed" value="true" />
+      <created>1749549523942</created>
+      <option name="number" value="00498" />
+      <option name="presentableId" value="LOCAL-00498" />
+      <option name="project" value="LOCAL" />
+      <updated>1749549523942</updated>
+    </task>
+    <task id="LOCAL-00499" summary="feat(tools): 添加 NFServerController 服务器控制器&#10;&#10;- 新增 NFServerController 项目，用于管理和控制服务器&#10;- 实现了服务器启动、停止、重启、状态查看等功能&#10;- 支持命令行参数和交互式监控模式&#10;-兼容 Windows 和 Linux 平台">
+      <option name="closed" value="true" />
+      <created>1749637049165</created>
+      <option name="number" value="00499" />
+      <option name="presentableId" value="LOCAL-00499" />
+      <option name="project" value="LOCAL" />
+      <updated>1749637049165</updated>
+    </task>
+    <task id="LOCAL-00500" summary="feat(server-controller): 重构服务器管理逻辑&#10;&#10;- 优化服务器配置加载和管理&#10;- 改进服务器启动、停止和重启逻辑&#10;- 增加服务器状态监控功能&#10;- 完善命令行接口和交互模式&#10;- 跨平台支持Windows和Linux">
+      <option name="closed" value="true" />
+      <created>1749780242510</created>
+      <option name="number" value="00500" />
+      <option name="presentableId" value="LOCAL-00500" />
+      <option name="project" value="LOCAL" />
+      <updated>1749780242510</updated>
+    </task>
+    <task id="LOCAL-00501" summary="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑">
+      <option name="closed" value="true" />
+      <created>1750237761500</created>
+      <option name="number" value="00501" />
+      <option name="presentableId" value="LOCAL-00501" />
+      <option name="project" value="LOCAL" />
+      <updated>1750237761500</updated>
+    </task>
+    <option name="localTasksCounter" value="502" />
     <servers />
+  </component>
+  <component name="TerminalProjectNonSharedOptionsProvider">
+    <envs>
+      <env key="Path" value="C:\Program Files (x86)\VMware\VMware Workstation\bin\;%SystemRoot%\system32;%SystemRoot%;%SystemRoot%\System32\Wbem;%SYSTEMROOT%\System32\WindowsPowerShell\v1.0\;%SYSTEMROOT%\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\D\mingw\x86_64-8.1.0-release-win32-seh-rt_v6-rev0\mingw64\bin;C:\D\mingw\x86_64-8.1.0-release-win32-seh-rt_v6-rev0\mingw64\include;C:\D\cmake\bin;C:\Program Files\TortoiseGit\bin;C:\Program Files\IDM Computer Solutions\UltraEdit;C:\Program Files\IDM Computer Solutions\UltraCompare;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Program Files\Git\cmd;C:\Program Files\TortoiseSVN\bin;C:\Python27;C:\Python27\Scripts;" />
+    </envs>
+    <option name="startingDirectory" value="E:\nfshm-xframe\game\LieRen\makefiles" />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.lua" />
   </component>
   <component name="VCPKGProject">
     <isAutomaticCheckingOnLaunch value="false" />
     <isAutomaticFoundErrors value="true" />
     <isAutomaticReloadCMake value="true" />
   </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="GitHub.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="5fea9369-094e-45e9-84cc-dfd617df9e52" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="5fea9369-094e-45e9-84cc-dfd617df9e52">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="HEAD" />
+                      </list>
+                    </value>
+                  </entry>
+                  <entry key="structure">
+                    <value>
+                      <list>
+                        <option value="dir:E:/nfshm-xframe/src/NFTest/NFTestPlugin" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+              <option name="SHOW_ONLY_AFFECTED_CHANGES" value="true" />
+            </State>
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="lua login" />
-    <option name="LAST_COMMIT_MESSAGE" value="lua login" />
+    <option name="CODE_SMELLS_PROFILE" value="Project Default" />
+    <option name="CHECK_CODE_CLEANUP_BEFORE_PROJECT_COMMIT_PROFILE" value="Project Default" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="refactor(game): 移除系统信息相关代码&#10;&#10;- 删除了 NFSystemInfo 类及相关代码&#10;-移除了与 sigar 相关的系统信息收集功能&#10;- 更新了相关模块的头文件和实现" />
+    <MESSAGE value="refactor(NFIMonitorModule): 移除未使用的 NFSystemInfo 包含&#10;&#10;- 删除了 NFIMonitorModule.h 中未使用的 NFSystemInfo 包含&#10;-此更改不会影响功能，仅清理冗余代码" />
+    <MESSAGE value="refactor(game): 移除未使用的系统信息相关代码&#10;&#10;- 删除了 NFIMonitorModule 中与系统信息相关的函数声明&#10;- 移除了 CMakeLists.txt 中的 sigar 相关路径&#10;- 删除了 NFIPluginManager 中对 NFSystemInfo 的引用" />
+    <MESSAGE value="feat(game): 添加系统信息监控功能&#10;&#10;- 在 NFIMonitorModule 中添加了获取系统信息、用户数量、CPU 使用率和内存使用量的方法&#10;- 在 NFIPluginManager 中包含了 NFSystemInfo 头文件&#10;- 更新了 CMakeLists.txt，添加了对 sigar 库的引用" />
+    <MESSAGE value="build:移除 COMPILE_CHECK_STRING_FORMAT 宏定义&#10;&#10;移除了 CMakeLists.txt 中的 COMPILE_CHECK_STRING_FORMAT 宏定义，并在 NFLogMgr.h 中添加了一个空行。这些更改可能是为了调整日志格式检查机制。" />
+    <MESSAGE value="hash erase" />
+    <MESSAGE value="hash" />
+    <MESSAGE value="hash tree&#10;&#10;Signed-off-by: gaoyi &lt;445267987@qq.com&gt;" />
+    <MESSAGE value="hash tree" />
+    <MESSAGE value="refactor(NFComm): 优化日志管理和哈希容器相关代码&#10;&#10;- 调整日志格式处理逻辑，提高日志输出效率&#10;- 完善哈希容器赋值操作，确保容器正确更新&#10;- 修正哈希表节点获取逻辑，增强代码健壮性&#10;- 更新哈希容器测试用例，提高测试覆盖率" />
+    <MESSAGE value="refactor(NFComm): 优化 NFShmSTL 容器的错误处理和日志输出- 改进了错误检查和异常处理逻辑&#10;- 优化了日志输出，增加了更详细的错误信息&#10;- 修复了一些潜在的内存访问问题&#10;- 提高了代码的可读性和维护性" />
+    <MESSAGE value="refactor(NFComm):" />
+    <MESSAGE value="feat(NFShmHashTableWithList): 增加链表功能和 LRU 支持&#10;&#10;- 新增链表迭代器接口，支持按插入顺序遍历&#10;- 增加 LRU（最近最少使用）访问模式支持&#10;- 实现链表头尾指针管理，优化插入和删除操作- 添加链表完整性验证函数，提高数据一致性&#10;- 更新文档注释，详细说明新功能使用方法" />
+    <MESSAGE value="fix: 添加 hash list" />
+    <MESSAGE value="refactor(NFComm): 优化 NFShmList 和 NFShmVector 类的 swap 函数&#10;&#10;- 为 NFShmList 和 NFShmVector 的 swap 函数添加 noexcept 声明&#10;-优化 NFShmVector 的 swap函数实现&#10;- 删除 NFShmVector 中未使用的 Compare 模板参数&#10;- 修复 NFShmVector 的一些小问题，如使用 m_size 替代 m_data.size() 等" />
+    <MESSAGE value="docs(NFShmRBTree): 完善红黑树文档并优化代码结构&#10;&#10;- 添加详细的类和函数注释，说明红黑树的特性、使用方法和与STL的对比&#10;- 重新组织代码结构，按功能模块分组相关函数&#10;- 增加调试和诊断接口的文档说明&#10;- 优化部分函数的实现，提高代码可读性和维护性" />
+    <MESSAGE value="docs(NFShmHashTable):完善哈希表文档并添加使用示例&#10;&#10;- 在 NFShmHashTable.h 文件中添加了详细的文档注释&#10;- 包含了容器特性、使用示例、性能分析等内容&#10;- 对比了 STL 容器的使用方式- 提供了创建、插入、查找、删除等操作的示例代码" />
+    <MESSAGE value="docs(NFComm): 更新 NFShmHashMap 和 NFShmHashMultiMap 容器文档&#10;&#10;-为 NFShmHashMap 和 NFShmHashMultiMap 容器添加详细文档注释&#10;- 文档内容包括概述、核心特性、API 兼容性、使用示例、性能说明和迁移指南等- 对比 STL 标准容器，阐述共享内存容器的优势和差异&#10;- 提供代码示例，演示容器的基本用法、容量管理、共享内存使用和 STL 容器互操作" />
+    <MESSAGE value="docs(NFShmHashMapWithList): 完善代码文件注释和使用说明&#10;&#10;- 增加了 NFShmHashMapWithList 容器的详细说明和使用示例&#10;- 添加了与 std::unordered_map 的对比分析&#10;- 说明了容器的核心特性、API 兼容性和使用场景&#10;- 提供了基础用法、LRU 缓存使用、访问模式跟踪等示例&#10;- 讲解了共享内存使用和 STL容器互操作的方法&#10;-总结了性能特点和迁移指南" />
+    <MESSAGE value="添加NFShmRBTreeWithList" />
+    <MESSAGE value="refactor(game): 优化代码结构和性能&#10;&#10;- 移除了多处冗余的迭代器获取和检查逻辑&#10;- 使用 list_begin() 和 list_end() 替代 get_list().begin() 和 get_list().end()&#10;- 删除了不必要的 NF_ASSERT 检查&#10;- 优化了部分变量命名和循环逻辑" />
+    <MESSAGE value="build: 更新代码检查规则&#10;&#10;- 新增 CppCStyleCast 和 CppDFATimeOver检查工具&#10;- 修改现有检查工具的配置&#10;- 优化 XML 文件格式" />
+    <MESSAGE value="feat(tools): 添加 NFServerController 服务器控制器&#10;&#10;- 新增 NFServerController 项目，用于管理和控制服务器&#10;- 实现了服务器启动、停止、重启、状态查看等功能&#10;- 支持命令行参数和交互式监控模式&#10;-兼容 Windows 和 Linux 平台" />
+    <MESSAGE value="feat(server-controller): 重构服务器管理逻辑&#10;&#10;- 优化服务器配置加载和管理&#10;- 改进服务器启动、停止和重启逻辑&#10;- 增加服务器状态监控功能&#10;- 完善命令行接口和交互模式&#10;- 跨平台支持Windows和Linux" />
+    <MESSAGE value="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑" />
+    <option name="NON_MODAL_COMMIT_POSTPONE_SLOW_CHECKS" value="false" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFLogMgr.h</url>
+          <line>507</line>
+          <option name="timeStamp" value="65" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFLogMgr.h</url>
+          <line>521</line>
+          <option name="timeStamp" value="66" />
+        </line-breakpoint>
+      </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CMakeRunConfiguration">
+        <watch expression="*(((class NFShmListBase&lt;int,10&gt; &amp;) list1).m_ptr) @ 10" custom="AddWatchAsArrayAction.marker:  @ 10" />
+        <watch expression="*(((class NFShmListBase&lt;int,10&gt; &amp;) list1).m_ptr) @ 10" custom="AddWatchAsArrayAction.marker:  @ 10" />
+        <watch expression="*(((class NFShmListBase&lt;int,10&gt; &amp;) list2).m_ptr) @ 10" custom="AddWatchAsArrayAction.marker:  @ 10" />
+        <watch expression="*(((class NFShmListBase&lt;int,2&gt; &amp;) list).m_ptr) @ 3" custom="AddWatchAsArrayAction.marker:  @ 3" />
+        <watch expression="*(((class NFShmListBase&lt;int,100&gt; &amp;) (*((struct NFShmListIteratorBase&lt;NFShmList&lt;int,100&gt; &gt; &amp;) (lower)).m_pContainer)).m_ptr) @ 5" custom="AddWatchAsArrayAction.marker:  @ 5" />
+        <watch expression="*(((class NFShmListBase&lt;int,20&gt; &amp;) (list)).m_ptr) @ 10" custom="AddWatchAsArrayAction.marker:  @ 10" />
+        <watch expression="*(((class NFShmListBase&lt;int,20&gt; &amp;) (list1)).m_ptr) @ 20" custom="AddWatchAsArrayAction.marker:  @ 20" />
+        <watch expression="*((*this).m_ptr) @ 100" custom="AddWatchAsArrayAction.marker:  @ 100" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

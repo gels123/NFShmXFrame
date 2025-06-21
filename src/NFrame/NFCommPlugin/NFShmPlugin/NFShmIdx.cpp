@@ -8,45 +8,64 @@
 // -------------------------------------------------------------------------
 
 #include "NFShmIdx.h"
-#include "NFComm/NFShmCore/NFShmObj.h"
+#include "NFComm/NFObjCommon/NFObject.h"
 
 NFShmIdx::NFShmIdx()
 {
-	Initialize();
+	if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+	{
+		CreateInit();
+	}
+	else
+	{
+		ResumeInit();
+	}
 }
 
 NFShmIdx::~NFShmIdx()
 {
-    Initialize();
+	Initialize();
+}
+
+int NFShmIdx::CreateInit()
+{
+	Initialize();
+	return 0;
+}
+
+int NFShmIdx::ResumeInit()
+{
+	return 0;
 }
 
 void NFShmIdx::Initialize()
 {
-	m_uEntity.m_pAttachedObj = NULL;
+	m_uEntity.m_pAttachedObj = nullptr;
+	m_iIndex = -1;
 }
 
-void *NFShmIdx::GetObjBuf()
+void* NFShmIdx::GetObjBuf() const
 {
 	return m_uEntity.m_pBuf;
 }
 
-void NFShmIdx::SetObjBuf(void *pBuf)
+void NFShmIdx::SetObjBuf(void* pBuf)
 {
 	assert(pBuf);
 	m_uEntity.m_pBuf = pBuf;
 }
 
-NFShmObj* NFShmIdx::GetAttachedObj()
+NFObject* NFShmIdx::GetAttachedObj()
 {
 	return m_uEntity.m_pAttachedObj;
 }
 
-const NFShmObj* NFShmIdx::GetAttachedObj() const
+const NFObject* NFShmIdx::GetAttachedObj() const
 {
-    return m_uEntity.m_pAttachedObj;
+	return m_uEntity.m_pAttachedObj;
 }
 
-void NFShmIdx::SetAttachedObj(NFShmObj *pObj)
+void NFShmIdx::SetAttachedObj(NFObject* pObj)
 {
 	assert(pObj);
 	m_uEntity.m_pAttachedObj = pObj;

@@ -41,6 +41,7 @@ std::string NFStoreServerPlugin::GetPluginName()
 
 void NFStoreServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_STORE_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIStoreServerModule, NFCStoreServerModule);
 }
 

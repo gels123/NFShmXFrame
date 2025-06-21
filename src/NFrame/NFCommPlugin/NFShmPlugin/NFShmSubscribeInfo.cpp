@@ -8,8 +8,8 @@
 // -------------------------------------------------------------------------
 
 #include "NFShmSubscribeInfo.h"
-#include "NFComm/NFShmCore/NFTypeDefines.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
+#include "NFComm/NFObjCommon/NFTypeDefines.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
 #include "NFComm/NFPluginModule/NFLogMgr.h"
 
 NFShmSubscribeInfo::NFShmSubscribeInfo()
@@ -26,9 +26,9 @@ NFShmSubscribeInfo::NFShmSubscribeInfo()
 
 int NFShmSubscribeInfo::CreateInit()
 {
-    pSink = NULL;
-    nRefCount = 0;
-    bRemoveFlag = false;
+    m_pSink = NULL;
+    m_refCount = 0;
+    m_removeFlag = false;
     m_shmObjId = INVALID_ID;
     return 0;
 }
@@ -43,7 +43,7 @@ int NFShmSubscribeInfo::ResumeInit()
 */
 void NFShmSubscribeInfo::Add()
 {
-    nRefCount++;
+    m_refCount++;
 }
 
 /**
@@ -51,5 +51,10 @@ void NFShmSubscribeInfo::Add()
 */
 void NFShmSubscribeInfo::Sub()
 {
-    --nRefCount;
+    --m_refCount;
+}
+
+std::string NFShmSubscribeInfo::ToString() const
+{
+    return NF_FORMAT("refCount:{},removeFlag:{},desc:{},eventKey:{},shmObjId:{}", m_refCount, m_removeFlag, m_szDesc.ToString(), m_eventKey.ToString(), m_shmObjId);
 }

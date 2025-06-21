@@ -9,10 +9,14 @@
 
 #pragma once
 
+#include <NFComm/NFCore/NFCommon.h>
+#include <NFComm/NFPluginModule/NFStoreProtoCommon.h>
+
 #include "NFBaseDBObj.h"
+#include "NFDBObjMgr.h"
 
 template<typename className, typename pbClass, int classType>
-class NFDBGlobalTemplate : public NFShmObjTemplate<className, classType, NFBaseDBObj>
+class NFDBGlobalTemplate : public NFObjectTemplate<className, classType, NFBaseDBObj>
 {
 public:
     NFDBGlobalTemplate()
@@ -39,44 +43,53 @@ public:
 
     virtual ~NFDBGlobalTemplate()
     {
-
     }
 
-    virtual int MakeLoadData(google::protobuf::Message* data)
+    virtual int Load(NF_SERVER_TYPE serverType)
     {
-        CHECK_NULL(data);
-        pbClass* p = dynamic_cast<pbClass *>(data);
-        CHECK_NULL(p);
+        NFBaseDBObj::SetServerType(serverType);
+        return NFDBObjMgr::Instance()->LoadFromDB(this);
+    }
 
-        p->set_id(GetDbId());
+    virtual int MakeLoadData(google::protobuf::Message *data)
+    {
+        CHECK_NULL(0, data);
+        pbClass *p = dynamic_cast<pbClass *>(data);
+        CHECK_NULL(0, p);
+
+        int iRetCode = NFProtobufCommon::SetPrimarykeyFromMessage(p, NFCommon::tostr(GetDbId()));
+        CHECK_EXPR(iRetCode == 0, -1, "SetPrimarykeyFromMessage Failed From {}", data->GetTypeName());
 
         return 0;
     }
 
-    virtual int MakeSaveData(google::protobuf::Message* data)
+    virtual int MakeSaveData(google::protobuf::Message *data)
     {
         if (!this->m_bDataInited)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "not inited !");
+            NFLogError(NF_LOG_DEFAULT, 0, "not inited !");
             return -1;
         }
-        CHECK_NULL(data);
+        CHECK_NULL(0, data);
 
-        pbClass* p = dynamic_cast<pbClass *>(data);
-        CHECK_NULL(p);
+        pbClass *p = dynamic_cast<pbClass *>(data);
+        CHECK_NULL(0, p);
 
-        p->set_id(GetDbId());
-
-        return SaveToDB(*p->mutable_data());
+        int iRetCode = NFProtobufCommon::SetPrimarykeyFromMessage(p, NFCommon::tostr(GetDbId()));
+        CHECK_EXPR(iRetCode == 0, -1, "SetPrimarykeyFromMessage Failed From {}", data->GetTypeName());
+        return SaveToDB(*p);
     }
 
-    virtual int InitWithDBData(const google::protobuf::Message* pData)
+    virtual int InitWithDBData(const google::protobuf::Message *pData)
     {
-        const pbClass* pGlobal = dynamic_cast<const pbClass*>(pData);
-        CHECK_NULL(pGlobal);
+        const pbClass *pGlobal = dynamic_cast<const pbClass *>(pData);
+        CHECK_NULL(0, pGlobal);
 
-        CHECK_EXPR(pGlobal->id() == GetDbId(), -1, "invalid data!");
-        int iRet = LoadFromDB(pGlobal->data());
+        std::string dbId;
+        int iRetCode = NFProtobufCommon::GetPrimarykeyFromMessage(pGlobal, dbId);
+        CHECK_EXPR(iRetCode == 0, -1, "GetPrimarykeyFromMessage Failed From {}", pData->GetTypeName());
+        CHECK_EXPR(NFCommon::strto<int>(dbId) == GetDbId(), -1, "invalid data!");
+        int iRet = LoadFromDB(*pGlobal);
         CHECK_EXPR(iRet == 0, -1, "parse failed!");
 
         iRet = InitConfig();
@@ -93,15 +106,15 @@ public:
         return 0;
     }
 
-    virtual int LoadFromDB(const std::string& dbData) = 0;
+    virtual int LoadFromDB(const pbClass &dbData) = 0;
 
-    virtual int SaveToDB(std::string& dbData) = 0;
+    virtual int SaveToDB(pbClass &dbData) = 0;
 
     virtual int InitConfig() = 0;
 
     virtual int GetDbId() = 0;
 
-    virtual google::protobuf::Message* CreateTempProtobufData() { return new pbClass(); }
+    virtual google::protobuf::Message *CreateTempProtobufData() { return new pbClass(); }
     virtual uint32_t GetSaveDis() { return 60; }
     virtual eDealWithLoadFailed DealWithFailed() { return EN_DW_SHUTDOWN; }
 };

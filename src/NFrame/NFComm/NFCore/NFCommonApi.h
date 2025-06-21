@@ -439,24 +439,6 @@ public:
         return t;
     }
 
-    static std::string &StrLTrim(std::string &s)
-    {
-        s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-        return s;
-    }
-
-    static std::string &StrRTrim(std::string &s)
-    {
-        s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
-        return s;
-    }
-
-
-    static std::string &StrTrim(std::string& s)
-    {
-        return StrLTrim(StrRTrim(s));
-    }
-
     // �ַ����滻
     static int StrReplace(std::string& str, const std::string& pattern, const std::string& newpat)
     {

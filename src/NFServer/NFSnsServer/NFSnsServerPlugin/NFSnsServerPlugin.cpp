@@ -42,6 +42,7 @@ std::string NFSnsServerPlugin::GetPluginName()
 
 void NFSnsServerPlugin::Install()
 {
+    NFGlobalSystem::Instance()->AddServerType(NF_ST_SNS_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFISnsServerModule, NFCSnsServerModule);
 }
 

@@ -458,7 +458,7 @@ public:
 
 	void Dump() const
 	{
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "offset={} size={} read={} write={}\n",
+		NFLogError(NF_LOG_DEFAULT, 0, "offset={} size={} read={} write={}\n",
 			offset_, size_, read_, write_);
 	}
 

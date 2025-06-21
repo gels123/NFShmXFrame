@@ -41,6 +41,7 @@ std::string NFCenterServerPlugin::GetPluginName()
 
 void NFCenterServerPlugin::Install()
 {
+    NFGlobalSystem::Instance()->AddServerType(NF_ST_CENTER_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFICenterServerModule, NFCCenterServerModule);
 }
 

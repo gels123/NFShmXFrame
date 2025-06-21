@@ -9,49 +9,43 @@
 
 #pragma once
 
-#include "NFComm/NFPluginModule/NFIBusModule.h"
-#include "NFComm/NFCore/NFSpinLock.h"
-#include "NFBusHash.h"
-#include "NFBusDefine.h"
-#include "NFBusShm.h"
-#include "../NFINetMessage.h"
-#include "../NFNetDefine.h"
-#include "NFComm/NFCore/NFBuffer.h"
 #include "NFIBusConnection.h"
-#include <map>
+#include "../NFINetMessage.h"
+#include "NFComm/NFPluginModule/NFNetDefine.h"
 
-class NFCBusServer : public NFIBusConnection
+class NFCBusServer final : public NFIBusConnection
 {
 public:
-    explicit NFCBusServer(NFIPluginManager* p, NF_SERVER_TYPES serverType, const NFMessageFlag& flag);
+    explicit NFCBusServer(NFIPluginManager* p, NF_SERVER_TYPE serverType, const NFMessageFlag& flag);
 
-    virtual ~NFCBusServer();
+    ~NFCBusServer() override;
 
-    virtual bool Execute() override;
+    bool Execute() override;
 
-    virtual bool Init() override;
+    bool Init() override;
 
-    virtual bool Shut() override;
+    bool Shut() override;
 
-    virtual bool Finalize() override;
+    bool Finalize() override;
+
 public:
     /**
     * @brief	初始化
     *
     * @return 是否成功
     */
-    virtual uint64_t BindServer(const NFMessageFlag& flag);
+    uint64_t BindServer(const NFMessageFlag& flag);
 
     /**
      * @brief 主线程处理消息队列
      */
-    virtual void ProcessMsgLogicThread();
+    void ProcessMsgLogicThread();
 
-    virtual bool Send(NFDataPackage& packet, const char* msg, uint32_t nLen) override;
-    virtual bool Send(NFDataPackage& packet, const google::protobuf::Message& xData) override;
+    bool Send(NFDataPackage& packet, const char* msg, uint32_t nLen) override;
+    bool Send(NFDataPackage& packet, const google::protobuf::Message& xData) override;
 private:
     /**
      * @brief 服务器每一帧处理的消息数
      */
-    uint32_t mHandleMsgNumPerFrame;
+    uint32_t m_handleMsgNumPerFrame;
 };

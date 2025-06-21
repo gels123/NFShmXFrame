@@ -8,10 +8,9 @@
 // -------------------------------------------------------------------------
 
 #include "NFShmTimer.h"
-#include "NFComm/NFShmCore/NFTypeDefines.h"
-#include "NFComm/NFShmCore/NFISharedMemModule.h"
+#include "NFComm/NFPluginModule/NFIMemMngModule.h"
 #include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFShmTimerManager.h"
+#include "NFShmTimerMng.h"
 
 NFShmTimer::NFShmTimer()
 {
@@ -27,25 +26,25 @@ NFShmTimer::NFShmTimer()
 
 NFShmTimer::~NFShmTimer()
 {
-    NFShmTimerManager::Instance(m_pObjPluginManager)->ClearShmObjTimer(this);
+    NFShmTimerMng::Instance()->ClearShmObjTimer(this);
     DeleteFunc();
 }
 
 void NFShmTimer::DeleteFunc()
 {
     // 是在SubscriberSlot 创建的，必须在这销毁
-    m_shmObj = NULL;
+    m_shmObj = nullptr;
     m_shmObjId = INVALID_ID;
-    m_rawShmObj = NULL;
+    m_rawShmObj = nullptr;
 }
 
 int NFShmTimer::CreateInit()
 {
-    m_shmObj = NULL;
+    m_shmObj = nullptr;
     m_shmObjId = INVALID_ID;
-    m_rawShmObj = NULL;
+    m_rawShmObj = nullptr;
 
-    m_type = OnceTimer;
+    m_type = ONCE_TIMER;
     m_beginTime = 0;
     m_nextRun = 0;
     m_interval = 0;
@@ -64,7 +63,38 @@ int NFShmTimer::ResumeInit()
     return 0;
 }
 
-std::string NFShmTimer::GetDetailStructMsg()
+NFObject* NFShmTimer::GetTimerShmObj()
+{
+    return m_shmObj.GetPoint();
+}
+
+int NFShmTimer::GetTimerShmObjId() const
+{
+    return m_shmObjId;
+}
+
+void NFShmTimer::SetTimerShmObj(const NFObject* pObj)
+{
+    m_shmObj = pObj;
+    m_shmObjId = pObj->GetGlobalId();
+}
+
+void NFShmTimer::SetTimerRawShmObj(const NFRawObject* pObj)
+{
+    m_rawShmObj = pObj;
+}
+
+NFRawObject* NFShmTimer::GetTimerRawShmObj()
+{
+    return m_rawShmObj;
+}
+
+void NFShmTimer::PrintfDebug() const
+{
+    LOG_DEBUG(0, "timer debug:{}", GetDetailStructMsg());
+}
+
+std::string NFShmTimer::GetDetailStructMsg() const
 {
     std::ostringstream oss;
 
@@ -81,7 +111,7 @@ std::string NFShmTimer::GetDetailStructMsg()
         << " globalID:" << GetGlobalId();
 
 #ifdef NF_DEBUG_MODE
-      oss << " shmobj gloablid:" << m_shmObjId;
+    oss << " shmobj gloablid:" << m_shmObjId;
 #endif
 
     return oss.str();
@@ -90,7 +120,7 @@ std::string NFShmTimer::GetDetailStructMsg()
 bool NFShmTimer::IsTimeOut(int64_t tick)
 {
     --m_round;
-//	LOGSVR_TRACE("is time out: " << GetDetailStructMsg());
+    //	LOGSVR_TRACE("is time out: " << GetDetailStructMsg());
     if (tick - m_nextRun >= 0 || m_round <= 0)
     {
         return true;
@@ -105,8 +135,8 @@ NFTimerRetType NFShmTimer::OnTick(int64_t tick)
     {
         if (m_shmObj)
         {
-//			LOGSVR_TRACE("time out: " << GetDetailStructMsg());
-            if (m_callCount != (int32_t) NFSHM_INFINITY_CALL && m_callCount > 0)
+            //			LOGSVR_TRACE("time out: " << GetDetailStructMsg());
+            if (m_callCount != static_cast<int32_t>(NFSHM_INFINITY_CALL) && m_callCount > 0)
             {
                 m_callCount--;
             }
@@ -114,44 +144,42 @@ NFTimerRetType NFShmTimer::OnTick(int64_t tick)
 
             return HandleTimer(GetObjId(), m_curCallCount);
         }
-        else
-        {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "timer ontick error:{} ", GetDetailStructMsg());
-            return eTimerHandlerNull;
-        }
+        NFLogError(NF_LOG_DEFAULT, 0, "timer ontick error:{} ", GetDetailStructMsg());
+        return E_TIMER_HANDLER_NULL;
     }
 
-    return eTimerNotTrigger;
+    return E_TIMER_NOT_TRIGGER;
 }
 
-NFTimerRetType NFShmTimer::HandleTimer(int timeId, int callcount)
+NFTimerRetType NFShmTimer::HandleTimer(int timeId, int callCount)
 {
     if (!m_shmObj)
     {
-        return eTimerHandlerNull;
+        return E_TIMER_HANDLER_NULL;
     }
 
 #if NF_DEBUG_MODE
     if (m_shmObjId >= 0)
     {
         NF_ASSERT(m_shmObjId == m_shmObj->GetGlobalId());
-        NFShmObj *pObjGetObjFromTypeIndex = m_pObjPluginManager->FindModule<NFISharedMemModule>()->GetObjByGlobalIdWithNoCheck(m_shmObjId);
+        NFObject* pObjGetObjFromTypeIndex = FindModule<NFIMemMngModule>()->GetObjByGlobalIdWithNoCheck(m_shmObjId);
         NF_ASSERT(pObjGetObjFromTypeIndex == m_shmObj.GetPoint());
     }
 #endif
 
     if (m_rawShmObj)
     {
-        m_rawShmObj->OnTimer(timeId, callcount);
+        m_rawShmObj->OnTimer(timeId, callCount);
     }
-    else {
-        m_shmObj->OnTimer(timeId, callcount);
+    else
+    {
+        m_shmObj->OnTimer(timeId, callCount);
     }
 
-    return eTimerTypeSuccess;
+    return E_TIMER_TYPE_SUCCESS;
 }
 
-bool NFShmTimer::IsDelete()
+bool NFShmTimer::IsDelete() const
 {
     return m_delFlag;
 }
@@ -161,7 +189,7 @@ void NFShmTimer::SetDelete()
     m_delFlag = true;
 }
 
-bool NFShmTimer::IsWaitDelete()
+bool NFShmTimer::IsWaitDelete() const
 {
     return m_waitDel;
 }

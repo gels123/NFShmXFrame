@@ -16,35 +16,121 @@
 #include "evpp/libevent.h"
 #include "NFComm/NFCore/NFTime.h"
 
+NFServerHttpHandle::NFServerHttpHandle()
+{
+    m_type = NF_HTTP_REQ_GET;
+    m_requestId = 0;
+    m_timeOut = 0;
+}
+
+void NFServerHttpHandle::Reset()
+{
+    m_requestId = 0;
+    m_timeOut = 0;
+    m_ctx = nullptr;
+    m_responseCb = nullptr;
+}
+
+void NFServerHttpHandle::AddResponseHeader(const std::string& key, const std::string& value) const
+{
+    if (m_ctx)
+    {
+        m_ctx->AddResponseHeader(key, value);
+    }
+}
+
+bool NFServerHttpHandle::ResponseMsg(const std::string& strMsg, NFWebStatus code, const std::string& strReason) const
+{
+    AddResponseHeader("Content-Type", "application/json");
+    AddResponseHeader("Access-Control-Allow-Origin", "*");
+
+    if (m_ctx)
+    {
+        m_ctx->set_response_http_code(code);
+    }
+
+    if (m_responseCb)
+    {
+        m_responseCb(strMsg);
+    }
+    return true;
+}
+
+std::string NFServerHttpHandle::GetQuery(const std::string& queryKey) const
+{
+    if (m_ctx)
+    {
+        return m_ctx->GetQuery(queryKey);
+    }
+    return std::string();
+}
+
+NFEvppHttMsg::NFEvppHttMsg()
+{
+    Clear();
+}
+
+NFEvppHttMsg::~NFEvppHttMsg()
+{
+    Clear();
+}
+
+NFEvppHttMsg::NFEvppHttMsg(const NFEvppHttMsg& msg)
+{
+    if (this != &msg)
+    {
+        m_ctx = msg.m_ctx;
+        m_responseCb = msg.m_responseCb;
+    }
+}
+
+NFEvppHttMsg& NFEvppHttMsg::operator=(const NFEvppHttMsg& msg)
+{
+    if (this != &msg)
+    {
+        m_ctx = msg.m_ctx;
+        m_responseCb = msg.m_responseCb;
+    }
+    return *this;
+}
+
+void NFEvppHttMsg::Clear()
+{
+    m_ctx = nullptr;
+    m_responseCb = nullptr;
+}
+
 NFCHttpServer::NFCHttpServer(uint32_t serverType, uint32_t netThreadNum)
 {
-    mServerType = serverType;
-    mPort = 0;
+    m_serverType = serverType;
+    m_port = 0;
     m_pHttpServer = new evpp::http::Server(netThreadNum);
-    mIndex = 0;
-    mListHttpRequestPool = NF_NEW NFObjectPool<NFServerHttpHandle>(1000, false);
-    m_pHttpServer->RegisterDefaultHandler([this](evpp::EventLoop *loop,
+    m_index = 0;
+    m_listHttpRequestPool = NF_NEW NFObjectPool<NFServerHttpHandle>(1000, false);
+    m_pHttpServer->RegisterDefaultHandler([this](evpp::EventLoop*,
                                                  const evpp::http::ContextPtr &ctx,
-                                                 const evpp::http::HTTPSendResponseCallback &respcb)
-                                          {
+                                                 const evpp::http::HTTPSendResponseCallback& respCb)
+    {
                                               NFEvppHttMsg msg;
-                                              msg.mCtx = ctx;
-                                              msg.mResponseCb = respcb;
-                                              while (!mMsgQueue.Enqueue(msg)) {}
-                                          });
+                                              msg.m_ctx = ctx;
+                                              msg.m_responseCb = respCb;
+                                              while (!m_msgQueue.Enqueue(msg))
+                                              {
+                                              }
+    });
 }
 
 NFCHttpServer::~NFCHttpServer()
 {
-    for (auto iter = mHttpRequestMap.begin(); iter != mHttpRequestMap.end(); iter++)
+    for (auto iter = m_httpRequestMap.begin(); iter != m_httpRequestMap.end(); ++iter)
     {
         NF_SAFE_DELETE(iter->second);
     }
-    mHttpRequestMap.clear();
+    m_httpRequestMap.clear();
 
-    if (mListHttpRequestPool)
+    if (m_listHttpRequestPool)
     {
-        NF_SAFE_DELETE(mListHttpRequestPool);
+        NF_SAFE_DELETE(m_listHttpRequestPool);
     }
 
     if (m_pHttpServer)
@@ -58,20 +144,20 @@ NFCHttpServer::~NFCHttpServer()
 bool NFCHttpServer::Execute()
 {
     ProcessMsgLogicThread();
-    std::vector<NFServerHttpHandle *> vec;
-    for (auto iter = mHttpRequestMap.begin(); iter != mHttpRequestMap.end(); iter++)
+    std::vector<NFServerHttpHandle*> vec;
+    for (auto iter = m_httpRequestMap.begin(); iter != m_httpRequestMap.end(); ++iter)
     {
         auto pRequest = iter->second;
-        if (pRequest->timeOut + 30 <= (uint64_t) NFGetSecondTime())
+        if (pRequest->m_timeOut + 30 <= static_cast<uint64_t>(NFGetSecondTime()))
         {
             vec.push_back(pRequest);
         }
     }
 
-    for (int i = 0; i < (int) vec.size(); i++)
+    for (size_t i = 0; i < vec.size(); i++)
     {
         NFServerHttpHandle *pRequest = vec[i];
-        ResponseMsg(*pRequest, "TimeOut Error", NFWebStatus::WEB_TIMEOUT);
+        ResponseMsg(*pRequest, "TimeOut Error", WEB_TIMEOUT);
     }
 
     return true;
@@ -79,85 +165,85 @@ bool NFCHttpServer::Execute()
 
 uint32_t NFCHttpServer::GetServerType() const
 {
-    return mServerType;
+    return m_serverType;
 }
 
-bool NFCHttpServer::InitServer(uint32_t listen_port)
+bool NFCHttpServer::InitServer(int listenPort) const
 {
-    if (m_pHttpServer->Init(listen_port))
+    if (m_pHttpServer->Init(listenPort))
     {
         if (m_pHttpServer->Start())
         {
             return true;
         }
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Start Listen Port:{} Failed!", listen_port);
+        NFLogError(NF_LOG_DEFAULT, 0, "Start Listen Port:{} Failed!", listenPort);
     }
 
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "Init Listen Port:{} Failed!", listen_port);
+    NFLogError(NF_LOG_DEFAULT, 0, "Init Listen Port:{} Failed!", listenPort);
     return false;
 }
 
-bool NFCHttpServer::InitServer(const std::vector<uint32_t> &listen_ports)
+bool NFCHttpServer::InitServer(const std::vector<int>& listenPorts) const
 {
-    if (m_pHttpServer->Init((const std::vector<int> &) listen_ports))
+    if (m_pHttpServer->Init(listenPorts))
     {
         if (m_pHttpServer->Start())
         {
             return true;
         }
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Start Listen Port:{} Failed!", NFCommon::tostr(listen_ports));
+        NFLogError(NF_LOG_DEFAULT, 0, "Start Listen Port:{} Failed!", NFCommon::tostr(listenPorts));
     }
 
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "Init Listen Port:{} Failed!", NFCommon::tostr(listen_ports));
+    NFLogError(NF_LOG_DEFAULT, 0, "Init Listen Port:{} Failed!", NFCommon::tostr(listenPorts));
     return false;
 }
 
-bool NFCHttpServer::InitServer(const std::string &listen_ports/*like "80,8080,443"*/)
+bool NFCHttpServer::InitServer(const std::string& listenPorts/*like "80,8080,443"*/) const
 {
-    if (m_pHttpServer->Init(listen_ports))
+    if (m_pHttpServer->Init(listenPorts))
     {
         if (m_pHttpServer->Start())
         {
             return true;
         }
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Start Listen Port:{} Failed!", listen_ports);
+        NFLogError(NF_LOG_DEFAULT, 0, "Start Listen Port:{} Failed!", listenPorts);
     }
 
-    NFLogError(NF_LOG_SYSTEMLOG, 0, "Init Listen Port:{} Failed!", listen_ports);
+    NFLogError(NF_LOG_DEFAULT, 0, "Init Listen Port:{} Failed!", listenPorts);
     return false;
 }
 
 void NFCHttpServer::ProcessMsgLogicThread()
 {
-    int max_times = 10000;
-    while (!mMsgQueue.IsQueueEmpty() && max_times >= 0)
+    int maxTimes = 10000;
+    while (!m_msgQueue.IsQueueEmpty() && maxTimes >= 0)
     {
         std::vector<NFEvppHttMsg> vecMsg;
         vecMsg.resize(200);
 
-        mMsgQueue.TryDequeueBulk(vecMsg);
+        m_msgQueue.TryDequeueBulk(vecMsg);
         for (size_t i = 0; i < vecMsg.size(); i++)
         {
-            max_times--;
+            maxTimes--;
             NFEvppHttMsg *pMsg = &vecMsg[i];
             if (pMsg == nullptr) continue;
 
             NFServerHttpHandle *pRequest = AllocHttpRequest();
-            pRequest->mCtx = pMsg->mCtx;
-            pRequest->mResponseCb = pMsg->mResponseCb;
-            pRequest->type = (NFHttpType) pMsg->mCtx->req()->type;
-            pRequest->timeOut = NFTime::Now().UnixSec();
+            pRequest->m_ctx = pMsg->m_ctx;
+            pRequest->m_responseCb = pMsg->m_responseCb;
+            pRequest->m_type = static_cast<NFHttpType>(pMsg->m_ctx->req()->type);
+            pRequest->m_timeOut = NF_ADJUST_TIMENOW();
 
-            mHttpRequestMap.emplace(pRequest->requestId, pRequest);
+            m_httpRequestMap.emplace(pRequest->m_requestId, pRequest);
 
             bool flag = true;
-            if (mFilter)
+            if (m_filter)
             {
                 //return 401
                 try
                 {
-                    NFWebStatus xWebStatus = mFilter(mServerType, *pRequest);
-                    if (xWebStatus != NFWebStatus::WEB_OK)
+                    NFWebStatus xWebStatus = m_filter(m_serverType, *pRequest);
+                    if (xWebStatus != WEB_OK)
                     {
                         //401
                         ResponseMsg(*pRequest, "Filter error", xWebStatus);
@@ -166,12 +252,12 @@ void NFCHttpServer::ProcessMsgLogicThread()
                 }
                 catch (std::exception &e)
                 {
-                    ResponseMsg(*pRequest, e.what(), NFWebStatus::WEB_ERROR);
+                    ResponseMsg(*pRequest, e.what(), WEB_ERROR);
                     flag = false;
                 }
                 catch (...)
                 {
-                    ResponseMsg(*pRequest, "UNKNOW ERROR", NFWebStatus::WEB_ERROR);
+                    ResponseMsg(*pRequest, "UNKNOW ERROR", WEB_ERROR);
                     flag = false;
                 }
             }
@@ -181,21 +267,21 @@ void NFCHttpServer::ProcessMsgLogicThread()
                 // call cb
                 try
                 {
-                    if (mReceiveCB)
+                    if (m_receiveCb)
                     {
-                        mReceiveCB(mServerType, *pRequest);
+                        m_receiveCb(m_serverType, *pRequest);
                     } else
                     {
-                        ResponseMsg(*pRequest, "NO PROCESSER", NFWebStatus::WEB_ERROR);
+                        ResponseMsg(*pRequest, "NO PROCESSER", WEB_ERROR);
                     }
                 }
                 catch (std::exception &e)
                 {
-                    ResponseMsg(*pRequest, e.what(), NFWebStatus::WEB_ERROR);
+                    ResponseMsg(*pRequest, e.what(), WEB_ERROR);
                 }
                 catch (...)
                 {
-                    ResponseMsg(*pRequest, "UNKNOW ERROR", NFWebStatus::WEB_ERROR);
+                    ResponseMsg(*pRequest, "UNKNOW ERROR", WEB_ERROR);
                 }
             }
         }
@@ -204,12 +290,12 @@ void NFCHttpServer::ProcessMsgLogicThread()
 
 NFServerHttpHandle *NFCHttpServer::AllocHttpRequest()
 {
-    NFServerHttpHandle *pRequest = mListHttpRequestPool->MallocObj();
+    NFServerHttpHandle* pRequest = m_listHttpRequestPool->MallocObj();
     CHECK_EXPR_ASSERT(pRequest, NULL, "mListHttpRequestPool->MallocObj() Failed");
 
     pRequest->Reset();
 
-    pRequest->requestId = ++mIndex;
+    pRequest->m_requestId = ++m_index;
 
     return pRequest;
 }
@@ -219,12 +305,12 @@ bool NFCHttpServer::ResponseMsg(const NFIHttpHandle &req, const std::string &str
 {
     req.ResponseMsg(strMsg, code, strReason);
 
-    auto it = mHttpRequestMap.find(req.GetRequestId());
-    if (it != mHttpRequestMap.end())
+    auto it = m_httpRequestMap.find(req.GetRequestId());
+    if (it != m_httpRequestMap.end())
     {
         it->second->Reset();
-        mListHttpRequestPool->FreeObj(it->second);
-        mHttpRequestMap.erase(it);
+        m_listHttpRequestPool->FreeObj(it->second);
+        m_httpRequestMap.erase(it);
     }
     return true;
 }
@@ -232,11 +318,11 @@ bool NFCHttpServer::ResponseMsg(const NFIHttpHandle &req, const std::string &str
 bool NFCHttpServer::ResponseMsg(uint64_t requestId, const std::string &strMsg, NFWebStatus code,
                                 const std::string &strReason)
 {
-    NFServerHttpHandle *req = nullptr;
-    auto it = mHttpRequestMap.find(requestId);
-    if (it == mHttpRequestMap.end())
+    NFServerHttpHandle* req = nullptr;
+    auto it = m_httpRequestMap.find(requestId);
+    if (it == m_httpRequestMap.end())
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Response Msg Timeout........ requestId:{}, mStrMsg:{}", requestId, strMsg);
+        NFLogError(NF_LOG_DEFAULT, 0, "Response Msg Timeout........ requestId:{}, mStrMsg:{}", requestId, strMsg);
         return false;
     }
 
@@ -245,13 +331,23 @@ bool NFCHttpServer::ResponseMsg(uint64_t requestId, const std::string &strMsg, N
     bool ret = req->ResponseMsg(strMsg, code, strReason);
     if (!ret)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Response Msg error........ requestId:{}, mStrMsg:{}", requestId, strMsg);
+        NFLogError(NF_LOG_DEFAULT, 0, "Response Msg error........ requestId:{}, mStrMsg:{}", requestId, strMsg);
     }
 
     req->Reset();
-    mListHttpRequestPool->FreeObj(it->second);
-    mHttpRequestMap.erase(it);
+    m_listHttpRequestPool->FreeObj(it->second);
+    m_httpRequestMap.erase(it);
     return true;
+}
+
+void NFCHttpServer::SetRecvCb(const HTTP_RECEIVE_FUNCTOR& recvCb)
+{
+    m_receiveCb = recvCb;
+}
+
+void NFCHttpServer::SetFilterCb(const HTTP_FILTER_FUNCTOR& eventCb)
+{
+    m_filter = eventCb;
 }
 
 #if defined(EVPP_HTTP_SERVER_SUPPORTS_SSL)

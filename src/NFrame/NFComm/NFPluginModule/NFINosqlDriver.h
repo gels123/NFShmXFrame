@@ -10,7 +10,7 @@
 #pragma once
 
 #include "NFComm/NFPluginModule/NFIModule.h"
-#include "storesvr_sqldata.pb.h"
+#include "FrameSqlData.pb.h"
 
 typedef std::vector<std::string> string_vector;
 typedef std::pair<std::string, std::string> string_pair;
@@ -42,32 +42,34 @@ public:
 
     virtual bool Connect(const std::string& ip, const int port, const std::string& auth) = 0;
 public:
-    virtual int SelectByCond(const storesvr_sqldata::storesvr_sel &select, const std::string& privateKey, const std::unordered_set<std::string>& fields,
+    virtual int SelectByCond(const NFrame::storesvr_sel& select, std::string& privateKey, std::unordered_set<std::string>& fields, std::unordered_set<std::string>& privateKeySet) = 0;
+
+    virtual int SelectByCond(const NFrame::storesvr_sel &select, const std::string& privateKey, const std::unordered_set<std::string>& fields,
                        const std::unordered_set<std::string>& privateKeySet, std::unordered_set<std::string>& leftPrivateKeySet,
-                       ::google::protobuf::RepeatedPtrField<storesvr_sqldata::storesvr_sel_res>& select_res) = 0;
+                       ::google::protobuf::RepeatedPtrField<NFrame::storesvr_sel_res>& select_res) = 0;
 
-    virtual int DeleteByCond(const storesvr_sqldata::storesvr_del &select, const std::string& privateKey,
+    virtual int DeleteByCond(const NFrame::storesvr_del &select, const std::string& privateKey,
                              const std::unordered_set<std::string>& privateKeySet,
-                                storesvr_sqldata::storesvr_del_res &select_res) = 0;
+                                NFrame::storesvr_del_res &select_res) = 0;
 
-    virtual int ModifyByCond(const storesvr_sqldata::storesvr_mod &select, const std::string& privateKey,
+    virtual int ModifyByCond(const NFrame::storesvr_mod &select, const std::string& privateKey,
                              const std::unordered_set<std::string>& privateKeySet, std::unordered_set<std::string>& leftPrivateKeySet,
-                             storesvr_sqldata::storesvr_mod_res &select_res) = 0;
+                             NFrame::storesvr_mod_res &select_res) = 0;
 
-    virtual int UpdateByCond(const storesvr_sqldata::storesvr_update &select, const std::string& privateKey,
+    virtual int UpdateByCond(const NFrame::storesvr_update &select, const std::string& privateKey,
                              const std::unordered_set<std::string>& privateKeySet, std::unordered_set<std::string>& leftPrivateKeySet,
-                             storesvr_sqldata::storesvr_update_res &select_res) = 0;
+                             NFrame::storesvr_update_res &select_res) = 0;
 public:
-    virtual int SelectObj(const storesvr_sqldata::storesvr_selobj &select, storesvr_sqldata::storesvr_selobj_res &select_res) = 0;
+    virtual int SelectObj(const NFrame::storesvr_selobj &select, NFrame::storesvr_selobj_res &select_res) = 0;
     virtual int SaveObj(const std::string& packageName, const std::string& tbName, const std::string& clasname, const std::string& privateKey, const std::map<std::string, std::string>& recordsMap) = 0;
-    virtual int SaveObj(const storesvr_sqldata::storesvr_selobj &select, storesvr_sqldata::storesvr_selobj_res &select_res) = 0;
-    virtual int SaveObj(const storesvr_sqldata::storesvr_insertobj &select, storesvr_sqldata::storesvr_insertobj_res& select_res) = 0;
-    virtual int SaveObj(const storesvr_sqldata::storesvr_modobj &select, storesvr_sqldata::storesvr_modobj_res& select_res) = 0;
-    virtual int SaveObj(const storesvr_sqldata::storesvr_updateobj &select, storesvr_sqldata::storesvr_updateobj_res& select_res) = 0;
+    virtual int SaveObj(const NFrame::storesvr_selobj &select, NFrame::storesvr_selobj_res &select_res) = 0;
+    virtual int SaveObj(const NFrame::storesvr_insertobj &select, NFrame::storesvr_insertobj_res& select_res) = 0;
+    virtual int SaveObj(const NFrame::storesvr_modobj &select, NFrame::storesvr_modobj_res& select_res) = 0;
+    virtual int SaveObj(const NFrame::storesvr_updateobj &select, NFrame::storesvr_updateobj_res& select_res) = 0;
 
-    virtual int DeleteObj(const storesvr_sqldata::storesvr_delobj &select) = 0;
-    virtual int DeleteObj(const storesvr_sqldata::storesvr_insertobj &select) = 0;
-    virtual int DeleteObj(const storesvr_sqldata::storesvr_modobj &select) = 0;
+    virtual int DeleteObj(const NFrame::storesvr_delobj &select) = 0;
+    virtual int DeleteObj(const NFrame::storesvr_insertobj &select) = 0;
+    virtual int DeleteObj(const NFrame::storesvr_modobj &select) = 0;
 public:
     virtual bool ExistObj(const std::string& db_key) = 0;
     virtual int GetObjKey(const std::string& packageName, const std::string& tableName, const std::string& className, const std::string& record, std::string& privateKey, std::string& privateKeyValue, std::string& db_key) = 0;

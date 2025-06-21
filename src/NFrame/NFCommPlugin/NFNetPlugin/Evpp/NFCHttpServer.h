@@ -11,138 +11,110 @@
 
 #include "NFComm/NFPluginModule/NFIHttpHandle.h"
 #include "evpp/http/http_server.h"
-#include <list>
-#include <map>
 #include "NFComm/NFCore/NFConcurrentQueue.h"
 #include "NFComm/NFPluginModule/NFObjectPool.hpp"
 #include <unordered_map>
 
-class NFServerHttpHandle : public NFIHttpHandle {
+class NFServerHttpHandle final : public NFIHttpHandle
+{
 public:
-    NFServerHttpHandle() {
-		type = NF_HTTP_REQ_GET;
-		requestId = 0;
-		timeOut = 0;
-    }
+    NFServerHttpHandle();
 
-    virtual void Reset() override {
-        requestId = 0;
-        timeOut = 0;
-        mCtx = nullptr;
-        mResponseCb = nullptr;
-    }
+    void Reset() override;
 
-    virtual std::string GetOriginalUri() const override { return mCtx->original_uri(); }
+    std::string GetOriginalUri() const override { return m_ctx->original_uri(); }
 
-    virtual const std::string &GetUrl() const override { return mCtx->uri(); }
+    const std::string& GetUrl() const override { return m_ctx->uri(); }
 
-    virtual const std::string &GetPath() const override { return mCtx->uri(); }
+    const std::string& GetPath() const override { return m_ctx->uri(); }
 
-    virtual const std::string &GetRemoteHost() const override { return mCtx->remote_ip(); }
+    const std::string& GetRemoteHost() const override { return m_ctx->remote_ip(); }
 
-    virtual int GetType() const override { return type; }
+    int GetType() const override { return m_type; }
 
-    virtual std::string GetBody() const override { return mCtx->body().ToString(); }
+    std::string GetBody() const override { return m_ctx->body().ToString(); }
 
-    virtual uint64_t GetRequestId() const override { return requestId; }
+    uint64_t GetRequestId() const override { return m_requestId; }
 
-    virtual uint64_t GetTimeOut() const override { return timeOut; }
+    uint64_t GetTimeOut() const override { return m_timeOut; }
 
-    virtual void AddResponseHeader(const std::string &key, const std::string &value) const override {
-        if (mCtx)
-        {
-            mCtx->AddResponseHeader(key, value);
-        }
-    }
+    void AddResponseHeader(const std::string& key, const std::string& value) const override;
 
-    virtual bool
-    ResponseMsg(const std::string &strMsg, NFWebStatus code, const std::string &strReason = "OK") const override {
-        AddResponseHeader("Content-Type", "application/json");
-        AddResponseHeader("Access-Control-Allow-Origin", "*");
+    bool ResponseMsg(const std::string& strMsg, NFWebStatus code, const std::string& strReason = "OK") const override;
 
-        if (mCtx)
-        {
-            mCtx->set_response_http_code(code);
-        }
+    std::string GetQuery(const std::string& queryKey) const override;
 
-        if (mResponseCb)
-        {
-            mResponseCb(strMsg);
-        }
-        return true;
-    }
-
-    virtual std::string GetQuery(const std::string& query_key) const override
-    {
-        if (mCtx)
-        {
-            return mCtx->GetQuery(query_key);
-        }
-        return std::string();
-    }
-
-    NFHttpType type;
-    uint64_t requestId;
-    uint64_t timeOut;
-    evpp::http::ContextPtr mCtx;
-    evpp::http::HTTPSendResponseCallback mResponseCb;
+    NFHttpType m_type;
+    uint64_t m_requestId;
+    uint64_t m_timeOut;
+    evpp::http::ContextPtr m_ctx;
+    evpp::http::HTTPSendResponseCallback m_responseCb;
 };
 
-class NFEvppHttMsg {
+class NFEvppHttMsg final
+{
 public:
-    NFEvppHttMsg()
-    {
-        Clear();
-    }
+    NFEvppHttMsg();
 
-    virtual ~NFEvppHttMsg()
-    {
-        Clear();
-    }
+    ~NFEvppHttMsg();
 
-    NFEvppHttMsg(const NFEvppHttMsg& msg)
-    {
-        if (this != &msg)
-        {
-            mCtx = msg.mCtx;
-            mResponseCb = msg.mResponseCb;
-        }
-    }
+    NFEvppHttMsg(const NFEvppHttMsg& msg);
 
-    NFEvppHttMsg& operator=(const NFEvppHttMsg& msg)
-    {
-        if (this != &msg)
-        {
-            mCtx = msg.mCtx;
-            mResponseCb = msg.mResponseCb;
-        }
-        return *this;
-    }
+    NFEvppHttMsg& operator=(const NFEvppHttMsg& msg);
 
-    void Clear()
-    {
-        mCtx = NULL;
-        mResponseCb = NULL;
-    }
-    evpp::http::ContextPtr mCtx;
-    evpp::http::HTTPSendResponseCallback mResponseCb;
+    void Clear();
+
+    evpp::http::ContextPtr m_ctx;
+    evpp::http::HTTPSendResponseCallback m_responseCb;
 };
 
-class NFCHttpServer {
+class NFCHttpServer final
+{
 public:
+    /**
+     * @brief 构造函数：初始化HTTP服务器
+     * @param serverType 服务器类型，用于指定服务器的具体类型
+     * @param netThreadNum 网络线程数量，用于指定服务器处理网络请求的线程数
+     */
     NFCHttpServer(uint32_t serverType, uint32_t netThreadNum);
 
-    virtual ~NFCHttpServer();
+    /**
+     * @brief 析构函数：释放HTTP服务器占用的资源
+     */
+    ~NFCHttpServer();
 
-    virtual bool Execute();
+    /**
+     * @brief 执行HTTP服务器的主循环
+     * @return bool 返回执行结果，true表示成功，false表示失败
+     */
+    bool Execute();
 
-    virtual uint32_t GetServerType() const;
+    /**
+     * @brief 获取服务器类型
+     * @return uint32_t 返回当前服务器的类型
+     */
+    uint32_t GetServerType() const;
 
-    virtual bool InitServer(uint32_t listen_port);
+    /**
+     * @brief 初始化服务器，使其监听指定端口
+     * @param listenPort 要监听的端口号
+     * @return bool 返回初始化结果，true表示成功，false表示失败
+     */
+    bool InitServer(int listenPort) const;
 
-    virtual bool InitServer(const std::vector<uint32_t> &listen_ports);
+    /**
+     * @brief 初始化服务器，使其监听多个指定端口
+     * @param listenPorts 要监听的端口号列表
+     * @return bool 返回初始化结果，true表示成功，false表示失败
+     */
+    bool InitServer(const std::vector<int>& listenPorts) const;
 
-    virtual bool InitServer(const std::string &listen_ports/*like "80,8080,443"*/);
+    /**
+     * @brief 初始化服务器，使其监听通过逗号分隔的端口列表
+     * @param listenPorts 要监听的端口字符串，格式如"80,8080,443"
+     * @return bool 返回初始化结果，true表示成功，false表示失败
+     */
+    bool InitServer(const std::string& listenPorts/*like "80,8080,443"*/) const;
 
 #if defined(EVPP_HTTP_SERVER_SUPPORTS_SSL)
     /* berif 对指定监听端口设置SSL选项
@@ -166,59 +138,129 @@ public:
             const char* private_key_file = "");
 #endif
 
-    virtual void ProcessMsgLogicThread();
+    /**
+     * @brief 处理消息的逻辑线程函数
+     *
+     * 该函数负责处理消息的逻辑，通常在独立的线程中运行，以确保消息处理的并发性和高效性。
+     * 具体的消息处理逻辑需要在该函数中实现。
+     */
+    void ProcessMsgLogicThread();
 
-    NFServerHttpHandle *AllocHttpRequest();
+    /**
+     * @brief 分配HTTP请求处理句柄
+     *
+     * 该函数用于分配一个新的HTTP请求处理句柄。返回的句柄可以用于处理HTTP请求和响应。
+     *
+     * @return NFServerHttpHandle* 返回一个指向新分配的HTTP请求处理句柄的指针。
+     */
+    NFServerHttpHandle* AllocHttpRequest();
 
-    virtual bool ResponseMsg(const NFIHttpHandle &req, const std::string &strMsg, NFWebStatus code,
-                             const std::string &strReason = "OK");
+    /**
+     * @brief 响应HTTP消息，根据NFIHttpHandle
+     *
+     * 该函数用于根据给定的NFIHttpHandle对象响应HTTP消息。它将指定的消息、状态码和原因短语发送给客户端。
+     *
+     * @param req 指向NFIHttpHandle对象的引用，表示当前的HTTP请求。
+     * @param strMsg 要发送给客户端的消息内容。
+     * @param code HTTP状态码，表示请求的处理结果。
+     * @param strReason 可选参数，表示HTTP状态码的原因短语，默认为"OK"。
+     * @return bool 返回true表示响应成功，返回false表示响应失败。
+     */
+    bool ResponseMsg(const NFIHttpHandle& req, const std::string& strMsg, NFWebStatus code, const std::string& strReason = "OK");
 
-    virtual bool
-    ResponseMsg(uint64_t reqeustId, const std::string &strMsg, NFWebStatus code, const std::string &strReason = "OK");
+    /**
+     * @brief 响应HTTP消息，根据请求ID
+     *
+     * 该函数用于根据给定的请求ID响应HTTP消息。它将指定的消息、状态码和原因短语发送给客户端。
+     *
+     * @param requestId 请求的唯一标识符，用于识别特定的HTTP请求。
+     * @param strMsg 要发送给客户端的消息内容。
+     * @param code HTTP状态码，表示请求的处理结果。
+     * @param strReason 可选参数，表示HTTP状态码的原因短语，默认为"OK"。
+     * @return bool 返回true表示响应成功，返回false表示响应失败。
+     */
+    bool ResponseMsg(uint64_t requestId, const std::string& strMsg, NFWebStatus code, const std::string& strReason = "OK");
+
 public:
     /**
     *@brief  设置接收回调.
     */
-    template<typename BaseType>
-    void SetRecvCB(BaseType *pBaseType, bool (BaseType::*handleRecieve)(uint32_t, const NFIHttpHandle &req)) {
-        mReceiveCB = std::bind(handleRecieve, pBaseType, std::placeholders::_1, std::placeholders::_2);
+    template <typename BaseType>
+    void SetRecvCb(BaseType* pBaseType, bool (BaseType::*handleRecv)(uint32_t, const NFIHttpHandle& req))
+    {
+        m_receiveCb = std::bind(handleRecv, pBaseType, std::placeholders::_1, std::placeholders::_2);
     }
 
     /**
      *@brief  设置连接事件回调.
      */
-    template<typename BaseType>
-    void SetFilterCB(BaseType *pBaseType, NFWebStatus(BaseType::*handleFilter)(uint32_t, const NFIHttpHandle &req)) {
-        mFilter = std::bind(handleFilter, pBaseType, std::placeholders::_1, std::placeholders::_2);
+    template <typename BaseType>
+    void SetFilterCb(BaseType* pBaseType, NFWebStatus (BaseType::*handleFilter)(uint32_t, const NFIHttpHandle& req))
+    {
+        m_filter = std::bind(handleFilter, pBaseType, std::placeholders::_1, std::placeholders::_2);
     }
 
     /**
      *@brief  设置接收回调.
      */
-    void SetRecvCB(const HTTP_RECEIVE_FUNCTOR &recvcb) {
-        mReceiveCB = recvcb;
-    }
+    void SetRecvCb(const HTTP_RECEIVE_FUNCTOR& recvCb);
 
     /**
      *@brief  设置连接事件回调.
      */
-    void SetFilterCB(const HTTP_FILTER_FUNCTOR &eventcb) {
-        mFilter = eventcb;
-    }
-private:
-    evpp::http::Server *m_pHttpServer;
-private:
-    uint32_t mPort;
-    uint32_t mServerType;
-    std::vector<uint32_t> mVecPort;
+    void SetFilterCb(const HTTP_FILTER_FUNCTOR& eventCb);
 
-    NFConcurrentQueue<NFEvppHttMsg> mMsgQueue;
+private:
+    /**
+     * @brief HTTP服务器指针，用于管理和控制HTTP服务器的实例。
+     */
+    evpp::http::Server* m_pHttpServer;
 
-    uint64_t mIndex;
-    std::unordered_map<uint64_t, NFServerHttpHandle *> mHttpRequestMap;
-    NFObjectPool<NFServerHttpHandle>* mListHttpRequestPool;
+private:
+    /**
+     * @brief 服务器监听的端口号。
+     */
+    uint32_t m_port;
+
+    /**
+     * @brief 服务器类型标识，用于区分不同类型的服务器。
+     */
+    uint32_t m_serverType;
+
+    /**
+     * @brief 服务器监听的端口号列表，支持多个端口监听。
+     */
+    std::vector<uint32_t> m_vecPort;
+
+    /**
+     * @brief 并发队列，用于存储待处理的HTTP消息。
+     */
+    NFConcurrentQueue<NFEvppHttMsg> m_msgQueue;
+
+    /**
+     * @brief 索引值，用于唯一标识HTTP请求。
+     */
+    uint64_t m_index;
+
+    /**
+     * @brief HTTP请求映射表，用于存储和管理HTTP请求的处理器。
+     */
+    std::unordered_map<uint64_t, NFServerHttpHandle*> m_httpRequestMap;
+
+    /**
+     * @brief HTTP请求处理器对象池，用于高效地管理和复用HTTP请求处理器。
+     */
+    NFObjectPool<NFServerHttpHandle>* m_listHttpRequestPool;
+
 protected:
-    HTTP_RECEIVE_FUNCTOR mReceiveCB;
-    HTTP_FILTER_FUNCTOR mFilter;
+    /**
+     * @brief HTTP接收回调函数，用于处理接收到的HTTP请求。
+     */
+    HTTP_RECEIVE_FUNCTOR m_receiveCb;
+
+    /**
+     * @brief HTTP过滤器函数，用于在接收HTTP请求前进行过滤或预处理。
+     */
+    HTTP_FILTER_FUNCTOR m_filter;
 };
 

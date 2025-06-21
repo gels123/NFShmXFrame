@@ -9,6 +9,10 @@
 #include <inttypes.h>
 #include <google/protobuf/descriptor.h>
 #include "NFJsonToPb.h"
+
+#include <NFComm/NFCore/NFCommon.h>
+#include <NFComm/NFPluginModule/NFProtobufCommon.h>
+
 #include "NFZeroCopyStreamReader.h"       // ZeroCopyStreamReader
 #include "NFEncodeDecode.h"
 #include "NFProtobufMap.h"
@@ -117,6 +121,24 @@ inline bool convert_string_to_double_float_type(
     return value_invalid(field, typeid(T).name(), item, err);
 }
 
+template<typename T>
+inline bool check_convert_string_to_double_float_type(const RAPIDJSON_NAMESPACE::Value& item, std::string* err) {
+    const char* limit_type = item.GetString();  // MUST be string here
+    if (std::numeric_limits<T>::has_quiet_NaN &&
+        strcasecmp(limit_type, "NaN") == 0) {
+            return true;
+    }
+    if (std::numeric_limits<T>::has_infinity &&
+        strcasecmp(limit_type, "Infinity") == 0) {
+            return true;
+    }
+    if (std::numeric_limits<T>::has_infinity &&
+        strcasecmp(limit_type, "-Infinity") == 0) {
+            return true;
+    }
+    return false;
+}
+
 inline bool convert_float_type(const RAPIDJSON_NAMESPACE::Value& item, bool repeated,
                                google::protobuf::Message* message,
                                const google::protobuf::FieldDescriptor* field, 
@@ -138,6 +160,34 @@ inline bool convert_float_type(const RAPIDJSON_NAMESPACE::Value& item, bool repe
     } else {                                         
         return value_invalid(field, "float", item, err);
     } 
+    return true;
+}
+
+inline bool check_convert_float_type(const RAPIDJSON_NAMESPACE::Value& item, bool repeated,
+                               std::string* err) {
+    if (item.IsNumber()) {
+        return true;
+    } else if (item.IsString()) {
+        if (!check_convert_string_to_double_float_type<float>(item, err)) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+inline bool check_convert_double_type(const RAPIDJSON_NAMESPACE::Value& item, bool repeated,
+                               std::string* err) {
+    if (item.IsNumber()) {
+        return true;
+    } else if (item.IsString()) {
+        if (!check_convert_string_to_double_float_type<double>(item, err)) {
+            return false;
+        }
+    } else {
+        return false;
+    }
     return true;
 }
 
@@ -173,8 +223,17 @@ inline bool convert_enum_type(const RAPIDJSON_NAMESPACE::Value&item, bool repeat
     const google::protobuf::EnumValueDescriptor * enum_value_descriptor = NULL; 
     if (item.IsInt()) {
         enum_value_descriptor = field->enum_type()->FindValueByNumber(item.GetInt()); 
-    } else if (item.IsString()) {                                          
-        enum_value_descriptor = field->enum_type()->FindValueByName(item.GetString()); 
+    } else if (item.IsString()) {
+        //add by gaoyied
+        enum_value_descriptor = field->enum_type()->FindValueByName(item.GetString());
+        if (!enum_value_descriptor)
+        {
+            std::string numberValue;
+            if (NFProtobufCommon::Instance()->FindEnumNumberByMacroName(field->enum_type()->full_name(), item.GetString(), numberValue))
+            {
+                enum_value_descriptor = field->enum_type()->FindValueByNumber(NFCommon::strto<int>(numberValue));
+            }
+        }
     }                                                                      
     if (!enum_value_descriptor) {                                      
         return value_invalid(field, "enum", item, err); 
@@ -183,6 +242,25 @@ inline bool convert_enum_type(const RAPIDJSON_NAMESPACE::Value&item, bool repeat
         reflection->AddEnum(message, field, enum_value_descriptor);
     } else {
         reflection->SetEnum(message, field, enum_value_descriptor);
+    }
+    return true;
+}
+
+inline bool convert_enum_type(const RAPIDJSON_NAMESPACE::Value&item, const std::string& fieldName, bool repeated,
+                                  std::string* err) {
+    if (item.IsInt()) {
+        std::string numberValue;
+        if (!NFProtobufCommon::Instance()->FindEnumNumberByMacroName(fieldName, NFCommon::tostr(item.GetInt()), numberValue))
+        {
+            return false;
+        }
+    } else if (item.IsString()) {
+        //add by gaoyied
+        std::string numberValue;
+        if (!NFProtobufCommon::Instance()->FindEnumNumberByMacroName(fieldName, item.GetString(), numberValue))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -211,14 +289,15 @@ bool JsonValueToProtoMessage(const RAPIDJSON_NAMESPACE::Value& json_value,
                     return false;                                   \
                 }                                                   \
             }                                                       
-                                         
-        
 
-static bool JsonValueToProtoField(const RAPIDJSON_NAMESPACE::Value& value,
-                                  const google::protobuf::FieldDescriptor* field,
-                                  google::protobuf::Message* message,
-                                  const NFJson2PB::Json2PbOptions& options,
-                                  std::string* err) {
+
+
+
+    static bool JsonValueToProtoField(const RAPIDJSON_NAMESPACE::Value& value,
+                                      const google::protobuf::FieldDescriptor* field,
+                                      google::protobuf::Message* message,
+                                      const NFJson2PB::Json2PbOptions& options,
+                                      std::string* err) {
     if (value.IsNull()) {
         if (field->is_required()) {
             J2PERROR(err, "Missing required field: %s", field->full_name().c_str());
@@ -370,6 +449,166 @@ static bool JsonValueToProtoField(const RAPIDJSON_NAMESPACE::Value& value,
         break;
     }
     return true;
+}
+
+static bool CheckJsonValueToProtoField(const RAPIDJSON_NAMESPACE::Value& value, const std::string& fieldName, google::protobuf::FieldDescriptor::CppType fieldType, bool isRepeated, std::string* err)
+{
+    if (value.IsNull()) {
+        return true;
+    }
+
+    if (isRepeated) {
+        if (!value.IsArray()) {
+            J2PERROR(err, "Invalid value for repeated field: %s", fieldName.c_str());
+            return false;
+        }
+    }
+
+    switch (fieldType) {
+#define CASE_FIELD_TYPE(cpptype, method, jsontype)\
+        case google::protobuf::FieldDescriptor::CPPTYPE_##cpptype: {\
+            if (isRepeated) {\
+                const RAPIDJSON_NAMESPACE::SizeType size = value.Size();\
+                for (RAPIDJSON_NAMESPACE::SizeType index = 0; index < size; ++index) {\
+                    const RAPIDJSON_NAMESPACE::Value & item = value[index];\
+                    if (!item.Is##jsontype()) {\
+                        return false;\
+                    }\
+                }\
+            } else {\
+                if (!value.Is##jsontype()) {\
+                    return false;\
+                }\
+            }\
+            break;\
+        }
+
+        CASE_FIELD_TYPE(INT32,  Int32,  Int);
+        CASE_FIELD_TYPE(UINT32, UInt32, Uint);
+        CASE_FIELD_TYPE(BOOL,   Bool,   Bool);
+        CASE_FIELD_TYPE(INT64,  Int64,  Int64);
+        CASE_FIELD_TYPE(UINT64, UInt64, Uint64);
+#undef CASE_FIELD_TYPE
+
+    case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
+        if (isRepeated) {
+            const RAPIDJSON_NAMESPACE::SizeType size = value.Size();
+            for (RAPIDJSON_NAMESPACE::SizeType index = 0; index < size; ++index) {
+                const RAPIDJSON_NAMESPACE::Value & item = value[index];
+                if (!check_convert_float_type(item, true, err)) {
+                    return false;
+                }
+            }
+        } else if (!check_convert_float_type(value, false, err)) {
+            return false;
+        }
+        break;
+
+    case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
+        if (isRepeated) {
+            const RAPIDJSON_NAMESPACE::SizeType size = value.Size();
+            for (RAPIDJSON_NAMESPACE::SizeType index = 0; index < size; ++index) {
+                const RAPIDJSON_NAMESPACE::Value & item = value[index];
+                if (!check_convert_double_type(item, true, err)) {
+                    return false;
+                }
+            }
+        } else if (!check_convert_double_type(value, false, err)) {
+            return false;
+        }
+        break;
+    case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
+        if (isRepeated) {
+            const RAPIDJSON_NAMESPACE::SizeType size = value.Size();
+            for (RAPIDJSON_NAMESPACE::SizeType index = 0; index < size; ++index) {
+                const RAPIDJSON_NAMESPACE::Value & item = value[index];
+                if (!convert_enum_type(item, fieldName, true, err)) {
+                    return false;
+                }
+            }
+        } else if (!convert_enum_type(value, fieldName, false, err)) {
+            return false;
+        }
+        break;
+    default:
+        return true;
+    }
+    return true;
+}
+
+bool CheckJsonValueToProtoField(const std::string& json_string, const std::string& fieldName, google::protobuf::FieldDescriptor::CppType fieldType, bool isRepeated, std::string* error)
+{
+    if (error) {
+        error->clear();
+    }
+
+    RAPIDJSON_NAMESPACE::Document value;
+    value.Parse<0>(json_string.c_str());
+    if (value.HasParseError())
+    {
+        J2PERROR(error, "Invalid json format");
+        return false;
+    }
+
+    return CheckJsonValueToProtoField(value, fieldName, fieldType, isRepeated, error);
+}
+
+bool CheckJsonToProtoMessage(const std::string& json_string, google::protobuf::Message* message, const NFJson2PB::Json2PbOptions& options, std::string* error, bool repeated)
+{
+    if (error) {
+        error->clear();
+    }
+    RAPIDJSON_NAMESPACE::Document value;
+    value.Parse<0>(json_string.c_str());
+    if (value.HasParseError()) {
+        J2PERROR(error, "Invalid json format");
+        return false;
+    }
+
+    if (repeated) {
+        if (!value.IsArray()) {
+            J2PERROR(error, "Invalid value for repeated field: %s", message->GetDescriptor()->name().c_str());
+            return false;
+        }
+
+        const RAPIDJSON_NAMESPACE::SizeType size = value.Size();
+        for (RAPIDJSON_NAMESPACE::SizeType index = 0; index < size; ++index) {
+            const RAPIDJSON_NAMESPACE::Value& item = value[index];
+            if (item.IsObject()) {
+                if (!JsonValueToProtoMessage(item, message, options, error))
+                {
+                    J2PERROR(error, "Non-object value for repeated field: %s", message->GetDescriptor()->name().c_str());
+                    return false;
+                }
+            } else {
+                J2PERROR(error, "Non-object value for repeated field: %s", message->GetDescriptor()->name().c_str());
+                return false;
+            }
+        }
+    } else if (!JsonValueToProtoMessage(value, message, options, error)) {
+        J2PERROR(error, "Non-object value for field: %s", message->GetDescriptor()->name().c_str());
+        return false;
+    }
+    return true;
+}
+
+bool JsonValueToProtoField(const std::string& json_string, const google::protobuf::FieldDescriptor* field, google::protobuf::Message* message, const NFJson2PB::Json2PbOptions& options, std::string* error)
+{
+    if (error) {
+        error->clear();
+    }
+    if (json_string.empty())
+    {
+        return true;
+    }
+    RAPIDJSON_NAMESPACE::Document d;
+    d.Parse<0>(json_string.c_str());
+    if (d.HasParseError()) {
+        J2PERROR(error, "Invalid json format");
+        return false;
+    }
+
+    return JsonValueToProtoField(d, field, message, options, error);
 }
 
 bool JsonMapToProtoMap(const RAPIDJSON_NAMESPACE::Value& value,
@@ -534,7 +773,7 @@ bool JsonToProtoMessage(const std::string& json_string,
 // For ABI compatibility with 1.0.0.0
 // (https://svn.baidu.com/public/tags/protobuf-json/protobuf-json_1-0-0-0_PD_BL)
 // This method should not be exposed in header, otherwise calls to
-// JsonToProtoMessage will be ambiguous.
+// CheckJsonToProtoMessage will be ambiguous.
 bool JsonToProtoMessage(std::string json_string, 
                         google::protobuf::Message* message,
                         std::string* error) {

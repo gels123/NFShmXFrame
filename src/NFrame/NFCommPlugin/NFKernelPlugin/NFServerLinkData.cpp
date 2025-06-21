@@ -10,8 +10,8 @@
 #include <NFComm/NFCore/NFStringUtility.h>
 #include "NFComm/NFPluginModule/NFLogMgr.h"
 #include "NFComm/NFPluginModule/NFCheck.h"
-#include "NFComm/NFKernelMessage/storesvr_sqldata.pb.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameSqlData.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
 #include "NFComm/NFPluginModule/NFIMessageModule.h"
 #include "NFServerLinkData.h"
 
@@ -31,11 +31,11 @@ void ServerLinkData::CloseAllLink(NFIMessageModule* pMessageModule)
 int ServerLinkData::SendMsgToMasterServer(NFIMessageModule* pMessageModule, uint32_t nModuleId, uint32_t nMsgId,
                                           const google::protobuf::Message& xData, uint64_t valueId)
 {
-    //NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    //NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     CHECK_EXPR(pMessageModule, -1, "pMessageModule == NULL");
     
     pMessageModule->Send(m_masterServerData.mUnlinkId, nModuleId, nMsgId, xData, valueId);
-    //NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    //NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
@@ -57,7 +57,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetServerByUnlinkId(uint64_t unlinkId
 uint64_t ServerLinkData::GetServerLinkId() const { return m_serverLinkId; }
 
 NF_SHARE_PTR<NFServerData>
-ServerLinkData::CreateServerByServerId(uint32_t busId, NF_SERVER_TYPES busServerType, const proto_ff::ServerInfoReport& data)
+ServerLinkData::CreateServerByServerId(uint32_t busId, NF_SERVER_TYPE busServerType, const NFrame::ServerInfoReport& data)
 {
     NF_SHARE_PTR<NFServerData> pServerData = GetServerByServerId(busId);
     if (pServerData == NULL)
@@ -79,7 +79,7 @@ ServerLinkData::CreateServerByServerId(uint32_t busId, NF_SERVER_TYPES busServer
         }
         else
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "CreateServerByServerId Error, servertype:{}", busServerType);
+            NFLogError(NF_LOG_DEFAULT, 0, "CreateServerByServerId Error, servertype:{}", busServerType);
         }
     }
     
@@ -107,7 +107,7 @@ ServerLinkData::CreateServerByServerId(uint32_t busId, NF_SERVER_TYPES busServer
     return pServerData;
 }
 
-void ServerLinkData::CloseServer(NF_SERVER_TYPES busServerType, uint32_t busId, uint64_t usLinkId)
+void ServerLinkData::CloseServer(NF_SERVER_TYPE busServerType, uint32_t busId, uint64_t usLinkId)
 {
     DelServerLink(usLinkId);
     NF_SHARE_PTR<NFServerData> pServerData = GetServerByServerId(busId);
@@ -169,17 +169,17 @@ void ServerLinkData::SetClientLinkId(uint64_t linkId)
     m_clientLinkId = linkId;
 }
 
-std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetServerByServerType(NF_SERVER_TYPES serverTypes)
+std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetServerByServerType(NF_SERVER_TYPE serverTypes)
 {
     return mServerList[serverTypes];
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetFirstServerByServerType(NF_SERVER_TYPES serverTypes)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetFirstServerByServerType(NF_SERVER_TYPE serverTypes)
 {
     return mServerListMap[serverTypes].First();
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetFirstServerByServerType(NF_SERVER_TYPES serverTypes, bool crossServer)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetFirstServerByServerType(NF_SERVER_TYPE serverTypes, bool crossServer)
 {
     if (crossServer)
     {
@@ -191,14 +191,14 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetFirstServerByServerType(NF_SERVER_
     }
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER_TYPES serverTypes)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER_TYPE serverTypes)
 {
     if (mServerListMap[serverTypes].Count() == 1)
     {
         auto pServer = mServerListMap[serverTypes].First();
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType result:{}", pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType result:{}", pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -206,12 +206,12 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER
     auto pServer = mServerListMap[serverTypes].GetElementBySuitRandom();
     if (pServer)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType result:{}", pServer->mServerInfo.server_name());
+        NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType result:{}", pServer->mServerInfo.server_name());
     }
     return pServer;
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER_TYPES serverTypes, bool crossServer)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER_TYPE serverTypes, bool crossServer)
 {
     if (crossServer)
     {
@@ -220,7 +220,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER
             auto pServer = mCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -228,7 +228,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER
         auto pServer = mCrossServerListMap[serverTypes].GetElementBySuitRandom();
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -239,7 +239,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER
             auto pServer = mNoCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -247,20 +247,20 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetRandomServerByServerType(NF_SERVER
         auto pServer = mNoCrossServerListMap[serverTypes].GetElementBySuitRandom();
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetRandomServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetRandomServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
         }
         return pServer;
     }
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, uint64_t value)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, uint64_t value)
 {
     if (mServerListMap[serverTypes].Count() == 1)
     {
         auto pServer = mServerListMap[serverTypes].First();
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType result:{}", pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType result:{}", pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -268,12 +268,12 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
     auto pServer = mServerListMap[serverTypes].GetElementBySuit(value);
     if (pServer)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType value:{} result:{}", value, pServer->mServerInfo.server_name());
+        NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType value:{} result:{}", value, pServer->mServerInfo.server_name());
     }
     return pServer;
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, uint64_t value, bool crossServer)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, uint64_t value, bool crossServer)
 {
     if (crossServer)
     {
@@ -282,7 +282,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
             auto pServer = mCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -290,7 +290,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
         auto pServer = mCrossServerListMap[serverTypes].GetElementBySuit(value);
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -301,7 +301,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
             auto pServer = mNoCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -309,7 +309,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
         auto pServer = mNoCrossServerListMap[serverTypes].GetElementBySuit(value);
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mNoCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mNoCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -345,14 +345,14 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitDbServer(const std::string&dbN
     return nullptr;
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, const std::string& value)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, const std::string& value)
 {
     if (mServerListMap[serverTypes].Count() == 1)
     {
         auto pServer = mServerListMap[serverTypes].First();
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType result:{}", pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType result:{}", pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -360,12 +360,12 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
     auto pServer = mServerListMap[serverTypes].GetElementBySuit(value);
     if (pServer)
     {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType value:{} result:{}", value, pServer->mServerInfo.server_name());
+        NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType value:{} result:{}", value, pServer->mServerInfo.server_name());
     }
     return pServer;
 }
 
-NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPES serverTypes, const std::string& value, bool crossServer)
+NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_TYPE serverTypes, const std::string& value, bool crossServer)
 {
     if (crossServer)
     {
@@ -374,7 +374,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
             auto pServer = mCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -382,7 +382,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
         auto pServer = mCrossServerListMap[serverTypes].GetElementBySuit(value);
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType value:{} mCrossServerListMap result:{}", value, pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType value:{} mCrossServerListMap result:{}", value, pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -393,7 +393,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
             auto pServer = mNoCrossServerListMap[serverTypes].First();
             if (pServer)
             {
-                NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
+                NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mNoCrossServerListMap result:{}", pServer->mServerInfo.server_name());
             }
             return pServer;
         }
@@ -401,7 +401,7 @@ NF_SHARE_PTR<NFServerData> ServerLinkData::GetSuitServerByServerType(NF_SERVER_T
         auto pServer = mNoCrossServerListMap[serverTypes].GetElementBySuit(value);
         if (pServer)
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "GetSuitServerByServerType mNoCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
+            NFLogTrace(NF_LOG_DEFAULT, 0, "GetSuitServerByServerType mNoCrossServerListMap value:{} result:{}", value, pServer->mServerInfo.server_name());
         }
         return pServer;
     }
@@ -420,7 +420,7 @@ std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetAllServer()
     return vec;
 }
 
-std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetAllServer(NF_SERVER_TYPES serverTypes)
+std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetAllServer(NF_SERVER_TYPE serverTypes)
 {
     return mServerList[serverTypes];
 }
@@ -446,7 +446,7 @@ std::vector<std::string> ServerLinkData::GetDBNames()
     return vec;
 }
 
-std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetAllServer(NF_SERVER_TYPES serverTypes, bool isCrossServer)
+std::vector<NF_SHARE_PTR<NFServerData>> ServerLinkData::GetAllServer(NF_SERVER_TYPE serverTypes, bool isCrossServer)
 {
     std::vector<NF_SHARE_PTR<NFServerData>> vec;
     for (auto iter = mServerList[serverTypes].begin(); iter != mServerList[serverTypes].end(); iter++)

@@ -1,0 +1,75 @@
+syntax = "proto3";
+package NFrame;
+
+import "nanopb.proto";
+import "FrameEnum.proto";
+
+/* 公用头信息 */
+message BevLogBaseInfo
+{
+	string szGameSvrId = 1[(nanopb).max_size_enum="MAX_STRING_LEN_32", (nanopb).use_stl_string=true];   /*   (必填)登录的游戏服务器编号 */
+	uint64 tDtEventTime = 2;                                                                            /*   (必填)游戏事件的时间, 格式 YYYY-MM-DD HH:MM:SS */
+	string szVGameAppid = 3[(nanopb).max_size_enum="MAX_STRING_LEN_32", (nanopb).use_stl_string=true];  /*   (必填)游戏APPID */
+	int32 iPlatID = 4;                                                                                  /*   (必填)ios 0, android 1 */
+	int32 iIZoneAreaID = 5;                                                                             /*   (必填)针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0 */
+	string szVopenid = 6[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];     /*   (必填)用户OPENID号 */
+}
+
+message BevLogDeviceInfo
+{
+	string szClientVersion = 1[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];   /*   (可选)客户端版本 */
+	string szSystemSoftware = 2[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];  /*   (可选)移动终端操作系统版本 */
+	string szSystemHardware = 3[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];  /*   (可选)移动终端机型 */
+	string szTelecomOper = 4[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];     /*   (必填)运营商 */
+	string szNetwork = 5[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];         /*   (可选)3G/WIFI/2G */
+	int32 iScreenWidth = 6;                             	                                                /*   (可选)显示屏宽度 */
+	int32 iScreenHight = 7;                             	                                                /*   (可选)显示屏高度 */
+	float fDensity = 8;                                   	                                                /*   (可选)像素密度 */
+	string szCpuHardware = 9[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];     /*   (可选)cpu类型|频率|核数 */
+	int32 iMemory = 10;                                  	                                                /*   (可选)内存信息单位M */
+	string szGLRender = 11[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];       /*   (可选)opengl render信息 */
+	string szGLVersion = 12[(nanopb).max_size_enum="MAX_STRING_LEN_128", (nanopb).use_stl_string=true];     /*   (可选)opengl版本信息 */
+	string szDeviceId = 13[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];       /*   (可选)设备ID */
+    int32 iIsRoot = 14;                                                                                     /*   (可选)是否越狱 */
+	string szIPStr = 15[(nanopb).max_size_enum="MAX_STRING_LEN_16", (nanopb).use_stl_string=true];          /*   (可选)IP String 表达，TDW入库规则:不能包含叫IP的字段 */
+	int32 iPort = 16;                                                                                       /*   (可选)端口 */
+	string szIPV6Str = 17[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];        /*   (可选)ipv6 地址 */
+	string szMacAddr = 18[(nanopb).max_size_enum="MAX_STRING_LEN_32", (nanopb).use_stl_string=true];        /*   (可选)Mac地址 */
+	string szInstallPath = 19[(nanopb).max_size_enum="MAX_STRING_LEN_256", (nanopb).use_stl_string=true];   /*   (可选)安装路径 */
+	int32 iCountryCode = 20;                                                                                /*   (可选)注册国家 */
+}
+
+/* 公用头信息-角色 */
+message BevLogRoleBaseInfo
+{
+	string szVRoleID = 1[(nanopb).max_size_enum="MAX_STRING_LEN_64", (nanopb).use_stl_string=true];                               	/*   (必填)玩家角色ID */
+	string szVRoleName = 2[(nanopb).max_size_enum="MAX_STRING_LEN_128", (nanopb).use_stl_string=true];                            	/*   (必填)玩家角色名 */
+    int32 iIHomeLevel = 3;                              	/*   (必填)家园等级 */
+    int32 iSurviveLevel = 4;                            	/*   (必填)生存等级 */
+    int32 iBattleLevel = 5;                             	/*   (必填)战斗等级 */
+    int64 llFamilyID = 6;                               	/*   家族ID */
+    int32 iIVipLevel = 7;                               	/*   (必填)vip等级 */
+    int32 iProfId = 8;                                  	/*   (必填)职业id */
+    int32 iGender = 9;                                  	/*   (必填)性别 */
+    int32 iBattleForce = 10;                             	/*   (必填)战斗力 */
+    int32 iBirthTime = 11;                               	/*   (必填)创建时间戳 */
+};
+
+/* Trans信息 */
+message BevLogTransBaseInfo
+{
+    int32 iGlobalID = 1;                                	/*   trans id */
+    int32 iErrCode = 2;                                 	/*   执行错误码 */
+    int32 iEotType = 3;                                 	/*   trans类型 */
+    uint64 ullTransStartTime = 4;                       	/*   trans开始时间 */
+    uint64 ullTransStopTime = 5;                        	/*   trans结束时间 */
+};
+
+/* (必填)服务器状态流水，每5分钟一条日志 */
+message ServerStateFlow
+{
+	uint64 tDtEventTime = 1[(nanopb).time_to_str=true];                      	/*   (必填) 格式 YYYY-MM-DD HH:MM:SS */
+    string szVGameIP = 2[(nanopb).max_size_enum="MAX_STRING_LEN_32", (nanopb).use_stl_string=true];                               	/*   (必填)服务器IP */
+    int32 iIZoneAreaID = 3;                             	/*   (必填)针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0 */
+    int32 iITimeShift = 4;                              	/*   (必填)时区偏移 */
+};

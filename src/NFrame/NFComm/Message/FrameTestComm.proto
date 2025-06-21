@@ -1,0 +1,113 @@
+syntax = "proto3";
+package NFrameComm;
+
+import "nanopb.proto";
+import "FrameTestEnum.proto";
+
+message wxWorkRobotTextTest
+{
+	uint32 id = 100[(nanopb).is_stl_key=true];
+	string test_string = 1[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	string test_string_stl = 2[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_string_repeated = 3[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	repeated string test_string_stl_repeated = 4[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_string_stl_vector = 5[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated string test_string_stl_list = 6[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_LIST"];
+	repeated string test_string_stl_unordered_set = 7[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+	repeated int32 test_int_vector = 8[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated int32 test_int_list = 9[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated int32 test_int_unordered_set = 10[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+	string test_bytes = 11[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	string test_bytes_stl = 12[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_bytes_repeated = 13[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	repeated string test_bytes_stl_repeated = 14[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_bytes_stl_vector = 15[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated string test_bytes_stl_list = 16[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_LIST"];
+	repeated string test_bytes_stl_unordered_set = 17[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+}
+
+//拼团活动
+// 限时拼团节点-直购
+message WelfareNodeDBDataPddBuy
+{
+    uint32  m_dwBuyCount = 100;//购买次数
+    uint32  m_dwLastBuyTime = 102;//上次购买时间
+	string test_string = 1[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	string test_string_stl = 2[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_string_repeated = 3[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	repeated string test_string_stl_repeated = 4[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_string_stl_vector = 5[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated string test_string_stl_list = 6[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_LIST"];
+	repeated string test_string_stl_unordered_set = 7[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+	repeated int32 test_int_vector = 8[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated int32 test_int_list = 9[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated int32 test_int_unordered_set = 10[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+	bytes test_bytes = 11[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	bytes test_bytes_stl = 12[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_bytes_repeated = 13[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	repeated string test_bytes_stl_repeated = 14[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	repeated string test_bytes_stl_vector = 15[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_VECTOR"];
+	repeated string test_bytes_stl_list = 16[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_LIST"];
+	repeated string test_bytes_stl_unordered_set = 17[(nanopb).max_count_enum="FRAME_ENUM_DEFAULT_REPEATED", (nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true, (nanopb).use_stl_enum = "STL_UNORDERED_SET"];
+}
+
+//限时拼团节点-拼团
+message WelfareNodeDBDataPddOpen
+{
+    uint32  m_dwOpenCount = 1;//参与拼团次数
+    uint32  m_dwLastJoinTime = 2;//上次参与拼团时间
+    uint64  m_ullTeamID = 3;//当前拼团所在团id,0表示不在拼团队伍中
+    uint32  m_dwRwdCount = 4;//发奖次数
+    uint32  m_dwLastRwdTime = 5;//上次参与拼团时间
+}
+
+message WelfareNodeDBDataGetTaskManual
+{
+    int32 m_iState = 1;//0,未领取,1已领取
+}
+
+message WelfareNodeDBDataUnion // 存储到db福利节点特别数据 需要放入共享内存
+{
+    oneof m_stData // id 必须和 WelfareNodeType 一致
+    {
+        //国际化部分开始
+        //这个id跟对应WELFARE_NODE_TYPE保持一致
+        WelfareNodeDBDataPddBuy  m_stPddBuy  = 10001;//WELFARE_NODE_TYPE_PDD_BUY_DIRECT
+        WelfareNodeDBDataPddOpen  m_stPddOpen  = 10002;//WELFARE_NODE_TYPE_PDD_OPEN
+        WelfareNodeDBDataGetTaskManual  m_stGetTaskManual  = 10003;//WELFARE_NODE_TYPE_GET_TASK_MANUAL
+	    uint32  m_dwBuyCount = 100;//购买次数
+	    uint32  m_dwLastBuyTime = 102;//上次购买时间
+	    string test_string = 1[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	   	string test_string_stl = 2[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	    bytes test_bytes = 11[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM"];
+	    bytes test_bytes_stl = 12[(nanopb).max_size_enum="FRAME_ENUM_STRING_NUM", (nanopb).use_stl_string=true];
+	    NFrameEnum.FrameGlobalTestEnum test_enum = 13;
+    }
+
+	oneof m_stData2 // id 必须和 WelfareNodeType 一致
+    {
+        uint32  m_dwBuyCount2 = 1000;//购买次数
+        uint32  m_dwLastBuyTime2 = 1002;//上次购买时间
+    }
+
+
+	WelfareNodeDBDataPddBuy  m_stPddBuy1  = 111;//WELFARE_NODE_TYPE_PDD_BUY_DIRECT
+}
+
+/* (必填)服务器状态流水，每5分钟一条日志 */
+message BevLogTestItem
+{
+	uint32 item_id = 1;
+	uint32 item_num = 2;
+}
+
+message BevLogTest
+{
+	uint64 tDtEventTime = 1;                      	/*   (必填) 格式 YYYY-MM-DD HH:MM:SS */
+    string szVGameIP = 2[(nanopb).max_size_enum="MAX_STRING_LEN_32", (nanopb).use_stl_string=true];                               	/*   (必填)服务器IP */
+    int32 iIZoneAreaID = 3;                             	/*   (必填)针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0 */
+    int32 iITimeShift = 4;                              	/*   (必填)时区偏移 */
+	BevLogTestItem item = 5;
+	repeated BevLogTestItem item_list = 6;
+	repeated int32 id_list = 7;
+};

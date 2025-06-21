@@ -16,6 +16,8 @@
 
 #include <stdint.h>
 
+#include "NFIPacketParse.h"
+
 /// @brief 网络驱动接口
 class NFINetModule: public NFIModule
 {
@@ -90,7 +92,18 @@ public:
 	 * @param  nPort		服务器监听端口
 	 * @return int			返回0错误
 	 */
-	virtual uint64_t BindServer(NF_SERVER_TYPES eServerType, const std::string& url, uint32_t nNetThreadNum = 1, uint32_t nMaxConnectNum = 100, uint32_t nPacketParseType = PACKET_PARSE_TYPE_INTERNAL, bool bSecurity = false) = 0;
+	virtual uint64_t BindServer(NF_SERVER_TYPE serverType, const std::string& url, uint32_t netThreadNum = 1, uint32_t maxConnectNum = 100, uint32_t packetParseType = PACKET_PARSE_TYPE_INTERNAL, bool security = false) = 0;
+
+	/**
+	 * 重置并初始化解析包。
+	 *
+	 * 本函数旨在根据指定的解析类型和解析包对象，进行重置和初始化操作，以确保数据包的解析过程正确进行。
+	 *
+	 * @param parseType 解析类型，一个无符号32位整数，用于指定解析的类型或模式。
+	 * @param pPacketParse 指向NFIPacketParse对象的指针，表示要进行重置和初始化的数据包对象。
+	 * @return 返回一个整数值，表示操作的结果，具体含义取决于实现。
+	 */
+	virtual int ResetPacketParse(uint32_t parseType, NFIPacketParse* pPacketParse) = 0;
 
 	/**
 	 * @brief 添加服务器
@@ -101,9 +114,9 @@ public:
 	 * @param  nPort		服务器监听端口
 	 * @return int			返回0错误
 	 */
-	virtual uint64_t ConnectServer(NF_SERVER_TYPES eServerType, const std::string& url, uint32_t nPacketParseType = 0, bool bSecurity = false) = 0;
+	virtual uint64_t ConnectServer(NF_SERVER_TYPE serverType, const std::string& url, uint32_t packetParseType = 0, bool security = false) = 0;
 
-    virtual int ResumeConnect(NF_SERVER_TYPES eServerType) = 0;
+    virtual int ResumeConnect(NF_SERVER_TYPE eServerType) = 0;
 
 	virtual std::string GetLinkIp(uint64_t usLinkId) = 0;
     virtual uint32_t GetPort(uint64_t usLinkId) = 0;
@@ -124,21 +137,21 @@ public:
 
     virtual void TransPackage(uint64_t usLinkId, NFDataPackage& packet) = 0;
 
-    virtual bool ResponseHttpMsg(NF_SERVER_TYPES serverType, const NFIHttpHandle &req, const std::string &strMsg,
+    virtual bool ResponseHttpMsg(NF_SERVER_TYPE serverType, const NFIHttpHandle &req, const std::string &strMsg,
                                  NFWebStatus code = NFWebStatus::WEB_OK, const std::string &reason = "OK") = 0;
 
-    virtual bool ResponseHttpMsg(NF_SERVER_TYPES serverType, uint64_t requestId, const std::string &strMsg,
+    virtual bool ResponseHttpMsg(NF_SERVER_TYPE serverType, uint64_t requestId, const std::string &strMsg,
                                  NFWebStatus code = NFWebStatus::WEB_OK,
                                  const std::string &reason = "OK") = 0;
 
-    virtual int HttpGet(NF_SERVER_TYPES serverType, const std::string &strUri,
+    virtual int HttpGet(NF_SERVER_TYPE serverType, const std::string &strUri,
                         const HTTP_CLIENT_RESPONE &respone,
                         const std::map<std::string, std::string> &xHeaders = std::map<std::string, std::string>(),
                         int timeout = 3) = 0;
 
-    virtual int HttpPost(NF_SERVER_TYPES serverType, const std::string &strUri, const std::string &strPostData, const HTTP_CLIENT_RESPONE &respone,
+    virtual int HttpPost(NF_SERVER_TYPE serverType, const std::string &strUri, const std::string &strPostData, const HTTP_CLIENT_RESPONE &respone,
                          const std::map<std::string, std::string> &xHeaders = std::map<std::string, std::string>(),
                          int timeout = 3) = 0;
 
-    virtual int SendEmail(NF_SERVER_TYPES serverType, const std::string& title, const std::string& subject, const string &content) = 0;
+    virtual int SendEmail(NF_SERVER_TYPE serverType, const std::string& title, const std::string& subject, const string &content) = 0;
 };

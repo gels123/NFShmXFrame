@@ -9,4 +9,4 @@
 
 #pragma once
 
-int __c_main(int argc, char* argv[]);
+int c_main(int argc, char* argv[]);

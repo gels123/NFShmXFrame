@@ -9,13 +9,13 @@
 
 #pragma once
 
-#include "NFIAsycModule.h"
+#include "NFIAsyModule.h"
 
 class NFIAsyNosqlModule
-        : public NFIAsycModule
+        : public NFIAsyModule
 {
 public:
-    NFIAsyNosqlModule(NFIPluginManager *p) : NFIAsycModule(p)
+    NFIAsyNosqlModule(NFIPluginManager *p) : NFIAsyModule(p)
     {
 
     }
@@ -40,8 +40,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int SelectObj(const std::string& nServerID, const storesvr_sqldata::storesvr_selobj &select,
-                          const SelectObj_CB& cb) = 0;
+    virtual int SelectObj(const std::string& nServerID, const NFrame::storesvr_selobj &select,
+                          const SelectObjCb& cb) = 0;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -50,8 +50,8 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int DeleteObj(const std::string& nServerID, const storesvr_sqldata::storesvr_delobj &select,
-                          const DeleteObj_CB& cb) = 0;
+    virtual int DeleteObj(const std::string& nServerID, const NFrame::storesvr_delobj &select,
+                          const DeleteObjCb& cb) = 0;
 
     /**
      * @brief 通过select结构体， 从数据库获取数据，并把结果放到selelct_res
@@ -60,12 +60,12 @@ public:
      * @param  select_res 查询结果
      * @return int =0执行成功, != 0失败
      */
-    virtual int InsertObj(const std::string& nServerID, const storesvr_sqldata::storesvr_insertobj &select,
-                          const InsertObj_CB& cb) = 0;
+    virtual int InsertObj(const std::string& nServerID, const NFrame::storesvr_insertobj &select,
+                          const InsertObjCb& cb) = 0;
 
-    virtual int ModifyObj(const std::string& nServerID, const storesvr_sqldata::storesvr_modobj &select,
-                          const ModifyObj_CB& cb) = 0;
+    virtual int ModifyObj(const std::string& nServerID, const NFrame::storesvr_modobj &select,
+                          const ModifyObjCb& cb) = 0;
 
-    virtual int UpdateObj(const std::string& nServerID, const storesvr_sqldata::storesvr_updateobj &select,
-                          const UpdateObj_CB& cb) = 0;
+    virtual int UpdateObj(const std::string& nServerID, const NFrame::storesvr_updateobj &select,
+                          const UpdateObjCb& cb) = 0;
 };

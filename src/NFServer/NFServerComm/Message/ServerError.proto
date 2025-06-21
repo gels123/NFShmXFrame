@@ -1,0 +1,10 @@
+syntax = "proto3";
+package NFServer;
+
+import "nanopb.proto";
+
+// 错误码
+enum Proto_SVR_ErrorCode {
+    ERR_SERVER_CODE_ZERO = 0;
+    ERR_CODE_SERVER_SYSTEM_ERROR = -1;
+}

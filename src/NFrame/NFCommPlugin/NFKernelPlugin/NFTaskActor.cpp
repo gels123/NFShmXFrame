@@ -129,12 +129,12 @@ void NFTaskActor::ProcessTask(NFTask* pTask)
 
 		if (pTask->m_useTime/1000 > 100)
         {
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "the task:{} use time out:{} ms, handle time:{} actorId:{}", pTask->m_taskName, pTask->m_useTime/1000,
+            NFLogError(NF_LOG_DEFAULT, 0, "the task:{} use time out:{} ms, handle time:{} actorId:{}", pTask->m_taskName, pTask->m_useTime/1000,
                        NFDateTime(pTask->m_handleStartTime/1000000, pTask->m_handleStartTime%1000000).GetLongTimeString(), pTask->m_handleActorId);
         }
 		if (pTask->m_taskName != "NFMysqlCheckTask")
         {
-            NFLogTrace(NF_LOG_SYSTEMLOG, 0, "the task:{} use time:{} us, handle time:{} actorId:{}", pTask->m_taskName, pTask->m_useTime,
+            NFLogTrace(NF_LOG_DEFAULT, 0, "the task:{} use time:{} us, handle time:{} actorId:{}", pTask->m_taskName, pTask->m_useTime,
                        NFDateTime(pTask->m_handleStartTime/1000000, pTask->m_handleStartTime%1000000).GetLongTimeString(), pTask->m_handleActorId);
         }
 	}

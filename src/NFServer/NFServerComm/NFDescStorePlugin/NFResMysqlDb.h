@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "NFComm/NFShmCore/NFResDb.h"
+#include "NFComm/NFObjCommon/NFResDb.h"
 #include <unordered_map>
 
 class NFResMysqlDB;
@@ -30,7 +30,7 @@ private:
     NFResMysqlDB* m_pMysqlResDB;
 };
 
-class NFResMysqlDB : public NFResDB
+class NFResMysqlDB : public NFResDb
 {
 public:
     NFResMysqlDB(NFIPluginManager* p);

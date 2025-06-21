@@ -85,7 +85,7 @@ bool NFProtobufMessageCodec::FillFieldValue(Message *message,
             break;
         }
         default:
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "字段[{}]是不支持的数据类型:{}",
+            NFLogError(NF_LOG_DEFAULT, 0, "字段[{}]是不支持的数据类型:{}",
                   fieldDesc->name().c_str(), fieldDesc->type());
     }
     return true;

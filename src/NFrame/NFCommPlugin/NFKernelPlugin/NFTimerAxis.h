@@ -50,12 +50,12 @@ private:
 protected:
 	static uint64_t GetTick()
 	{
-		return NFTime::Now().UnixMSec();
+		return NF_ADJUST_TIMENOW_MS();
 	}
 
 	static uint64_t GetUnixSec()
 	{
-		return NFTime::Now().UnixSec();
+		return NF_ADJUST_TIMENOW();
 	}
 
 	struct Timer

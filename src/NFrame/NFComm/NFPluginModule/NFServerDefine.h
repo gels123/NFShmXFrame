@@ -16,7 +16,9 @@
 #include "NFComm/NFCore/NFPlatform.h"
 #include "NFComm/NFCore/NFSlice.hpp"
 #include "NFComm/NFCore/NFBuffer.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
+#include "NFComm/NFKernelMessage/FrameEnum.pb.h"
+#include "NFComm/NFKernelMessage/FrameEnum.nanopb.h"
 
 #define MAX_CLIENT_INDEX 1000000                  //客户端掩码 一百万
 #define MAX_CLIENT_MASK 0xfffff                   //0x000 00000000 fffff 后20位，5个f，给客户端索引用, 客户端掩码20位, 最大1048576 > 一百万 1000000
@@ -27,6 +29,7 @@
 #define NF_IS_NONE 0
 #define NF_IS_NET 1
 #define NF_IS_BUS 2
+#define NF_IS_ENET 3
 
 #define GetUnLinkId(linkMode, serverType, busId, serverIndex)    ((((uint64_t)serverIndex) & MAX_CLIENT_MASK) | ((((uint64_t)busId) << 20) & MAX_BUS_ID_MASK)  | ((((uint64_t)serverType) << 52) & MAX_SERVER_TYPE_MASK) | ((((uint64_t)linkMode << 60) & MAX_IS_SERVER_MASK)));
 #define GetServerTypeFromUnlinkId(UnlinkId)        ((((uint64_t)UnlinkId) & MAX_SERVER_TYPE_MASK) >> 52);
@@ -37,20 +40,18 @@
 #define CLIENT_MSG_PROCESS_NO_PRINTF(xPacket, xMsg)                 \
     if (!xMsg.ParseFromArray(xPacket.GetBuffer(), xPacket.GetSize()))                \
     {                                                    \
-        NFLogError(NF_LOG_PROTOBUF_PARSE, 0, "Protobuf Parse Message Failed, packet:{}", xPacket.ToString()); \
+        NFLogError(NF_LOG_DEFAULT, 0, "Protobuf Parse Message Failed, packet:{}", xPacket.ToString()); \
         return -1;                                        \
     }
 
 #define CLIENT_MSG_PROCESS_WITH_PRINTF(xPacket, xMsg)                 \
     if (!xMsg.ParseFromArray(xPacket.GetBuffer(), xPacket.GetSize()))                \
     {                                                    \
-        NFLogError(NF_LOG_PROTOBUF_PARSE, 0, "Protobuf Parse Message Failed, packet:{}", xPacket.ToString()); \
+        NFLogError(NF_LOG_DEFAULT, 0, "Protobuf Parse Message Failed, packet:{} error:{}", xPacket.ToString(), xMsg.InitializationErrorString()); \
         return -1;                                        \
     }\
-    if (NFLogTraceEnable(NF_LOG_RECV_MSG_JSON_PRINTF, xPacket.nParam1))\
-    {\
-        NFLogTrace(NF_LOG_RECV_MSG_JSON_PRINTF, xPacket.nParam1, "recv packet:{}, json:{}", xPacket.ToString(), xMsg.Utf8DebugString()); \
-    }
+    NFLogTrace(NF_LOG_DEFAULT, xPacket.nParam1, "recv packet:{}, json:{}", xPacket.ToString(), xMsg.Utf8DebugString());
+
 #define WEB_MSG_PROCESS_WITH_PRINTF(xMsg, reqHandle) \
             \
     if (reqHandle.GetType() == NF_HTTP_REQ_GET)      \
@@ -58,14 +59,11 @@
         if (NFProtobufCommon::GetMessageFromGetHttp(&xMsg, reqHandle) != 0)\
         {                                            \
             data.set_request_id(req.GetRequestId());                                          \
-            NFLogError(NF_LOG_PROTOBUF_PARSE, 0, "Protobuf Parse Message Failed Fromn Http Get, get uri:{}", req.GetOriginalUri()); \
+            NFLogError(NF_LOG_DEFAULT, 0, "Protobuf Parse Message Failed Fromn Http Get, get uri:{}", req.GetOriginalUri()); \
             return false;                               \
         }                                            \
         data.set_request_id(req.GetRequestId());                                              \
-        if (NFLogTraceEnable(NF_LOG_RECV_MSG_JSON_PRINTF, 0))\
-        {\
-            NFLogInfo(NF_LOG_RECV_MSG_JSON_PRINTF, 0, "url:{}", reqHandle.GetOriginalUri()); \
-        }\
+        NFLogInfo(NF_LOG_DEFAULT, 0, "url:{}", reqHandle.GetOriginalUri()); \
     }                                                \
     else                                             \
     {                                                \
@@ -73,14 +71,11 @@
         if (!NFProtobufCommon::JsonToProtoMessage(reqHandle.GetBody(), &xMsg, &error))                \
         {                                            \
             data.set_request_id(req.GetRequestId());                                          \
-            NFLogError(NF_LOG_PROTOBUF_PARSE, 0, "Protobuf Parse Message Failed Fromn Http Post Json, json:{}, error:{}", reqHandle.GetBody(), error); \
+            NFLogError(NF_LOG_DEFAULT, 0, "Protobuf Parse Message Failed Fromn Http Post Json, json:{}, error:{}", reqHandle.GetBody(), error); \
             return false;                                        \
         }                                            \
         data.set_request_id(req.GetRequestId());                                              \
-        if (NFLogTraceEnable(NF_LOG_RECV_MSG_JSON_PRINTF, 0))\
-        {\
-            NFLogInfo(NF_LOG_RECV_MSG_JSON_PRINTF, 0, "json:{}", reqHandle.GetBody()); \
-        }                                                        \
+        NFLogInfo(NF_LOG_DEFAULT, 0, "json:{}", reqHandle.GetBody()); \
     }
 // (uint16) 如果修改增加此处大小，需要修改接受缓冲区大小，与客户端 NetDefine.cs 中的定义一直
 const uint16_t MAX_CLIENT_NET_PACK_LENGTH = 1024 * 48;
@@ -91,40 +86,20 @@ const uint32_t MAX_WEB_NET_PACK_LENGTH    = 1024 * 512;
 
 #define WG_INT_MAX32 0x7FFFFFFFL
 
-enum NF_SERVER_TYPES
-{
-	NF_ST_NONE               = 0,            // NONE
-	NF_ST_MASTER_SERVER      = 1,
-	NF_ST_ROUTE_SERVER       = 2, //路由集群服务器 负责不同机子服务器数据之间的转发
-	NF_ST_ROUTE_AGENT_SERVER = 3, //路由代理服务器  负责同一台机子服务器数据之间的转发
-	NF_ST_PROXY_SERVER       = 4,
-	NF_ST_PROXY_AGENT_SERVER = 5, //Proxy 路由代理服务器 负责同一台机子客户端与服务器数据之间的转发
-	NF_ST_STORE_SERVER       = 6, //DB服务器
-	NF_ST_LOGIN_SERVER       = 7,
-	NF_ST_WORLD_SERVER       = 8,
-	NF_ST_LOGIC_SERVER       = 9, //Logic服务器
-	NF_ST_GAME_SERVER        = 10,
-	NF_ST_SNS_SERVER         = 11, //SNS服务器
-	NF_ST_WEB_SERVER         = 12, //Web服务器
-	NF_ST_MONITOR_SERVER     = 13, //Monitor服务器
-	NF_ST_CENTER_SERVER      = 14, //match匹配服务器
-	NF_ST_MAX                = 15,
-};
-
 enum NF_MODULE_TYPE
 {
-	NF_MODULE_SERVER = 0, //服务器内网通讯
-	NF_MODULE_CLIENT = 1, //客户端外部协议
-	NF_MODULE_MAX    = 2,
+	NF_MODULE_FRAME = 0,
+	NF_MODULE_SERVER = 1, //服务器内网通讯
+	NF_MODULE_CLIENT = 2, //客户端外部协议
+	NF_MODULE_MAX    = 3,
 };
 
 #define NF_NET_MAX_MSG_ID 20000
 
 enum PacketParseType
 {
-	PACKET_PARSE_TYPE_INTERNAL      = 0,        //内网协议
-	PACKET_PARSE_TYPE_EXTERNAL      = 1,        //默认外部协议
-	PACKET_PARSE_TYPE_FISH_EXTERNAL = 2,        //老的外部协议
+	PACKET_PARSE_TYPE_INTERNAL        = 0, //内网协议
+	PACKET_PARSE_TYPE_EXTERNAL = 1, //外部协议
 };
 
 enum
@@ -163,25 +138,10 @@ enum
 #define NF_NO_FIX_FAME_HANDLE_MAX_MSG_COUNT 10000
 #define NF_FIX_FRAME_HANDLE_MAX_MSG_COUNT 2000    //release test handle 2000 msg => cpu 20%
 
-const std::string gArrayServer[NF_ST_MAX] = {
-	"NoneServer",
-	"MasterServer", //1
-	"RouteServer", //2
-	"RouteAgentServer", //3
-	"ProxyServer", //4
-	"ProxyAgentServer", //5
-	"StoreServer", //6
-	"LoginServer", //7
-	"WorldServer", //8
-	"LogicServer", //9
-	"GameServer", //10
-	"SnsServer", //11
-	"WebServer", //12
-	"MonitorServer", //13
-	"CenterServer", //14
-};
-
-std::string GetServerName(NF_SERVER_TYPES serverId);
+std::string GetServerName(NF_SERVER_TYPE serverId);
+bool IsRouteServer(NF_SERVER_TYPE serverType);
+bool IsMasterServer(NF_SERVER_TYPE serverType);
+bool IsWorkServer(NF_SERVER_TYPE serverType);
 
 enum eMsgType
 {
@@ -244,13 +204,15 @@ struct NFDataPackage
 		nObjectLinkId    = data.nObjectLinkId;
 		nPacketParseType = data.nPacketParseType;
 		isSecurity       = data.isSecurity;
+		nErrCode         = data.nErrCode;
 		nBuffer          = data.nBuffer;
 		nMsgLen          = data.nMsgLen;
+		nMsgSeq          = data.nMsgSeq;
 	}
 
 	std::string ToString() const
 	{
-		return NF_FORMAT("(mdouleId:{} msgId:{} param1:{} param2:{} nMsgLen:{})", mModuleId, nMsgId, nParam1, nParam2, nMsgLen);
+		return NF_FORMAT("(mdouleId:{} msgId:{} param1:{} param2:{} nMsgLen:{} nMsgSeq:{})", mModuleId, nMsgId, nParam1, nParam2, nMsgLen, nMsgSeq);
 	}
 
 	void Clear()
@@ -269,6 +231,8 @@ struct NFDataPackage
 		isSecurity       = false;
 		nBuffer          = NULL;
 		nMsgLen          = 0;
+		nErrCode         = 0;
+		nMsgSeq          = 0;
 	}
 
 	const char* GetBuffer() const
@@ -328,13 +292,15 @@ struct NFDataPackage
 	uint64_t nSrcId;
 	uint64_t nDstId;
 	uint64_t nSendBusLinkId;
-	bool bCompress;
+	bool     bCompress;
 	uint64_t nServerLinkId;
 	uint64_t nObjectLinkId;
 	uint32_t nPacketParseType;
-	bool isSecurity;
-	char* nBuffer;
+	bool     isSecurity;
+	int32_t  nErrCode;
+	char*    nBuffer;
 	uint64_t nMsgLen;
+	uint32_t nMsgSeq;
 };
 
 typedef std::function<int(uint64_t serverLinkId, uint64_t objectLinkId, NFDataPackage& packet)> NET_CALLBACK_RECEIVE_FUNCTOR;
@@ -356,7 +322,6 @@ typedef std::function<int(uint64_t userId, const google::protobuf::Message* mess
 * @param  mDisplay 是否打印这个LOG
 * @param  mLevel 输出等级
 * @param  mLogName 显示名字
-* @param  mGuid 0表示打印所有玩家LOG，玩家ID表示只打印这个玩家的LOG
 */
 class LogInfoConfig
 {
@@ -368,23 +333,10 @@ public:
 		mLevel   = 0;
 	}
 
-	bool Exist(uint64_t guid)
-	{
-		for (size_t i = 0; i < mVecGuid.size(); i++)
-		{
-			if (mVecGuid[i] == guid)
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	uint32_t mLogId;
-	bool mDisplay;
-	uint32_t mLevel;
+	uint32_t    mLogId;
+	bool        mDisplay;
+	uint32_t    mLevel;
 	std::string mLogName;
-	std::vector<uint64_t> mVecGuid;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -431,15 +383,15 @@ public:
 		return list;
 	}
 
-	uint64_t mUnlinkId;
-	uint32_t mRouteAgentBusId;
-	proto_ff::ServerInfoReport mServerInfo;
+	uint64_t                 mUnlinkId;
+	uint32_t                 mRouteAgentBusId;
+	NFrame::ServerInfoReport mServerInfo;
 };
 
 typedef struct tagUidAndIndex
 {
 	uint64_t m_ullUid;
-	int32_t m_iIdx;
+	int32_t  m_iIdx;
 } TUidAndIndex;
 
 int UidCompare(const TUidAndIndex* pstLeft, const TUidAndIndex* pstRight);
@@ -461,7 +413,7 @@ const int MAX_NAME_STR_LEN = 32;
 typedef struct tagStrAndID
 {
 	char m_szName[MAX_NAME_STR_LEN];
-	int m_iID;
+	int  m_iID;
 } TStrAndID;
 
 int StrCompare(const TStrAndID* pstLeft, const TStrAndID* pstRight);

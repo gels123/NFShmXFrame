@@ -14,8 +14,9 @@
 #include <vector>
 
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
 #include "NFComm/NFPluginModule/NFConfigDefine.h"
+#include "NFComm/NFPluginModule/NFSystemInfo.h"
 
 class NFServerCommon
 {
@@ -28,6 +29,6 @@ public:
     {
     };
 
-    static void WriteServerInfo(proto_ff::ServerInfoReport* pData, NFServerConfig* pConfig);
-    static void WriteServerInfo(proto_ff::ServerInfoReport* pData, const NFSystemInfo& systemInfo);
+    static void WriteServerInfo(NFrame::ServerInfoReport* pData, NFServerConfig* pConfig);
+    static void WriteServerInfo(NFrame::ServerInfoReport* pData, const NFSystemInfo& systemInfo);
 };

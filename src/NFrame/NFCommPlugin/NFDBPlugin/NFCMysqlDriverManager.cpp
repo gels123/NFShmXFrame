@@ -116,11 +116,11 @@ int NFCMysqlDriverManager::AddMysqlServer(const std::string& serverID, const std
         mvMysql.AddElement(serverID, pMysqlDriver);
     } else {
         mvInvalidMsyql.AddElement(serverID, pMysqlDriver);
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Connect Mysql Failed!");
+        NFLogError(NF_LOG_DEFAULT, 0, "Connect Mysql Failed!");
         return -1;
     }
 
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0,
+    NFLogInfo(NF_LOG_DEFAULT, 0,
               "Connecy Mysql Success:nServerID:{}, strIP:{}, nPort:{}, strDBName:{}, strDBUser:{}, strDBPwd:{}",
 			serverID, strIP, nPort, strDBName, strDBUser, strDBPwd);
 

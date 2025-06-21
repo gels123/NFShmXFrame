@@ -24,7 +24,7 @@ void NFProfiler::BeginProfiler(PROFILE_TIMER* timer)
 	{
 		ResetAllProfilerTimer();
 		mIsOpenProfiler = false;
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "profiler error , will close!!!");
+		NFLogError(NF_LOG_DEFAULT, 0, "profiler error , will close!!!");
 		return;
 	}
 
@@ -62,10 +62,10 @@ uint64_t NFProfiler::EndProfiler()
 
 	if (mStackLevel == 0)
 	{
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "Not match BeginProfile()");
+		NFLogError(NF_LOG_DEFAULT, 0, "Not match BeginProfile()");
 		ResetAllProfilerTimer();
 		mIsOpenProfiler = false;
-		NFLogError(NF_LOG_SYSTEMLOG, 0, "profiler error , will close!!!");
+		NFLogError(NF_LOG_DEFAULT, 0, "profiler error , will close!!!");
 		return 0;
 	}
 

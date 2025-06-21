@@ -10,7 +10,7 @@
 #pragma once
 
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFComm/NFPluginModule/NFObject.h"
+#include "NFComm/NFPluginModule/NFBaseObj.h"
 
 #ifdef NF_DEBUG_MODE
 #define DEFINE_RPC_SERVICE_TIME_OUT_MS (2000000) //200s
@@ -18,26 +18,29 @@
 #define DEFINE_RPC_SERVICE_TIME_OUT_MS (3000) //3s
 #endif
 
-class NFIRpcService : public NFObject
+class NFObject;
+class NFIRpcService : public NFBaseObj
 {
 public:
-    NFIRpcService(NFIPluginManager* p):NFObject(p)
+    NFIRpcService(NFIPluginManager* p):NFBaseObj(p)
     {
 
     }
 
-    virtual int run(uint64_t unLinkId, const proto_ff::Proto_SvrPkg& reqSvrPkg, uint64_t param1, uint64_t param2) = 0;
+    virtual int run(uint64_t unLinkId, const NFrame::Proto_FramePkg& reqSvrPkg, uint64_t param1, uint64_t param2) = 0;
 };
 
-class NFIDynamicRpcService : public NFObject
+class NFIDynamicRpcService : public NFBaseObj
 {
 public:
-    NFIDynamicRpcService(NFIPluginManager* p):NFObject(p)
+    NFIDynamicRpcService(NFIPluginManager* p):NFBaseObj(p)
     {
 
     }
 
-    virtual int run(NFObject *pObject, google::protobuf::Message& request, google::protobuf::Message& respone) = 0;
+    virtual int run(NFBaseObj *pObject, google::protobuf::Message& request, google::protobuf::Message& respone) = 0;
+
+    virtual int run(NFObject* pObject, google::protobuf::Message& request, google::protobuf::Message& respone) = 0;
 };
 
 template<typename BaseType, typename RequestType, typename ResponeType>
@@ -51,6 +54,19 @@ public:
         m_function = handleRecieve;
     }
 
+    virtual int run(NFBaseObj *pObject, google::protobuf::Message& request, google::protobuf::Message& respone) override
+    {
+        RequestType* pRequest = dynamic_cast<RequestType*>(&request);
+        ResponeType* pRespone = dynamic_cast<ResponeType*>(&respone);
+        BaseType* pBase = dynamic_cast<BaseType*>(pObject);
+        if (pBase && pRequest && pRespone && m_function)
+        {
+            return (pBase->*m_function)(dynamic_cast<RequestType&>(request), dynamic_cast<ResponeType&>(respone));
+        }
+
+        return NFrame::ERR_CODE_RPC_MSG_FUNCTION_UNEXISTED;
+    }
+
     virtual int run(NFObject *pObject, google::protobuf::Message& request, google::protobuf::Message& respone) override
     {
         RequestType* pRequest = dynamic_cast<RequestType*>(&request);
@@ -61,7 +77,7 @@ public:
             return (pBase->*m_function)(dynamic_cast<RequestType&>(request), dynamic_cast<ResponeType&>(respone));
         }
 
-        return proto_ff::ERR_CODE_RPC_MSG_FUNCTION_UNEXISTED;
+        return NFrame::ERR_CODE_RPC_MSG_FUNCTION_UNEXISTED;
     }
 
     int (BaseType::*m_function)(RequestType& request, ResponeType& respone);
@@ -78,8 +94,7 @@ struct NFBindRpcService<msgId, RequestType, ResponeType>\
 {                                                               \
     enum { value = 1 };\
     typedef std::true_type type;\
-};                                                               \
-
+};
 
 /**
  * @brief 如果你没有定义RPC绑定宏，那么就会导致这一个宏在编译期间，编译失败，确保rpc服务在注册rpc以及调用rpc服务的编译期间就报错，方便告诉程序员rpc服务有问题

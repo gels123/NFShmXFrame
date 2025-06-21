@@ -30,8 +30,10 @@ NFCMonitorModule::~NFCMonitorModule()
 
 bool NFCMonitorModule::Init()
 {
+#if NF_PLATFORM == NF_PLATFORM_LINUX
 	this->SetTimer(MonitorTimer_SYSTEMINFO, MONITOR_TIMER_SYSTEIMINFO_INTERNAL_TIME, INFINITY_CALL);
 	mSystemInfo.Init();
+#endif
 	return true;
 }
 
@@ -55,7 +57,7 @@ int NFCMonitorModule::OnTimer(uint32_t nTimerID)
 	if (nTimerID == MonitorTimer_SYSTEMINFO)
 	{
 		mSystemInfo.CountSystemInfo();
-        NFLogInfo(NF_LOG_SYSTEMLOG, 0, "app:{} main thread:{} cpu:%{}, mem:{}M ----------------------{}bytes", m_pObjPluginManager->GetAppName(), ThreadId(), mSystemInfo.GetProcessInfo().mCpuUsed, mSystemInfo.GetProcessInfo().mMemUsed /(double)1024 / (double)1024, mSystemInfo.GetProcessInfo().mMemUsed);
+        NFLogInfo(NF_LOG_DEFAULT, 0, "app:{} main thread:{} cpu:{}, mem:{}M ----------------------{}bytes", m_pObjPluginManager->GetAppName(), ThreadId(), mSystemInfo.GetProcessInfo().mCpuUsed, mSystemInfo.GetProcessInfo().mMemUsed /(double)1024 / (double)1024, mSystemInfo.GetProcessInfo().mMemUsed);
 	}
     return 0;
 }
@@ -63,7 +65,7 @@ int NFCMonitorModule::OnTimer(uint32_t nTimerID)
 void NFCMonitorModule::CountAndPrint()
 {
     mSystemInfo.CountSystemInfo();
-    NFLogInfo(NF_LOG_SYSTEMLOG, 0, "app:{} main thread:{} cpu:%{}, mem:{}M ----------------------{}bytes", m_pObjPluginManager->GetAppName(), ThreadId(), mSystemInfo.GetProcessInfo().mCpuUsed, mSystemInfo.GetProcessInfo().mMemUsed /(double)1024 / (double)1024, mSystemInfo.GetProcessInfo().mMemUsed);
+    NFLogInfo(NF_LOG_DEFAULT, 0, "app:{} main thread:{} cpu:{}, mem:{}M ----------------------{}bytes", m_pObjPluginManager->GetAppName(), ThreadId(), mSystemInfo.GetProcessInfo().mCpuUsed, mSystemInfo.GetProcessInfo().mMemUsed /(double)1024 / (double)1024, mSystemInfo.GetProcessInfo().mMemUsed);
 }
 
 /**

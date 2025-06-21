@@ -60,7 +60,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleSelectObjRpc(storesvr_sqldata::storesvr_selobj& request, storesvr_sqldata::storesvr_selobj_res& respone);
+    int OnHandleSelectObjRpc(NFrame::storesvr_selobj& request, NFrame::storesvr_selobj_res& respone);
 
     /**
      * @brief Select Rpc Service
@@ -68,7 +68,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleSelectRpc(storesvr_sqldata::storesvr_sel& request, storesvr_sqldata::storesvr_sel_res& respone, const std::function<void()>& cb);
+    int OnHandleSelectRpc(NFrame::storesvr_sel& request, NFrame::storesvr_sel_res& respone, const std::function<void()>& cb);
 
     /**
      * @brief
@@ -76,7 +76,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleInsertObjRpc(storesvr_sqldata::storesvr_insertobj& request, storesvr_sqldata::storesvr_insertobj_res& respone);
+    int OnHandleInsertObjRpc(NFrame::storesvr_insertobj& request, NFrame::storesvr_insertobj_res& respone);
 
     /**
      * @brief
@@ -84,7 +84,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleModifyObjRpc(storesvr_sqldata::storesvr_modobj& request, storesvr_sqldata::storesvr_modobj_res& respone);
+    int OnHandleModifyObjRpc(NFrame::storesvr_modobj& request, NFrame::storesvr_modobj_res& respone);
 
     /**
      * @brief
@@ -92,7 +92,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleModifyRpc(storesvr_sqldata::storesvr_mod& request, storesvr_sqldata::storesvr_mod_res& respone);
+    int OnHandleModifyRpc(NFrame::storesvr_mod& request, NFrame::storesvr_mod_res& respone);
 
     /**
      * @brief
@@ -100,7 +100,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleUpdateRpc(storesvr_sqldata::storesvr_update& request, storesvr_sqldata::storesvr_update_res& respone);
+    int OnHandleUpdateRpc(NFrame::storesvr_update& request, NFrame::storesvr_update_res& respone);
 
     /**
      * @brief
@@ -108,7 +108,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleUpdateObjRpc(storesvr_sqldata::storesvr_updateobj& request, storesvr_sqldata::storesvr_updateobj_res& respone);
+    int OnHandleUpdateObjRpc(NFrame::storesvr_updateobj& request, NFrame::storesvr_updateobj_res& respone);
 
     /**
      * @brief
@@ -116,7 +116,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleExecuteRpc(storesvr_sqldata::storesvr_execute& request, storesvr_sqldata::storesvr_execute_res& respone);
+    int OnHandleExecuteRpc(NFrame::storesvr_execute& request, NFrame::storesvr_execute_res& respone);
 
     /**
      * @brief Execute More Rpc Service
@@ -124,7 +124,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleExecuteMoreRpc(storesvr_sqldata::storesvr_execute_more& request, storesvr_sqldata::storesvr_execute_more_res& respone, const std::function<void()>& cb);
+    int OnHandleExecuteMoreRpc(NFrame::storesvr_execute_more& request, NFrame::storesvr_execute_more_res& respone, const std::function<void()>& cb);
 
     /**
      * @brief
@@ -132,7 +132,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleDeleteRpc(storesvr_sqldata::storesvr_del& request, storesvr_sqldata::storesvr_del_res& respone);
+    int OnHandleDeleteRpc(NFrame::storesvr_del& request, NFrame::storesvr_del_res& respone);
 
     /**
      * @brief
@@ -140,7 +140,7 @@ public:
      * @param respone
      * @return
      */
-    int OnHandleDeleteObjRpc(storesvr_sqldata::storesvr_delobj& request, storesvr_sqldata::storesvr_delobj_res& respone);
+    int OnHandleDeleteObjRpc(NFrame::storesvr_delobj& request, NFrame::storesvr_delobj_res& respone);
 
 public:
     bool m_useCache;

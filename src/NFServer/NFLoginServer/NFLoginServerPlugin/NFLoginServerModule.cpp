@@ -16,7 +16,7 @@
 #include "NFServerComm/NFServerCommon/NFIServerMessageModule.h"
 #include "NFComm/NFPluginModule/NFIMonitorModule.h"
 #include "NFComm/NFPluginModule/NFCheck.h"
-#include "NFServerComm/NFServerMessage/proto_svr_msg.pb.h"
+#include "NFServerComm/NFServerMessage/ServerMsg.pb.h"
 
 NFCLoginServerModule::NFCLoginServerModule(NFIPluginManager* p):NFILoginServerModule(p)
 {
@@ -38,13 +38,13 @@ int NFCLoginServerModule::OnHandleServerMessage(uint64_t unLinkId, NFDataPackage
     switch (packet.nMsgId)
     {
         default:
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "msg:({}) not handle", packet.ToString());
+            NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) not handle", packet.ToString());
             break;
     }
 
     if (retCode != 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "msg:({}) handle exist error", packet.ToString());
+        NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) handle exist error", packet.ToString());
     }
     return 0;
 }

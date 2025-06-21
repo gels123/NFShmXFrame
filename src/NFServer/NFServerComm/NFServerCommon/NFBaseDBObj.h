@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include "NFComm/NFShmCore/NFShmObj.h"
-#include "NFComm/NFShmCore/NFSeqOP.h"
+#include "NFComm/NFObjCommon/NFObject.h"
+#include "NFComm/NFObjCommon/NFSeqOP.h"
 
 #define MAX_FAIL_RETRY_TIMES 100
 #define MAX_SAVED_OBJ_PRE_SEC 100
@@ -35,7 +35,7 @@ public :\
     eDealWithLoadFailed DealWithFailed() { return failed_op; } \
     virtual google::protobuf::Message* CreateTempProtobufData() { return new proto_ff::db_name; }
 
-class NFBaseDBObj : public NFShmObjTemplate<NFBaseDBObj, EOT_BASE_DB_OBJ, NFShmObj>, public NFSeqOP
+class NFBaseDBObj : public NFObjectTemplate<NFBaseDBObj, EOT_BASE_DB_OBJ, NFObject>, public NFSeqOP
 {
 public:
     NFBaseDBObj();
@@ -67,8 +67,8 @@ public:
     int GetRetryTimes() const { return m_iRetryTimes; }
     void SetNeedInsertDB(bool b) { m_bNeedInsertDB = b; }
     bool GetNeedInsertDB() const { return m_bNeedInsertDB; }
-    void SetServerType(NF_SERVER_TYPES type) { m_iServerType = type; }
-    NF_SERVER_TYPES GetServerType() const { return m_iServerType; }
+    void SetServerType(NF_SERVER_TYPE type) { m_iServerType = type; }
+    NF_SERVER_TYPE GetServerType() const { return m_iServerType; }
 protected:
     bool m_bDataInited;
 protected:
@@ -77,5 +77,5 @@ protected:
     uint64_t m_uModKey;
     int      m_iRetryTimes;
     bool     m_bNeedInsertDB;
-    NF_SERVER_TYPES m_iServerType;
+    NF_SERVER_TYPE m_iServerType;
 };

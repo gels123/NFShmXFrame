@@ -56,16 +56,16 @@ do {\
         if (type == T_AFTER_ELEMENT && field_name == string(tok.base, tok.len)){\
           break;\
         }\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
       if ( field_name.find(string(tok.base, tok.len)) == string::npos ) { \
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}", type, tok.base);\
         return false; \
       }\
       type = tkReader.NextToken(tok);\
       if (type != T_CONSTANTS) {\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
       char *endptr = NULL;\
@@ -73,14 +73,14 @@ do {\
       reflection->Add##TYPE(message, descriptor, to_value);\
       type = tkReader.NextToken(tok);\
       if (type != T_AFTER_ELEMENT || field_name.find(string(tok.base, tok.len)) == string::npos) {\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
     } while (true);\
   } else {\
     NFTokenType type = tkReader.NextToken(tok);\
     if (type != T_CONSTANTS) {\
-      NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+      NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
       return false;\
     }\
     char *endptr = NULL;\
@@ -88,7 +88,7 @@ do {\
     reflection->Set##TYPE(message, field_descriptor, to_value);\
     type = tkReader.NextToken(tok);\
     if (type != T_AFTER_ELEMENT) {\
-      NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+      NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
       return false;\
     }\
   }\
@@ -104,16 +104,16 @@ do {\
         if (type == T_AFTER_ELEMENT && field_name == string(tok.base, tok.len - 1)) {\
           break;\
         }\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
       if ( field_name.find(string(tok.base, tok.len)) == string::npos ) { \
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}", type, tok.base);\
         return false; \
       }\
       type = tkReader.NextToken(tok);\
       if (type != T_CONSTANTS) {\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
       char *endptr = NULL;\
@@ -121,14 +121,14 @@ do {\
       reflection->Add##TYPE(message, descriptor, to_value);\
       type = tkReader.NextToken(tok);\
       if (type != T_AFTER_ELEMENT || field_name.find(string(tok.base, tok.len)) == string::npos) {\
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
         return false;\
       }\
     } while (true);\
   } else {\
     NFTokenType type = tkReader.NextToken(tok);\
     if (type != T_CONSTANTS) {\
-      NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+      NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
       return false;\
     }\
     char *endptr = NULL;\
@@ -136,7 +136,7 @@ do {\
     reflection->Set##TYPE(message, field_descriptor, to_value);\
     type = tkReader.NextToken(tok);\
     if (type != T_AFTER_ELEMENT) {\
-      NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
+      NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}", type, tok.base);\
       return false;\
     }\
   }\
@@ -194,7 +194,7 @@ struct NFXmlTokenReader {
                         i++;
                     }
                     if (data_ptr_[i] != '>') {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "数据错误，不是一个有效的element:{}", tok.base);
+                        NFLogError(NF_LOG_DEFAULT, 0, "数据错误，不是一个有效的element:{}", tok.base);
                         type = T_ERROR;
                         goto out;
                     }
@@ -217,7 +217,7 @@ struct NFXmlTokenReader {
                         ++i;
                     }
                     type = T_ERROR;
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "数据错误，不是一个有效的字符串:{}", tok.base);
+                    NFLogError(NF_LOG_DEFAULT, 0, "数据错误，不是一个有效的字符串:{}", tok.base);
                     goto out;
                 }
                 default: {
@@ -232,7 +232,7 @@ struct NFXmlTokenReader {
                         && data_ptr_[i] != '\t'
                         && data_ptr_[i] != '\n'
                         && data_ptr_[i] != '\r') {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "数据错误，不是一个有效的element:{}", tok.base);
+                        NFLogError(NF_LOG_DEFAULT, 0, "数据错误，不是一个有效的element:{}", tok.base);
                         type = T_ERROR;
                         goto out;
                     }
@@ -453,7 +453,7 @@ void NFXmlMessageCodec::FieldToXmlString(const Message &message,
             break;
         }
         default:
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "字段[{}]是不支持的数据类型:{}",
+            NFLogError(NF_LOG_DEFAULT, 0, "字段[{}]是不支持的数据类型:{}",
                   field_descriptor->name().c_str(), field_descriptor->type());
     }
 }
@@ -495,18 +495,18 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                             && field_name == string(tok.base, tok.len)) {
                             break;
                         }
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
                               type, tok.base);
                         return false;
                     }
                     if (field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的数组元素:type:{} {}",
                               type, tok.base);
                         return false;
                     }
                     type = tkReader.NextToken(tok);
                     if (type != T_STRING) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的字串:type:{} {}",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的字串:type:{} {}",
                               type, tok.base);
                         return false;
                     }
@@ -517,7 +517,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                     type = tkReader.NextToken(tok);
                     if (type != T_AFTER_ELEMENT
                         || field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
                               type, tok.base);
                         return false;
                     }
@@ -525,7 +525,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
             } else {
                 NFTokenType type = tkReader.NextToken(tok);
                 if (type != T_STRING) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的字串:type:{} {}",
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的字串:type:{} {}",
                           type, tok.base);
                     return false;
                 }
@@ -535,7 +535,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                 reflection->SetString(message, field_descriptor, value);
                 type = tkReader.NextToken(tok);
                 if (type != T_AFTER_ELEMENT) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:{} {}",
                           type, tok.base);
                     return false;
                 }
@@ -560,18 +560,18 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                             && field_name == string(tok.base, tok.len)) {
                             break;
                         }
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
                     if (field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的数组元素:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的数组元素:type:%d %s",
                               type, tok.base);
                         return false;
                     }
                     type = tkReader.NextToken(tok);
                     if (type != T_CONSTANTS) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
@@ -580,7 +580,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                     type = tkReader.NextToken(tok);
                     if (type != T_AFTER_ELEMENT
                         || field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
@@ -588,7 +588,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
             } else {
                 NFTokenType type = tkReader.NextToken(tok);
                 if (type != T_CONSTANTS) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                           type, tok.base);
                     return false;
                 }
@@ -596,7 +596,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                 reflection->SetBool(message, field_descriptor, value);
                 type = tkReader.NextToken(tok);
                 if (type != T_AFTER_ELEMENT) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                           type, tok.base);
                     return false;
                 }
@@ -614,18 +614,18 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                             && field_name == string(tok.base, tok.len)) {
                             break;
                         }
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
                     if (field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的数组元素:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的数组元素:type:%d %s",
                               type, tok.base);
                         return false;
                     }
                     type = tkReader.NextToken(tok);
                     if (type != T_CONSTANTS) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
@@ -634,7 +634,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                     if (enum_value == NULL) {
                         enum_value = enum_desc->FindValueByNumber(NFCommon::strto<int>(key));
                         if(enum_value == NULL){
-                            NFLogError(NF_LOG_SYSTEMLOG, 0, "字段[%s]不存在枚举值[%s]",
+                            NFLogError(NF_LOG_DEFAULT, 0, "字段[%s]不存在枚举值[%s]",
                                   field_descriptor->name().c_str(), key.c_str());
                             return false;
                         }
@@ -642,7 +642,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                     type = tkReader.NextToken(tok);
                     if (type != T_AFTER_ELEMENT
                         || field_name.find(string(tok.base, tok.len)) == string::npos) {
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
@@ -650,7 +650,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
             } else {
                 NFTokenType type = tkReader.NextToken(tok);
                 if (type != T_CONSTANTS) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s", type, tok.base);
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s", type, tok.base);
                     return false;
                 }
                 string key(tok.base, tok.len);
@@ -658,7 +658,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                 if (enum_value == NULL) {
                     enum_value = enum_desc->FindValueByNumber(NFCommon::strto<int>(key));
                     if(enum_value == NULL){
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "字段[%s]不存在枚举值[%s]",
+                        NFLogError(NF_LOG_DEFAULT, 0, "字段[%s]不存在枚举值[%s]",
                               field_descriptor->name().c_str(), key.c_str());
                         return false;
                     }
@@ -666,7 +666,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                 reflection->SetEnum(message, field_descriptor, enum_value);
                 type = tkReader.NextToken(tok);
                 if (type != T_AFTER_ELEMENT) {
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s", type, tok.base);
+                    NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s", type, tok.base);
                     return false;
                 }
             }
@@ -686,7 +686,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
                             && field_name == string(tok.base, tok.len - 1)) {
                             break;
                         }
-                        NFLogError(NF_LOG_SYSTEMLOG, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
+                        NFLogError(NF_LOG_DEFAULT, 0, "xml数据错误，不是一个有效的常量:type:%d %s",
                               type, tok.base);
                         return false;
                     }
@@ -702,7 +702,7 @@ bool NFXmlMessageCodec::FillFieldValue(NFXmlTokenReader &tkReader,
             break;
         }
         default:
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "字段[%s]是不支持的数据类型:%d",
+            NFLogError(NF_LOG_DEFAULT, 0, "字段[%s]是不支持的数据类型:%d",
                   field_descriptor->name().c_str(), field_descriptor->type());
     }
     return true;
@@ -720,7 +720,7 @@ bool NFXmlMessageCodec::FromXmlObject(NFXmlTokenReader &tkReader,
             if (type == T_AFTER_ELEMENT && name == string(tok.base, tok.len)) {
                 break;
             }
-            NFLogError(NF_LOG_SYSTEMLOG, 0, "给出的xml不合法:{}", type);
+            NFLogError(NF_LOG_DEFAULT, 0, "给出的xml不合法:{}", type);
             return false;
         }
         string field_name(tok.base, tok.len);
@@ -732,12 +732,12 @@ bool NFXmlMessageCodec::FromXmlObject(NFXmlTokenReader &tkReader,
                    && (field_descriptor
                                = descriptor->FindFieldByName(
                             field_name.substr(0, field_name.size() - 1))))) {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "在消息类型[{}]中不存在字段[{}]",
+                NFLogError(NF_LOG_DEFAULT, 0, "在消息类型[{}]中不存在字段[{}]",
                       descriptor->name().c_str(), field_name.c_str());
                 return false;
             }
         }
-        // NFLogError(NF_LOG_SYSTEMLOG, 0, "在消息类型[%s]中不存在字段[%s]",
+        // NFLogError(NF_LOG_DEFAULT, 0, "在消息类型[%s]中不存在字段[%s]",
         //           descriptor->name().c_str(), field_name.c_str());
         FillFieldValue(tkReader, field_descriptor, reflection, message);
 
@@ -756,7 +756,7 @@ bool NFXmlMessageCodec::FromString(const std::string &xml,
     Token tok;
     if (Reader.NextToken(tok) != T_BEGIN_ELEMENT
         || descriptor->name() != string(tok.base, tok.len)) {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "数据无效，不是开始于一个有效的element:{}", xml.c_str());
+        NFLogError(NF_LOG_DEFAULT, 0, "数据无效，不是开始于一个有效的element:{}", xml.c_str());
         return false;
     }
     return FromXmlObject(Reader, &msg, descriptor->name());
@@ -780,7 +780,7 @@ bool NFXmlMessageCodec::CompactAndCheckString(const string &xml, string &result)
             case T_AFTER_ELEMENT:{
                 string tmp(tok.base, tok.len);
                 if(stack.empty() || stack.top() != tmp){
-                    NFLogError(NF_LOG_SYSTEMLOG, 0, "输入的xml数据不是有效的xml，element不匹配!");
+                    NFLogError(NF_LOG_DEFAULT, 0, "输入的xml数据不是有效的xml，element不匹配!");
                     return false;
                 }
                 stack.pop();
@@ -790,7 +790,7 @@ bool NFXmlMessageCodec::CompactAndCheckString(const string &xml, string &result)
                 break;
             }
             case T_ERROR:{
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "输入的xml数据不是有效的xml，读取token失败!");
+                NFLogError(NF_LOG_DEFAULT, 0, "输入的xml数据不是有效的xml，读取token失败!");
                 return false;
             }
             case T_END:{
@@ -802,7 +802,7 @@ bool NFXmlMessageCodec::CompactAndCheckString(const string &xml, string &result)
     } while (true);
     out:
     if(! stack.empty()){
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "输入的xml数据不是有效的xml，element不配对!");
+        NFLogError(NF_LOG_DEFAULT, 0, "输入的xml数据不是有效的xml，element不配对!");
         return false;
     }
     return true;
@@ -874,7 +874,7 @@ bool NFXmlMessageCodec::PrettyString(const std::string &xml,
                 break;
             }
             case T_ERROR: {
-                NFLogError(NF_LOG_SYSTEMLOG, 0, "输入的xml数据不是有效的xml，读取token失败!");
+                NFLogError(NF_LOG_DEFAULT, 0, "输入的xml数据不是有效的xml，读取token失败!");
                 goto out;
             }
             case T_END: {
@@ -893,7 +893,7 @@ bool NFXmlMessageCodec::PrettyString(const std::string &xml,
 
     out:
     if(level != 0){
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "输入的xml数据不是有效的xml，element不配对!");
+        NFLogError(NF_LOG_DEFAULT, 0, "输入的xml数据不是有效的xml，element不配对!");
         type = T_ERROR;
     }
     return type != T_ERROR;

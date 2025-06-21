@@ -69,7 +69,7 @@ public:
     /*
      * 停服之前，做一些操作，满足停服条件
      * */
-    virtual bool OnStopServer();
+    virtual bool CheckStopServer();
 public:
     /// @brief 初始化工作, new了一个新的schedule
     /// @param stack_size 协程的栈大小，默认是256k

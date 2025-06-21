@@ -44,12 +44,12 @@ public:
 	int RegisterMasterServer(uint32_t serverState);
 	int ServerReport();
 
-	int OnHandleRouteAgentRegister(const proto_ff::ServerInfoReport& xData, uint64_t unlinkId);
+	int OnHandleRouteAgentRegister(const NFrame::ServerInfoReport& xData, uint64_t unlinkId);
 
 	/*
 		处理Master服务器链接事件和未注册消息
 	*/
-    int ConnectMasterServer(const proto_ff::ServerInfoReport& xData);
+    int ConnectMasterServer(const NFrame::ServerInfoReport& xData);
 	int OnMasterSocketEvent(eMsgType nEvent, uint64_t unLinkId);
 	int OnHandleMasterOtherMessage(uint64_t unLinkId, NFDataPackage& packet);
 };

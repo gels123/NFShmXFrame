@@ -9,7 +9,7 @@
 #pragma once
 
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFObject.h"
+#include "NFBaseObj.h"
 #include <functional>
 
 #ifdef Yield
@@ -17,7 +17,7 @@
 #endif
 
 /// 用户使用协程时继承该类, 实现Run方法完成协程的使用
-class NFCoroutineTask : public NFObject {
+class NFCoroutineTask : public NFBaseObj {
 public:
     /// @brief 构造函数
     NFCoroutineTask(NFIPluginManager *pPluginManager);

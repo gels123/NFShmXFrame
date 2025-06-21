@@ -42,6 +42,7 @@ std::string NFWebServerPlugin::GetPluginName()
 
 void NFWebServerPlugin::Install()
 {
+    NFGlobalSystem::Instance()->AddServerType(NF_ST_WEB_SERVER);
     REGISTER_MODULE(m_pObjPluginManager, NFIWebServerModule, NFCWebServerModule);
 }
 

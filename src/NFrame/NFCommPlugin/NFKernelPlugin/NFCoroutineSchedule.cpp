@@ -13,7 +13,7 @@
 #include "NFSchedule.h"
 #include "NFComm/NFPluginModule/NFCoroutineTask.h"
 #include "NFComm/NFPluginModule/NFLogMgr.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
+#include "NFComm/NFKernelMessage/FrameMsg.pb.h"
 
 NFCoroutineTaskTimer::NFCoroutineTaskTimer(NFCoroutineSchedule* pCoSche, int64_t taskId): NFTimerObj(pCoSche->m_pObjPluginManager), m_pCoSche(pCoSche), m_taskId(taskId)
 {
@@ -59,12 +59,12 @@ NFCoroutineSchedule::~NFCoroutineSchedule() {
     }
 }
 
-bool NFCoroutineSchedule::OnStopServer()
+bool NFCoroutineSchedule::CheckStopServer()
 {
-    NFLogInfo(NF_LOG_PLUGIN_MANAGER, 0, "NFCoroutineSchedule OnStopServer.................");
+    NFLogInfo(NF_LOG_DEFAULT, 0, "NFCoroutineSchedule StopServer.................");
     if (schedule_)
     {
-        return schedule_->OnStopServer();
+        return schedule_->CheckStopServer();
     }
 
     if (!m_taskTimer.empty())
@@ -102,7 +102,7 @@ void NFCoroutineSchedule::ClearTimer()
 int NFCoroutineSchedule::Init(uint32_t stack_size) {
     schedule_ = NF_NEW NFSchedule(stack_size);
     if (schedule_ == NULL) {
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "NFCoroutineSchedule Init Failed, new NFSchedule Failed!");
+        NFLogTrace(NF_LOG_DEFAULT, 0, "NFCoroutineSchedule Init Failed, new NFSchedule Failed!");
         return -1;
     }
     return 0;
@@ -175,7 +175,7 @@ int32_t NFCoroutineSchedule::Yield(int32_t timeout_ms) {
     if (timeout_ms > 0) {
         co_id = CurrentTaskId();
         if (INVALID_CO_ID == co_id) {
-            return proto_ff::ERR_CODE_CO_NOT_IN_COROUTINE;
+            return NFrame::ERR_CODE_CO_NOT_IN_COROUTINE;
         }
 
         pTimer = NF_NEW NFCoroutineTaskTimer(this, co_id);
@@ -196,7 +196,7 @@ int32_t NFCoroutineSchedule::Resume(int64_t id, int32_t result) {
 }
 
 int32_t NFCoroutineSchedule::OnTimeout(int64_t id) {
-    Resume(id, proto_ff::ERR_CODE_CO_TIMEOUT);
+    Resume(id, NFrame::ERR_CODE_CO_TIMEOUT);
     return kTIMER_BE_REMOVED;
 }
 

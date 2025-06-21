@@ -68,7 +68,7 @@ public:
 #endif
 	}
 
-    bool OnStopServer();
+    bool CheckStopServer();
 
 	/// @brief 创建一个协程
 	/// @param 协程执行体的函数指针

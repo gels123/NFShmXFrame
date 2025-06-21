@@ -9,9 +9,11 @@
 
 #include <fstream>
 #include "NFProtobufCommon.h"
+
+#include <NFComm/NFCore/NFFileUtility.h>
+
 #include "NFLogMgr.h"
 #include "NFCheck.h"
-#include "NFComm/NFKernelMessage/yd_fieldoptions.pb.h"
 #include "NFComm/NFPluginModule/NFJson2PB/NFPbToJson.h"
 #include "NFComm/NFPluginModule/NFJson2PB/NFJsonToPb.h"
 #include "NFComm/NFCore/NFStringUtility.h"
@@ -23,10 +25,10 @@
 #undef GetMessage
 #endif
 
-std::string NFProtobufCommon::GetRepeatedFieldsString(const google::protobuf::Message &message,
-                                                      const google::protobuf::FieldDescriptor *pFieldDesc, int index)
+std::string NFProtobufCommon::GetRepeatedFieldsString(const google::protobuf::Message& message,
+                                                      const google::protobuf::FieldDescriptor* pFieldDesc, int index)
 {
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pReflect == nullptr || pFieldDesc == nullptr) return std::string();
     if (pFieldDesc->is_repeated() == false) return std::string();
 
@@ -37,91 +39,91 @@ std::string NFProtobufCommon::GetRepeatedFieldsString(const google::protobuf::Me
             int32_t value = pReflect->GetRepeatedInt32(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
         {
             int64_t value = pReflect->GetRepeatedInt64(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
         {
             uint32_t value = pReflect->GetRepeatedUInt32(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
         {
             uint64_t value = pReflect->GetRepeatedUInt64(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
         {
             double value = pReflect->GetRepeatedDouble(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
         {
             float value = pReflect->GetRepeatedFloat(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
         {
             bool value = pReflect->GetRepeatedBool(message, pFieldDesc, index);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
         {
-            const google::protobuf::EnumValueDescriptor *pEnumDesc = pReflect->GetRepeatedEnum(message, pFieldDesc,
+            const google::protobuf::EnumValueDescriptor* pEnumDesc = pReflect->GetRepeatedEnum(message, pFieldDesc,
                                                                                                index);
             if (pEnumDesc)
             {
                 return NFCommon::tostr(pEnumDesc->number());
             }
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
         {
             std::string value = pReflect->GetRepeatedString(message, pFieldDesc, index);
             return value;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
         {
-            const google::protobuf::Message &value = pReflect->GetRepeatedMessage(message, pFieldDesc, index);
+            const google::protobuf::Message& value = pReflect->GetRepeatedMessage(message, pFieldDesc, index);
             std::string msg;
             value.SerializePartialToString(&msg);
             return msg;
         }
-            break;
+        break;
         default:
             break;
     }
     return std::string();
 }
 
-int NFProtobufCommon::CopyMessageByFields(google::protobuf::Message *pSrcMessage, const google::protobuf::Message *pDescMessage)
+int NFProtobufCommon::CopyMessageByFields(google::protobuf::Message* pSrcMessage, const google::protobuf::Message* pDescMessage)
 {
     if (!pSrcMessage || !pDescMessage) return -1;
 
-    const google::protobuf::Descriptor *pDestDesc = pDescMessage->GetDescriptor();
-    const google::protobuf::Reflection *pDestReflect = pDescMessage->GetReflection();
+    const google::protobuf::Descriptor* pDestDesc = pDescMessage->GetDescriptor();
+    const google::protobuf::Reflection* pDestReflect = pDescMessage->GetReflection();
     if (pDestDesc == NULL || pDestReflect == NULL) return -1;
 
-    const google::protobuf::Descriptor *pSrcDesc = pSrcMessage->GetDescriptor();
-    const google::protobuf::Reflection *pSrcReflect = pSrcMessage->GetReflection();
+    const google::protobuf::Descriptor* pSrcDesc = pSrcMessage->GetDescriptor();
+    const google::protobuf::Reflection* pSrcReflect = pSrcMessage->GetReflection();
     if (pSrcDesc == NULL || pSrcReflect == NULL) return -1;
 
     for (int j = 0; j < pSrcDesc->field_count(); j++)
     {
-        const google::protobuf::FieldDescriptor *pSrcFieldDesc = pSrcDesc->field(j);
+        const google::protobuf::FieldDescriptor* pSrcFieldDesc = pSrcDesc->field(j);
         if (pSrcFieldDesc == NULL) continue;
 
-        const google::protobuf::FieldDescriptor *pDescFieldDesc = pDestDesc->FindFieldByLowercaseName(pSrcFieldDesc->lowercase_name());
+        const google::protobuf::FieldDescriptor* pDescFieldDesc = pDestDesc->FindFieldByLowercaseName(pSrcFieldDesc->lowercase_name());
         if (pDescFieldDesc == NULL) continue;
 
         if (pSrcFieldDesc->cpp_type() == pDescFieldDesc->cpp_type())
@@ -134,57 +136,57 @@ int NFProtobufCommon::CopyMessageByFields(google::protobuf::Message *pSrcMessage
                     {
                         pSrcReflect->SetInt32(pSrcMessage, pSrcFieldDesc, pDestReflect->GetInt32(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
                     {
                         pSrcReflect->SetInt64(pSrcMessage, pSrcFieldDesc, pDestReflect->GetInt64(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
                     {
                         pSrcReflect->SetUInt32(pSrcMessage, pSrcFieldDesc, pDestReflect->GetUInt32(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
                     {
                         pSrcReflect->SetUInt64(pSrcMessage, pSrcFieldDesc, pDestReflect->GetUInt64(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
                     {
                         pSrcReflect->SetDouble(pSrcMessage, pSrcFieldDesc, pDestReflect->GetDouble(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
                     {
                         pSrcReflect->SetFloat(pSrcMessage, pSrcFieldDesc, pDestReflect->GetFloat(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
                     {
                         pSrcReflect->SetBool(pSrcMessage, pSrcFieldDesc, pDestReflect->GetBool(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
                     {
                         pSrcReflect->SetEnum(pSrcMessage, pSrcFieldDesc, pDestReflect->GetEnum(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
                     {
                         pSrcReflect->SetString(pSrcMessage, pSrcFieldDesc, pDestReflect->GetString(*pDescMessage, pDescFieldDesc));
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
                     {
-                        const google::protobuf::Message &destFieldMessage = pDestReflect->GetMessage(*pDescMessage, pDescFieldDesc);
-                        google::protobuf::Message *pMutableMessage = pSrcReflect->MutableMessage(pSrcMessage, pSrcFieldDesc);
+                        const google::protobuf::Message& destFieldMessage = pDestReflect->GetMessage(*pDescMessage, pDescFieldDesc);
+                        google::protobuf::Message* pMutableMessage = pSrcReflect->MutableMessage(pSrcMessage, pSrcFieldDesc);
                         if (pMutableMessage)
                         {
                             CopyMessageByFields(pMutableMessage, &destFieldMessage);
                         }
                     }
-                        break;
+                    break;
                     default:
                         break;
                 }
@@ -195,89 +197,89 @@ int NFProtobufCommon::CopyMessageByFields(google::protobuf::Message *pSrcMessage
                 {
                     case google::protobuf::FieldDescriptor::CPPTYPE_INT32:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddInt32(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedInt32(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddInt64(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedInt64(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddUInt32(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedUInt32(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddUInt64(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedUInt64(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddDouble(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedDouble(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddFloat(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedFloat(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddBool(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedBool(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddEnum(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedEnum(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
                             pSrcReflect->AddString(pSrcMessage, pSrcFieldDesc, pDestReflect->GetRepeatedString(*pDescMessage, pDescFieldDesc, i));
                         }
                     }
-                        break;
+                    break;
                     case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
                     {
-                        for (int i = 0; i < (int) pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
+                        for (int i = 0; i < (int)pDestReflect->FieldSize(*pDescMessage, pDescFieldDesc); i++)
                         {
-                            const google::protobuf::Message &destFieldMessage = pDestReflect->GetRepeatedMessage(*pDescMessage, pDescFieldDesc, i);
-                            google::protobuf::Message *pMutableMessage = pSrcReflect->AddMessage(pSrcMessage, pSrcFieldDesc);
+                            const google::protobuf::Message& destFieldMessage = pDestReflect->GetRepeatedMessage(*pDescMessage, pDescFieldDesc, i);
+                            google::protobuf::Message* pMutableMessage = pSrcReflect->AddMessage(pSrcMessage, pSrcFieldDesc);
                             if (pMutableMessage)
                             {
                                 CopyMessageByFields(pMutableMessage, &destFieldMessage);
                             }
                         }
                     }
-                        break;
+                    break;
                     default:
                         break;
                 }
@@ -288,10 +290,10 @@ int NFProtobufCommon::CopyMessageByFields(google::protobuf::Message *pSrcMessage
     return 0;
 }
 
-std::string NFProtobufCommon::GetFieldsString(const google::protobuf::Message &message,
-                                              const google::protobuf::FieldDescriptor *pFieldDesc)
+std::string NFProtobufCommon::GetFieldsString(const google::protobuf::Message& message,
+                                              const google::protobuf::FieldDescriptor* pFieldDesc)
 {
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pReflect == nullptr || pFieldDesc == nullptr) return std::string();
     if (pFieldDesc->is_repeated()) return std::string();
 
@@ -302,78 +304,78 @@ std::string NFProtobufCommon::GetFieldsString(const google::protobuf::Message &m
             int32_t value = pReflect->GetInt32(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
         {
             int64_t value = pReflect->GetInt64(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
         {
             uint32_t value = pReflect->GetUInt32(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
         {
             uint64_t value = pReflect->GetUInt64(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
         {
             double value = pReflect->GetDouble(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
         {
             float value = pReflect->GetFloat(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
         {
             bool value = pReflect->GetBool(message, pFieldDesc);
             return NFCommon::tostr(value);
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
         {
-            const google::protobuf::EnumValueDescriptor *pEnumDesc = pReflect->GetEnum(message, pFieldDesc);
+            const google::protobuf::EnumValueDescriptor* pEnumDesc = pReflect->GetEnum(message, pFieldDesc);
             if (pEnumDesc)
             {
                 return NFCommon::tostr(pEnumDesc->number());
             }
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
         {
             std::string value = pReflect->GetString(message, pFieldDesc);
             return value;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
         {
-            const google::protobuf::Message &value = pReflect->GetMessage(message, pFieldDesc);
+            const google::protobuf::Message& value = pReflect->GetMessage(message, pFieldDesc);
             std::string msg;
             value.SerializePartialToString(&msg);
             return msg;
         }
-            break;
+        break;
         default:
             break;
     }
     return std::string();
 }
 
-void NFProtobufCommon::SetFieldsString(google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc,
-                                       const std::string &strValue)
+bool NFProtobufCommon::SetFieldsString(google::protobuf::Message& message, const google::protobuf::FieldDescriptor* pFieldDesc,
+                                       const std::string& strValue)
 {
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
-    if (pReflect == nullptr || pFieldDesc == nullptr) return;
-    if (pFieldDesc->is_repeated()) return;
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
+    if (pReflect == nullptr || pFieldDesc == nullptr) return false;
+    if (pFieldDesc->is_repeated()) return false;
 
     switch (pFieldDesc->cpp_type())
     {
@@ -381,91 +383,90 @@ void NFProtobufCommon::SetFieldsString(google::protobuf::Message &message, const
         {
             int32_t value = NFCommon::strto<int32_t>(strValue);
             pReflect->SetInt32(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
         {
             int64_t value = NFCommon::strto<int64_t>(strValue);
             pReflect->SetInt64(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
         {
             uint32_t value = NFCommon::strto<uint32_t>(strValue);
             pReflect->SetUInt32(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
         {
             uint64_t value = NFCommon::strto<uint64_t>(strValue);
             pReflect->SetUInt64(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
         {
             double value = NFCommon::strto<double>(strValue);
             pReflect->SetDouble(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
         {
             float value = NFCommon::strto<float>(strValue);
             pReflect->SetFloat(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
         {
-            bool value = (bool) NFCommon::strto<bool>(strValue);
+            bool value = (bool)NFCommon::strto<bool>(strValue);
             pReflect->SetBool(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
         {
-            int value = NFCommon::strto<int>(strValue);
-            const google::protobuf::EnumDescriptor *pEnumDesc = pFieldDesc->enum_type();
-            if (pEnumDesc == nullptr) return;
+            const google::protobuf::EnumDescriptor* pEnumDesc = pFieldDesc->enum_type();
+            if (pEnumDesc == nullptr) return false;
 
-            const google::protobuf::EnumValueDescriptor *pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
-            if (pEnumValueDesc == nullptr) return;
+            std::string numberValue = strValue;
+            if (!NFStringUtility::IsDigital(strValue))
+            {
+                if (!NFProtobufCommon::Instance()->FindEnumNumberByMacroName(pEnumDesc->full_name(), strValue, numberValue))
+                {
+                    return false;
+                }
+            }
+
+            int value = NFCommon::strto<int>(numberValue);
+            const google::protobuf::EnumValueDescriptor* pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
+            if (pEnumValueDesc == nullptr) return false;
 
             pReflect->SetEnum(&message, pFieldDesc, pEnumValueDesc);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
         {
             pReflect->SetString(&message, pFieldDesc, strValue);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
         {
-            google::protobuf::Message *pMutableMessage = pReflect->MutableMessage(&message, pFieldDesc);
-            if (pMutableMessage == nullptr) return;
+            google::protobuf::Message* pMutableMessage = pReflect->MutableMessage(&message, pFieldDesc);
+            if (pMutableMessage == nullptr) return false;
 
-            pMutableMessage->ParsePartialFromString(strValue);
-            return;
+            return pMutableMessage->ParsePartialFromString(strValue);
         }
-            break;
+        break;
         default:
             break;
     }
-    return;
+    return true;
 }
 
-void NFProtobufCommon::AddFieldsString(google::protobuf::Message &message, const google::protobuf::FieldDescriptor *pFieldDesc,
-                                       const std::string &strValue)
+bool NFProtobufCommon::AddFieldsString(google::protobuf::Message& message, const google::protobuf::FieldDescriptor* pFieldDesc,
+                                       const std::string& strValue)
 {
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
-    if (pReflect == nullptr || pFieldDesc == nullptr) return;
-    if (pFieldDesc->is_repeated() == false) return;
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
+    if (pReflect == nullptr || pFieldDesc == nullptr) return false;
+    if (pFieldDesc->is_repeated() == false) return false;
 
     switch (pFieldDesc->cpp_type())
     {
@@ -473,89 +474,88 @@ void NFProtobufCommon::AddFieldsString(google::protobuf::Message &message, const
         {
             int32_t value = NFCommon::strto<int32_t>(strValue);
             pReflect->AddInt32(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
         {
             int64_t value = NFCommon::strto<int64_t>(strValue);
             pReflect->AddInt64(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
         {
             uint32_t value = NFCommon::strto<uint32_t>(strValue);
             pReflect->AddUInt32(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
         {
             uint64_t value = NFCommon::strto<uint64_t>(strValue);
             pReflect->AddUInt64(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
         {
             double value = NFCommon::strto<double>(strValue);
             pReflect->AddDouble(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
         {
             float value = NFCommon::strto<float>(strValue);
             pReflect->AddFloat(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
         {
-            bool value = (bool) NFCommon::strto<bool>(strValue);
+            bool value = (bool)NFCommon::strto<bool>(strValue);
             pReflect->AddBool(&message, pFieldDesc, value);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
         {
-            int value = NFCommon::strto<int>(strValue);
-            const google::protobuf::EnumDescriptor *pEnumDesc = pFieldDesc->enum_type();
-            if (pEnumDesc == nullptr) return;
+            const google::protobuf::EnumDescriptor* pEnumDesc = pFieldDesc->enum_type();
+            if (pEnumDesc == nullptr) return false;
 
-            const google::protobuf::EnumValueDescriptor *pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
-            if (pEnumValueDesc == nullptr) return;
+            std::string numberValue = strValue;
+            if (!NFStringUtility::IsDigital(strValue))
+            {
+                if (!NFProtobufCommon::Instance()->FindEnumNumberByMacroName(pEnumDesc->full_name(), strValue, numberValue))
+                {
+                    return false;
+                }
+            }
+
+            int value = NFCommon::strto<int>(numberValue);
+            const google::protobuf::EnumValueDescriptor* pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
+            if (pEnumValueDesc == nullptr) return false;
 
             pReflect->AddEnum(&message, pFieldDesc, pEnumValueDesc);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
         {
             pReflect->AddString(&message, pFieldDesc, strValue);
-            return;
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
         {
-            google::protobuf::Message *pMutableMessage = pReflect->AddMessage(&message, pFieldDesc);
-            if (pMutableMessage == nullptr) return;
+            google::protobuf::Message* pMutableMessage = pReflect->AddMessage(&message, pFieldDesc);
+            if (pMutableMessage == nullptr) return false;
 
-            pMutableMessage->ParsePartialFromString(strValue);
-            return;
+            return pMutableMessage->ParsePartialFromString(strValue);
         }
-            break;
+        break;
         default:
             break;
     }
-    return;
+    return true;
 }
 
-const ::google::protobuf::Message *NFProtobufCommon::FindMessageTypeByName(const std::string &full_name)
+const ::google::protobuf::Message* NFProtobufCommon::FindMessageTypeByName(const std::string& full_name)
 {
-    const google::protobuf::Descriptor *pDescriptor = ::google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(
-            full_name);
+    const google::protobuf::Descriptor* pDescriptor = ::google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(
+        full_name);
     if (pDescriptor)
     {
         return ::google::protobuf::MessageFactory::generated_factory()->GetPrototype(pDescriptor);
@@ -563,9 +563,9 @@ const ::google::protobuf::Message *NFProtobufCommon::FindMessageTypeByName(const
     return NULL;
 }
 
-::google::protobuf::Message *NFProtobufCommon::CreateMessageByName(const std::string &full_name)
+::google::protobuf::Message* NFProtobufCommon::CreateMessageByName(const std::string& full_name)
 {
-    const ::google::protobuf::Message *pMessageType = FindMessageTypeByName(full_name);
+    const ::google::protobuf::Message* pMessageType = FindMessageTypeByName(full_name);
     if (pMessageType)
     {
         return pMessageType->New();
@@ -573,99 +573,164 @@ const ::google::protobuf::Message *NFProtobufCommon::FindMessageTypeByName(const
     return NULL;
 }
 
-int NFProtobufCommon::GetMapFieldsStringFromMessage(const google::protobuf::Message &message, std::string &msg)
+int NFProtobufCommon::MessageToLogStr(std::string& msg, const google::protobuf::Message& message, const std::string& split, const std::string& repeated_split, const std::string& repeated_field_split, bool repeated)
 {
-    const google::protobuf::Descriptor *pDesc = message.GetDescriptor();
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Descriptor* pDesc = message.GetDescriptor();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pDesc == NULL || pReflect == NULL) return -1;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->is_repeated()) continue;
-
-        if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+        if (pFieldDesc->is_repeated())
         {
-            const google::protobuf::Message &subMessage = pReflect->GetMessage(message, pFieldDesc);
-            GetMapFieldsStringFromMessage(subMessage, msg);
+            /**
+             * 不处理repeated 的message 里的repeated， 只处理一层repeated
+             */
+            if (repeated) continue;
+
+            msg += split;
+
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                //const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
+                ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
+                for (::google::protobuf::int32 a_i = 0; a_i < repeatedSize; a_i++)
+                {
+                    if (a_i != repeatedSize - 1)
+                    {
+                        msg += GetRepeatedFieldsString(message, pFieldDesc, a_i) + repeated_split;
+                    }
+                    else
+                    {
+                        msg += GetRepeatedFieldsString(message, pFieldDesc, a_i);
+                    }
+                }
+            }
+            else
+            {
+                //const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
+                ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
+                for (::google::protobuf::int32 a_i = 0; a_i < repeatedSize; a_i++)
+                {
+                    const ::google::protobuf::Message& subMessageObject = pReflect->GetRepeatedMessage(message,
+                                                                                                       pFieldDesc,
+                                                                                                       a_i);
+                    if (a_i != repeatedSize - 1)
+                    {
+                        MessageToLogStr(msg, subMessageObject, repeated_field_split, "&", "&&", true);
+                        msg += repeated_split;
+                    }
+                    else
+                    {
+                        MessageToLogStr(msg, subMessageObject, repeated_field_split, "&", "&&", true);
+                    }
+                }
+            }
         }
         else
         {
-            msg += "|" + GetFieldsString(message, pFieldDesc);
+            if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                const google::protobuf::Message& subMessage = pReflect->GetMessage(message, pFieldDesc);
+                MessageToLogStr(msg, subMessage, split, repeated_split, repeated_field_split, repeated);
+            }
+            else
+            {
+                if (repeated)
+                {
+                    if (i != pDesc->field_count() - 1)
+                    {
+                        msg += GetFieldsString(message, pFieldDesc) + split;
+                    }
+                    else
+                    {
+                        msg += GetFieldsString(message, pFieldDesc);
+                    }
+                }
+                else
+                {
+                    msg += split + GetFieldsString(message, pFieldDesc);
+                }
+            }
         }
     }
     return 0;
 }
 
-void NFProtobufCommon::GetFieldsFromDesc(const google::protobuf::Descriptor *pDesc, std::vector<std::string> &vecFields)
+void NFProtobufCommon::GetDBFieldsFromDesc(const google::protobuf::Descriptor* pDesc, std::vector<std::string>& vecFields, const std::string& lastFieldName)
 {
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->options().HasExtension(yd_fieldoptions::no_db_field)) continue;
+        if (pFieldDesc->options().GetExtension(nanopb).db_no_field()) continue;
 
         if (pFieldDesc->is_repeated())
         {
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
                         vecFields.push_back(field);
                     }
                 }
             }
             else
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
-                        const google::protobuf::Descriptor *pSubDesc = fieldoptions.GetDescriptor();
+                        const google::protobuf::Descriptor* pSubDesc = pFieldDesc->options().GetDescriptor();
                         if (pSubDesc == NULL) continue;
 
-                        for (int sub_i = 0; sub_i < pSubDesc->field_count(); sub_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDesc->field(sub_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated()) continue;
-
-                            std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" +
-                                                pSubFieldDesc->name();
-                            vecFields.push_back(field);
-                        }
-
+                        GetDBFieldsFromDesc(pSubDesc, vecFields, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_");
                     }
                 }
             }
         }
         else
         {
-            vecFields.push_back(pFieldDesc->name());
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                vecFields.push_back(lastFieldName + pFieldDesc->name());
+            }
+            else
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
+                {
+                    const google::protobuf::Descriptor* pSubDesc = pFieldDesc->options().GetDescriptor();
+                    if (pSubDesc == NULL) continue;
+                    GetDBFieldsFromDesc(pSubDesc, vecFields, lastFieldName + pFieldDesc->name() + "_");
+                }
+                else
+                {
+                    vecFields.push_back(lastFieldName + pFieldDesc->name());
+                }
+            }
         }
     }
 }
 
-void NFProtobufCommon::GetMapFieldsFromMessage(const google::protobuf::Message &message,
-                                               std::map<std::string, std::string> &mapFields)
+void NFProtobufCommon::GetDBMapFieldsFromMessage(const google::protobuf::Message& message,
+                                                 std::map<std::string, std::string>& mapFields, const std::string& lastFieldName)
 {
-    const google::protobuf::Descriptor *pDesc = message.GetDescriptor();
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Descriptor* pDesc = message.GetDescriptor();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pDesc == NULL || pReflect == NULL) return;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->options().HasExtension(yd_fieldoptions::no_db_field)) continue;
+        if (pFieldDesc->options().GetExtension(nanopb).db_no_field()) continue;
         if (!pFieldDesc->is_repeated() && pReflect->HasField(message, pFieldDesc) == false) continue;
         if (pFieldDesc->is_repeated() && pReflect->FieldSize(message, pFieldDesc) == 0) continue;
 
@@ -673,70 +738,62 @@ void NFProtobufCommon::GetMapFieldsFromMessage(const google::protobuf::Message &
         {
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
                         mapFields.emplace(field, GetRepeatedFieldsString(message, pFieldDesc, a_i));
                     }
                 }
             }
             else
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        const ::google::protobuf::Message &pSubMessageObject = pReflect->GetRepeatedMessage(message,
-                                                                                                            pFieldDesc,
-                                                                                                            a_i);
-                        const google::protobuf::Descriptor *pSubDesc = pSubMessageObject.GetDescriptor();
-                        const google::protobuf::Reflection *pSubReflect = pSubMessageObject.GetReflection();
-                        if (pSubDesc == NULL || pSubReflect == NULL) continue;
-
-                        for (int sub_i = 0; sub_i < pSubDesc->field_count(); sub_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDesc->field(sub_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated()) continue;
-
-                            std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" +
-                                                pSubFieldDesc->name();
-                            mapFields.emplace(field, GetFieldsString(pSubMessageObject, pSubFieldDesc));
-                        }
-
+                        const ::google::protobuf::Message& pSubMessageObject = pReflect->GetRepeatedMessage(message, pFieldDesc, a_i);
+                        GetDBMapFieldsFromMessage(pSubMessageObject, mapFields, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_");
                     }
                 }
             }
         }
         else
         {
-            mapFields.emplace(pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                mapFields.emplace(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+            }
+            else
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
+                {
+                    const ::google::protobuf::Message& pSubMessageObject = pReflect->GetMessage(message, pFieldDesc);
+                    GetDBMapFieldsFromMessage(pSubMessageObject, mapFields, lastFieldName + pFieldDesc->name() + "_");
+                }
+                else
+                {
+                    mapFields.emplace(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+                }
+            }
         }
     }
 }
 
-int NFProtobufCommon::GetPrivateKeyFromMessage(const google::protobuf::Descriptor *pDesc, std::string& field)
+int NFProtobufCommon::GetPrivateKeyFromMessage(const google::protobuf::Descriptor* pDesc, std::string& field)
 {
     if (pDesc == NULL) return -1;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (!pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_type))
-        {
-            continue;
-        }
-        if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) !=
-            ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_PRIMARYKEY)
+        if (pFieldDesc->options().GetExtension(nanopb).db_type() != E_FIELD_TYPE_PRIMARYKEY)
         {
             continue;
         }
@@ -748,29 +805,54 @@ int NFProtobufCommon::GetPrivateKeyFromMessage(const google::protobuf::Descripto
     return 1;
 }
 
-int NFProtobufCommon::GetPrivateFieldsFromMessage(const google::protobuf::Message &message, std::string& field, std::string& fieldValue)
+int NFProtobufCommon::GetMacroTypeFromMessage(const google::protobuf::Descriptor* pDesc, const std::string& base, std::unordered_map<std::string, std::string>& fieldMap)
 {
-    const google::protobuf::Descriptor *pDesc = message.GetDescriptor();
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    if (pDesc == NULL) return -1;
+
+    for (int i = 0; i < pDesc->field_count(); i++)
+    {
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
+        if (pFieldDesc == NULL) continue;
+        if (pFieldDesc->options().GetExtension(nanopb).macro_type().empty()) continue;
+
+        std::string strName = base;
+        if (!strName.empty())
+        {
+            strName += "_";
+        }
+        strName += pFieldDesc->name();
+        if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+        {
+            auto pNewDesc = pFieldDesc->message_type();
+            GetMacroTypeFromMessage(pNewDesc, strName, fieldMap);
+        }
+        else
+        {
+            fieldMap.emplace(strName, pFieldDesc->options().GetExtension(nanopb).macro_type());
+        }
+    }
+
+    return 0;
+}
+
+int NFProtobufCommon::GetPrivateFieldsFromMessage(const google::protobuf::Message& message, std::string& field, std::string& fieldValue)
+{
+    const google::protobuf::Descriptor* pDesc = message.GetDescriptor();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pDesc == NULL || pReflect == NULL) return -1;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->options().HasExtension(yd_fieldoptions::no_db_field)) continue;
+        if (pFieldDesc->options().GetExtension(nanopb).db_no_field()) continue;
         if (!pFieldDesc->is_repeated() && pReflect->HasField(message, pFieldDesc) == false) continue;
         if (pFieldDesc->is_repeated() && pReflect->FieldSize(message, pFieldDesc) == 0) continue;
 
         if (pFieldDesc->is_repeated()) continue;
         if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE) continue;
 
-        if (!pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_type))
-        {
-            continue;
-        }
-        if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) !=
-            ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_PRIMARYKEY)
+        if (pFieldDesc->options().GetExtension(nanopb).db_type() != E_FIELD_TYPE_PRIMARYKEY)
         {
             continue;
         }
@@ -783,94 +865,88 @@ int NFProtobufCommon::GetPrivateFieldsFromMessage(const google::protobuf::Messag
     return 1;
 }
 
-void NFProtobufCommon::GetMapFieldsFromMessage(const google::protobuf::Message &message,
-                                               std::map<std::string, std::string> &keyMap, std::map<std::string, std::string> &kevValueMap)
+void NFProtobufCommon::GetMapDBFieldsFromMessage(const google::protobuf::Message& message,
+                                                 std::map<std::string, std::string>& keyMap, std::map<std::string, std::string>& kevValueMap, const std::string& lastFieldName)
 {
-    const google::protobuf::Descriptor *pDesc = message.GetDescriptor();
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Descriptor* pDesc = message.GetDescriptor();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pDesc == NULL || pReflect == NULL) return;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
         if (!pFieldDesc->is_repeated() && pReflect->HasField(message, pFieldDesc) == false) continue;
         if (pFieldDesc->is_repeated() && pReflect->FieldSize(message, pFieldDesc) == 0) continue;
 
-        if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_type))
+        if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_PRIMARYKEY ||
+            pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_UNIQUE_INDEX)
         {
-            if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) ==
-                ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_PRIMARYKEY ||
-                pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) ==
-                ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_UNIQUE_INDEX)
-            {
-                keyMap.emplace(pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
-            }
+            keyMap.emplace(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
         }
 
         if (pFieldDesc->is_repeated())
         {
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
                         kevValueMap.emplace(field, GetRepeatedFieldsString(message, pFieldDesc, a_i));
                     }
                 }
             }
             else
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        const ::google::protobuf::Message &pSubMessageObject = pReflect->GetRepeatedMessage(message,
-                                                                                                            pFieldDesc,
-                                                                                                            a_i);
-                        const google::protobuf::Descriptor *pSubDesc = pSubMessageObject.GetDescriptor();
-                        const google::protobuf::Reflection *pSubReflect = pSubMessageObject.GetReflection();
-                        if (pSubDesc == NULL || pSubReflect == NULL) continue;
+                        const ::google::protobuf::Message& pSubMessageObject = pReflect->GetRepeatedMessage(message, pFieldDesc, a_i);
 
-                        for (int sub_i = 0; sub_i < pSubDesc->field_count(); sub_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDesc->field(sub_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated()) continue;
-
-                            std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" +
-                                                pSubFieldDesc->name();
-                            kevValueMap.emplace(field, GetFieldsString(pSubMessageObject, pSubFieldDesc));
-                        }
-
+                        GetMapDBFieldsFromMessage(pSubMessageObject, keyMap, kevValueMap, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_");
                     }
                 }
             }
         }
         else
         {
-            kevValueMap.emplace(pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                kevValueMap.emplace(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+            }
+            else
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
+                {
+                    const ::google::protobuf::Message& pSubMessageObject = pReflect->GetMessage(message, pFieldDesc);
+
+                    GetMapDBFieldsFromMessage(pSubMessageObject, keyMap, kevValueMap, lastFieldName + pFieldDesc->name() + "_");
+                }
+                else
+                {
+                    kevValueMap.emplace(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc));
+                }
+            }
         }
     }
 }
 
-void NFProtobufCommon::GetFieldsFromMessage(const google::protobuf::Message &message, std::vector<std::pair<std::string, std::string>> &kevValueList)
+void NFProtobufCommon::GetDBFieldsFromMessage(const google::protobuf::Message& message, std::vector<std::pair<std::string, std::string>>& kevValueList, const std::string& lastFieldName)
 {
-    const google::protobuf::Descriptor *pDesc = message.GetDescriptor();
-    const google::protobuf::Reflection *pReflect = message.GetReflection();
+    const google::protobuf::Descriptor* pDesc = message.GetDescriptor();
+    const google::protobuf::Reflection* pReflect = message.GetReflection();
     if (pDesc == NULL || pReflect == NULL) return;
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
         if (!pFieldDesc->is_repeated() && pReflect->HasField(message, pFieldDesc) == false) continue;
         if (pFieldDesc->is_repeated() && pReflect->FieldSize(message, pFieldDesc) == 0) continue;
@@ -879,96 +955,128 @@ void NFProtobufCommon::GetFieldsFromMessage(const google::protobuf::Message &mes
         {
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
                         kevValueList.push_back(std::make_pair(field, GetRepeatedFieldsString(message, pFieldDesc, a_i)));
                     }
                 }
             }
             else
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     ::google::protobuf::int32 repeatedSize = pReflect->FieldSize(message, pFieldDesc);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize && a_i < repeatedSize; a_i++)
                     {
-                        const ::google::protobuf::Message &pSubMessageObject = pReflect->GetRepeatedMessage(message,
-                                                                                                            pFieldDesc,
-                                                                                                            a_i);
-                        const google::protobuf::Descriptor *pSubDesc = pSubMessageObject.GetDescriptor();
-                        const google::protobuf::Reflection *pSubReflect = pSubMessageObject.GetReflection();
-                        if (pSubDesc == NULL || pSubReflect == NULL) continue;
-
-                        for (int sub_i = 0; sub_i < pSubDesc->field_count(); sub_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDesc->field(sub_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated()) continue;
-
-                            std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" +
-                                                pSubFieldDesc->name();
-                            kevValueList.push_back(std::make_pair(field, GetFieldsString(pSubMessageObject, pSubFieldDesc)));
-                        }
-
+                        const ::google::protobuf::Message& pSubMessageObject = pReflect->GetRepeatedMessage(message, pFieldDesc, a_i);
+                        GetDBFieldsFromMessage(pSubMessageObject, kevValueList, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_");
                     }
                 }
             }
         }
         else
         {
-            kevValueList.push_back(std::make_pair(pFieldDesc->name(), GetFieldsString(message, pFieldDesc)));
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                kevValueList.push_back(std::make_pair(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc)));
+            }
+            else
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
+                {
+                    const ::google::protobuf::Message& pSubMessageObject = pReflect->GetMessage(message, pFieldDesc);
+                    GetDBFieldsFromMessage(pSubMessageObject, kevValueList, lastFieldName + pFieldDesc->name() + "_");
+                }
+                else
+                {
+                    kevValueList.push_back(std::make_pair(lastFieldName + pFieldDesc->name(), GetFieldsString(message, pFieldDesc)));
+                }
+            }
         }
     }
 }
 
-void NFProtobufCommon::GetDBMessageFromMapFields(const std::map<std::string, std::string> &result, google::protobuf::Message *pMessageObject)
+void NFProtobufCommon::GetDBMessageFromMapFields(const std::map<std::string, std::string>& result, google::protobuf::Message* pMessageObject, const std::string& lastFieldName, bool* pbAllEmpty)
 {
     if (pMessageObject == NULL) return;
     /* message AttrValue
        {
-           optional int32 attr = 1 [(yd_fieldoptions.field_cname) = "attr"];
-           optional int32 value = 2 [(yd_fieldoptions.field_cname) = "value"];
-           optional string value2 = 3 [(yd_fieldoptions.field_cname) = "value2", (yd_fieldoptions.db_field_bufsize)=128];
+           optional int32 attr = 1 [(nanopb).field_cname = "attr"];
+           optional int32 value = 2 [(nanopb).field_cname = "value"];
+           optional string value2 = 3 [(nanopb).field_cname = "value2", (yd_fieldoptions.db_field_bufsize)=128];
        }
 
        message FishConfigDesc
        {
-           optional int32 fish_id = 1 [(yd_fieldoptions.field_cname) = "鱼id", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_PRIMARYKEY];
-           optional int32 fish_type = 2 [(yd_fieldoptions.field_cname) = "鱼的玩法类型"];
-           optional int32 build_fish_type = 3 [(yd_fieldoptions.field_cname) = "客户端创建鱼类型"];
-           optional int32 ratio_max = 4  [(yd_fieldoptions.field_cname) = "倍率最大值"];
-           optional int32 double_award_min_ratio = 5  [(yd_fieldoptions.field_cname) = "可能触发双倍奖励所需最低倍率"];
-           optional int32 child_fish_count = 6  [(yd_fieldoptions.field_cname) = "组合鱼携带子鱼个数"];
-           repeated string child_fish_ids = 7  [(yd_fieldoptions.field_cname) = "组合鱼位置可选子鱼id列表", (yd_fieldoptions.field_bufsize)=128, (yd_fieldoptions.db_field_bufsize)=128, (yd_fieldoptions.field_arysize) = 6];
-           repeated AttrValue attr_values = 8 [(yd_fieldoptions.field_cname) = "attr_values", (yd_fieldoptions.field_arysize)=2];
+           optional int32 fish_id = 1 [(nanopb).field_cname = "鱼id", (yd_fieldoptions.db_field_type) = E_FIELD_TYPE_PRIMARYKEY];
+           optional int32 fish_type = 2 [(nanopb).field_cname = "鱼的玩法类型"];
+           optional int32 build_fish_type = 3 [(nanopb).field_cname = "客户端创建鱼类型"];
+           optional int32 ratio_max = 4  [(nanopb).field_cname = "倍率最大值"];
+           optional int32 double_award_min_ratio = 5  [(nanopb).field_cname = "可能触发双倍奖励所需最低倍率"];
+           optional int32 child_fish_count = 6  [(nanopb).field_cname = "组合鱼携带子鱼个数"];
+           repeated string child_fish_ids = 7  [(nanopb).field_cname = "组合鱼位置可选子鱼id列表", (nanopb).max_size=128, (yd_fieldoptions.db_field_bufsize)=128, (nanopb).max_count = 6];
+           repeated AttrValue attr_values = 8 [(nanopb).field_cname = "attr_values", (nanopb).max_count=2];
        }
 
        如上，将一个result结果， 转化为protobuf的message, 比如FishConfigDesc, 代表这数据库FishConfigDesc或Excel表格中的一列
     */
-    const google::protobuf::Descriptor *pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
-    const google::protobuf::Reflection *pMessageObjectReflect = pMessageObject->GetReflection();
+    const google::protobuf::Descriptor* pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
+    const google::protobuf::Reflection* pMessageObjectReflect = pMessageObject->GetReflection();
     if (pMessageObjectFieldDesc == NULL || pMessageObjectReflect == NULL) return;
 
     for (int i = 0; i < pMessageObjectFieldDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pMessageObjectFieldDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pMessageObjectFieldDesc->field(i);
         if (pFieldDesc == NULL) continue;
         //如果不是repeated, 只是简单信息，就直接给
         if (pFieldDesc->is_repeated() == false)
         {
-            std::string field = pFieldDesc->name();
-            auto iter = result.find(field);
-            if (iter != result.end())
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                NFProtobufCommon::SetFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                std::string field = lastFieldName + pFieldDesc->name();
+                auto iter = result.find(field);
+                if (iter != result.end())
+                {
+                    if (pbAllEmpty && !iter->second.empty())
+                    {
+                        *pbAllEmpty = false;
+                    }
+                    NFProtobufCommon::SetFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                }
+            }
+            else
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
+                {
+                    ::google::protobuf::Message* pSubMessageObject = pMessageObjectReflect->MutableMessage(pMessageObject, pFieldDesc);
+                    if (pSubMessageObject == NULL) continue;
+
+                    bool allSubMessageeEmpty = true;
+                    GetDBMessageFromMapFields(result, pSubMessageObject, lastFieldName + pFieldDesc->name() + "_", &allSubMessageeEmpty);
+                    if (pbAllEmpty && allSubMessageeEmpty)
+                    {
+                        *pbAllEmpty = false;
+                    }
+                }
+                else
+                {
+                    std::string field = lastFieldName + pFieldDesc->name();
+                    auto iter = result.find(field);
+                    if (iter != result.end())
+                    {
+                        if (pbAllEmpty && !iter->second.empty())
+                        {
+                            *pbAllEmpty = false;
+                        }
+                        NFProtobufCommon::SetFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                    }
+                }
             }
         }
         else
@@ -977,19 +1085,35 @@ void NFProtobufCommon::GetDBMessageFromMapFields(const std::map<std::string, std
             //把数据库里的多行，搞成数组的形式
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
+                    std::vector<std::string> vecValue;
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
 
                         auto iter = result.find(field);
                         if (iter != result.end())
                         {
-                            NFProtobufCommon::AddFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                            if (pbAllEmpty && !iter->second.empty())
+                            {
+                                *pbAllEmpty = false;
+                            }
+                            vecValue.push_back(iter->second);
                         }
+                    }
+
+                    int vecValueLastIndex = vecValue.size();
+                    for (int vec_i = (int)vecValue.size() - 1; vec_i >= 0; vec_i--)
+                    {
+                        if (!vecValue[vec_i].empty()) break;
+                        vecValueLastIndex = vec_i;
+                    }
+
+                    for (int vec_i = 0; vec_i < vecValueLastIndex; vec_i++)
+                    {
+                        NFProtobufCommon::AddFieldsString(*pMessageObject, pFieldDesc, vecValue[vec_i]);
                     }
                 }
             }
@@ -998,38 +1122,36 @@ void NFProtobufCommon::GetDBMessageFromMapFields(const std::map<std::string, std
                 //如果只是复杂的repeated, 比如:
                 //message AttrValue
                 //{
-                //	optional int32 attr = 1 [(yd_fieldoptions.field_cname) = "attr"];
-                //	optional int32 value = 2 [(yd_fieldoptions.field_cname) = "value"];
-                //	optional string value2 = 3 [(yd_fieldoptions.field_cname) = "value2", (yd_fieldoptions.db_field_bufsize)=128];
+                //	optional int32 attr = 1 [(nanopb).field_cname = "attr"];
+                //	optional int32 value = 2 [(nanopb).field_cname = "value"];
+                //	optional string value2 = 3 [(nanopb).field_cname = "value2", (yd_fieldoptions.db_field_bufsize)=128];
                 //}
-                //repeated AttrValue attr_values = 8 [(yd_fieldoptions.field_cname) = "attr_values", (yd_fieldoptions.field_arysize)=2];
+                //repeated AttrValue attr_values = 8 [(nanopb).field_cname = "attr_values", (nanopb).max_count=2];
                 //把数据库里的多行，配合结构转成repeated数组
-                const google::protobuf::Descriptor *pSubDescriptor = pFieldDesc->message_type();
+                const google::protobuf::Descriptor* pSubDescriptor = pFieldDesc->message_type();
                 if (pSubDescriptor == NULL) continue;
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
+                    std::vector<std::pair<google::protobuf::Message*, bool>> vecValue;
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
-                        ::google::protobuf::Message *pSubMessageObject = pMessageObjectReflect->AddMessage(pMessageObject, pFieldDesc);
+                        ::google::protobuf::Message* pSubMessageObject = pMessageObjectReflect->AddMessage(pMessageObject, pFieldDesc);
                         if (pSubMessageObject == NULL) continue;
-                        for (int field_i = 0; field_i < pSubDescriptor->field_count(); field_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDescriptor->field(field_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated() == false)
-                            {
-                                std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" + pSubFieldDesc->name();
 
-                                auto iter = result.find(field);
-                                if (iter != result.end())
-                                {
-                                    NFProtobufCommon::SetFieldsString(*pSubMessageObject, pSubFieldDesc, iter->second);
-                                }
-                            }
+                        bool allSubMessageeEmpty = true;
+                        GetDBMessageFromMapFields(result, pSubMessageObject, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_", &allSubMessageeEmpty);
+                        if (pbAllEmpty && !allSubMessageeEmpty)
+                        {
+                            *pbAllEmpty = false;
                         }
+                        vecValue.push_back(std::make_pair(pSubMessageObject, allSubMessageeEmpty));
+                    }
+
+                    for (int vec_i = (int)vecValue.size() - 1; vec_i >= 0; vec_i--)
+                    {
+                        if (!vecValue[vec_i].second) break;
+                        pMessageObjectReflect->RemoveLast(pMessageObject, pFieldDesc);
                     }
                 }
             }
@@ -1037,46 +1159,95 @@ void NFProtobufCommon::GetDBMessageFromMapFields(const std::map<std::string, std
     }
 }
 
-void NFProtobufCommon::GetMessageFromMapFields(const std::unordered_map<std::string, std::string> &result, google::protobuf::Message *pMessageObject)
+int NFProtobufCommon::GetMessageFromMapFields(const std::unordered_map<std::string, std::string>& result, google::protobuf::Message* pMessageObject, const std::string& lastFieldName, bool* pbAllEmpty)
 {
-    if (pMessageObject == NULL) return;
+    int iRetCode = 0;
+    if (pMessageObject == NULL) return -1;
     /* message AttrValue
        {
-           optional int32 attr = 1 [(yd_fieldoptions.field_cname) = "attr"];
-           optional int32 value = 2 [(yd_fieldoptions.field_cname) = "value"];
-           optional string value2 = 3 [(yd_fieldoptions.field_cname) = "value2", (yd_fieldoptions.db_field_bufsize)=128];
+           optional int32 attr = 1 [(nanopb).field_cname = "attr"];
+           optional int32 value = 2 [(nanopb).field_cname = "value"];
+           optional string value2 = 3 [(nanopb).field_cname = "value2", (yd_fieldoptions.db_field_bufsize)=128];
        }
 
        message FishConfigDesc
        {
-           optional int32 fish_id = 1 [(yd_fieldoptions.field_cname) = "鱼id", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_PRIMARYKEY];
-           optional int32 fish_type = 2 [(yd_fieldoptions.field_cname) = "鱼的玩法类型"];
-           optional int32 build_fish_type = 3 [(yd_fieldoptions.field_cname) = "客户端创建鱼类型"];
-           optional int32 ratio_max = 4  [(yd_fieldoptions.field_cname) = "倍率最大值"];
-           optional int32 double_award_min_ratio = 5  [(yd_fieldoptions.field_cname) = "可能触发双倍奖励所需最低倍率"];
-           optional int32 child_fish_count = 6  [(yd_fieldoptions.field_cname) = "组合鱼携带子鱼个数"];
-           repeated string child_fish_ids = 7  [(yd_fieldoptions.field_cname) = "组合鱼位置可选子鱼id列表", (yd_fieldoptions.field_bufsize)=128, (yd_fieldoptions.db_field_bufsize)=128, (yd_fieldoptions.field_arysize) = 6];
-           repeated AttrValue attr_values = 8 [(yd_fieldoptions.field_cname) = "attr_values", (yd_fieldoptions.field_arysize)=2];
+           optional int32 fish_id = 1 [(nanopb).field_cname = "鱼id", (yd_fieldoptions.db_field_type) = E_FIELD_TYPE_PRIMARYKEY];
+           optional int32 fish_type = 2 [(nanopb).field_cname = "鱼的玩法类型"];
+           optional int32 build_fish_type = 3 [(nanopb).field_cname = "客户端创建鱼类型"];
+           optional int32 ratio_max = 4  [(nanopb).field_cname = "倍率最大值"];
+           optional int32 double_award_min_ratio = 5  [(nanopb).field_cname = "可能触发双倍奖励所需最低倍率"];
+           optional int32 child_fish_count = 6  [(nanopb).field_cname = "组合鱼携带子鱼个数"];
+           repeated string child_fish_ids = 7  [(nanopb).field_cname = "组合鱼位置可选子鱼id列表", (nanopb).max_size=128, (yd_fieldoptions.db_field_bufsize)=128, (nanopb).max_count = 6];
+           repeated AttrValue attr_values = 8 [(nanopb).field_cname = "attr_values", (nanopb).max_count=2];
        }
 
        如上，将一个result结果， 转化为protobuf的message, 比如FishConfigDesc, 代表这数据库FishConfigDesc或Excel表格中的一列
     */
-    const google::protobuf::Descriptor *pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
-    const google::protobuf::Reflection *pMessageObjectReflect = pMessageObject->GetReflection();
-    if (pMessageObjectFieldDesc == NULL || pMessageObjectReflect == NULL) return;
+    const google::protobuf::Descriptor* pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
+    const google::protobuf::Reflection* pMessageObjectReflect = pMessageObject->GetReflection();
+    if (pMessageObjectFieldDesc == NULL || pMessageObjectReflect == NULL) return -1;
 
     for (int i = 0; i < pMessageObjectFieldDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pMessageObjectFieldDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pMessageObjectFieldDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        std::string field = pFieldDesc->name();
         //如果不是repeated, 只是简单信息，就直接给
         if (pFieldDesc->is_repeated() == false)
         {
-            auto iter = result.find(field);
-            if (iter != result.end())
+            if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                NFProtobufCommon::SetFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                std::string field = lastFieldName + pFieldDesc->name();
+                auto iter = result.find(field);
+                if (iter != result.end())
+                {
+                    if (pbAllEmpty && !iter->second.empty())
+                    {
+                        *pbAllEmpty = false;
+                    }
+                    if (!NFProtobufCommon::SetFieldsString(*pMessageObject, pFieldDesc, iter->second))
+                    {
+                        LOG_ERR(0, -1, "SetFieldsString, failed, field:{} json:{}", field, iter->second);
+                        return -1;
+                    }
+                }
+            }
+            else
+            {
+                if (NFProtobufCommon::GetFieldPasreType(pFieldDesc) != FPT_DEFAULT)
+                {
+                    std::string field = lastFieldName + pFieldDesc->name();
+                    auto iter = result.find(field);
+                    if (iter != result.end())
+                    {
+                        if (pbAllEmpty && !iter->second.empty())
+                        {
+                            *pbAllEmpty = false;
+                        }
+                        if (!NFProtobufCommon::JsonToProtoField(iter->second, pMessageObject, pFieldDesc))
+                        {
+                            LOG_ERR(0, -1, "JsonToProtoField, failed, field:{} json:{}", field, iter->second);
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        LOG_WARN(0, -1, "field can't find data, excel has no this col, field:{}", field);
+                    }
+                }
+                else
+                {
+                    ::google::protobuf::Message* pSubMessageObject = pMessageObjectReflect->MutableMessage(pMessageObject, pFieldDesc);
+                    if (pSubMessageObject == NULL) continue;
+
+                    bool allSubMessageeEmpty = true;
+                    iRetCode = GetMessageFromMapFields(result, pSubMessageObject, lastFieldName + pFieldDesc->name() + "_", &allSubMessageeEmpty);
+                    CHECK_ERR(0, iRetCode, "GetMessageFromMapFields failed, field:{}", lastFieldName + pFieldDesc->name() + "_");
+                    if (pbAllEmpty && allSubMessageeEmpty)
+                    {
+                        *pbAllEmpty = false;
+                    }
+                }
             }
         }
         else
@@ -1085,109 +1256,247 @@ void NFProtobufCommon::GetMessageFromMapFields(const std::unordered_map<std::str
             //把数据库里的多行，搞成数组的形式
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::field_arysize))
+                if (NFProtobufCommon::GetFieldPasreType(pFieldDesc) != FPT_DEFAULT)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::field_arysize);
-                    for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
+                    std::string field = lastFieldName + pFieldDesc->name();
+                    auto iter = result.find(field);
+                    if (iter != result.end())
                     {
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
-
-                        auto iter = result.find(field);
-                        if (iter != result.end())
+                        if (pbAllEmpty && !iter->second.empty())
                         {
-                            NFProtobufCommon::AddFieldsString(*pMessageObject, pFieldDesc, iter->second);
+                            *pbAllEmpty = false;
+                        }
+                        if (!NFProtobufCommon::JsonToProtoField(iter->second, pMessageObject, pFieldDesc))
+                        {
+                            LOG_ERR(0, -1, "JsonToProtoField, failed, field:{} json:{}", field, iter->second);
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        LOG_WARN(0, -1, "field can't find data, excel has no this col, field:{}", field);
+                    }
+                }
+                else
+                {
+                    ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsMaxCount(pFieldDesc);
+                    if (arysize > 0)
+                    {
+                        std::vector<std::string> vecValue;
+                        for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
+                        {
+                            std::string subField = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
+
+                            auto iter = result.find(subField);
+                            if (iter != result.end())
+                            {
+                                if (pbAllEmpty && !iter->second.empty())
+                                {
+                                    *pbAllEmpty = false;
+                                }
+                                vecValue.push_back(iter->second);
+                            }
+                        }
+
+                        int vecValueLastIndex = vecValue.size();
+                        for (int vec_i = (int)vecValue.size() - 1; vec_i >= 0; vec_i--)
+                        {
+                            if (!vecValue[vec_i].empty()) break;
+                            vecValueLastIndex = vec_i;
+                        }
+
+                        for (int vec_i = 0; vec_i < vecValueLastIndex; vec_i++)
+                        {
+                            if (!NFProtobufCommon::AddFieldsString(*pMessageObject, pFieldDesc, vecValue[vec_i]))
+                            {
+                                LOG_ERR(0, -1, "AddFieldsString, failed, field:{} value:{}", pFieldDesc->full_name(), vecValue[vec_i]);
+                                return -1;
+                            }
                         }
                     }
                 }
             }
             else
             {
-                //如果只是复杂的repeated, 比如:
-                //message AttrValue
-                //{
-                //	optional int32 attr = 1 [(yd_fieldoptions.field_cname) = "attr"];
-                //	optional int32 value = 2 [(yd_fieldoptions.field_cname) = "value"];
-                //	optional string value2 = 3 [(yd_fieldoptions.field_cname) = "value2", (yd_fieldoptions.db_field_bufsize)=128];
-                //}
-                //repeated AttrValue attr_values = 8 [(yd_fieldoptions.field_cname) = "attr_values", (yd_fieldoptions.field_arysize)=2];
-                //把数据库里的多行，配合结构转成repeated数组
-                const google::protobuf::Descriptor *pSubDescriptor = pFieldDesc->message_type();
-                if (pSubDescriptor == NULL) continue;
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-
-                if (fieldoptions.HasExtension(yd_fieldoptions::field_arysize))
+                if (NFProtobufCommon::GetFieldPasreType(pFieldDesc) != FPT_DEFAULT)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::field_arysize);
-                    for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
+                    std::string field = lastFieldName + pFieldDesc->name();
+                    auto iter = result.find(field);
+                    if (iter != result.end())
                     {
-                        ::google::protobuf::Message *pSubMessageObject = pMessageObjectReflect->AddMessage(pMessageObject, pFieldDesc);
-                        if (pSubMessageObject == NULL) continue;
-                        for (int field_i = 0; field_i < pSubDescriptor->field_count(); field_i++)
+                        if (pbAllEmpty && !iter->second.empty())
                         {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDescriptor->field(field_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated() == false)
+                            *pbAllEmpty = false;
+                        }
+                        if (!NFProtobufCommon::JsonToProtoField(iter->second, pMessageObject, pFieldDesc))
+                        {
+                            LOG_ERR(0, -1, "JsonToProtoField, failed, field:{} json:{}", field, iter->second);
+                            return -1;
+                        }
+                    }
+                    else
+                    {
+                        const google::protobuf::Descriptor* pSubDescriptor = pFieldDesc->message_type();
+                        if (pSubDescriptor == NULL) continue;
+                        ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsMaxCount(pFieldDesc);
+                        if (arysize > 0)
+                        {
+                            std::vector<std::pair<google::protobuf::Message*, bool>> vecValue;
+                            for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                             {
-                                std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" + pSubFieldDesc->name();
-
-                                auto iter = result.find(field);
+                                field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
+                                std::string error;
+                                iter = result.find(field);
                                 if (iter != result.end())
                                 {
-                                    NFProtobufCommon::SetFieldsString(*pSubMessageObject, pSubFieldDesc, iter->second);
+                                    ::google::protobuf::Message* pSubMessageObject = pMessageObjectReflect->AddMessage(pMessageObject, pFieldDesc);
+                                    if (pSubMessageObject == NULL) continue;
+
+                                    if (!NFProtobufCommon::JsonToProtoMessage(iter->second, pSubMessageObject, &error) || !error.empty())
+                                    {
+                                        LOG_ERR(0, -1, "JsonToProtoField, failed, field:{} json:{}, error:{}", field, iter->second, error);
+                                        return -1;
+                                    }
+                                }
+                                else
+                                {
+                                    LOG_WARN(0, -1, "field can't find data, excel has no this col, field:{}", field);
                                 }
                             }
+                        }
+                    }
+                }
+                else
+                {
+                    //如果只是复杂的repeated, 比如:
+                    //message AttrValue
+                    //{
+                    //	optional int32 attr = 1 [(nanopb).field_cname = "attr"];
+                    //	optional int32 value = 2 [(nanopb).field_cname = "value"];
+                    //	optional string value2 = 3 [(nanopb).field_cname = "value2", (yd_fieldoptions.db_field_bufsize)=128];
+                    //}
+                    //repeated AttrValue attr_values = 8 [(nanopb).field_cname = "attr_values", (nanopb).max_count=2];
+                    //把数据库里的多行，配合结构转成repeated数组
+                    const google::protobuf::Descriptor* pSubDescriptor = pFieldDesc->message_type();
+                    if (pSubDescriptor == NULL) continue;
+                    ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsMaxCount(pFieldDesc);
+                    if (arysize > 0)
+                    {
+                        std::vector<std::pair<google::protobuf::Message*, bool>> vecValue;
+                        for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
+                        {
+                            ::google::protobuf::Message* pSubMessageObject = pMessageObjectReflect->AddMessage(pMessageObject, pFieldDesc);
+                            if (pSubMessageObject == NULL) continue;
+
+                            bool allSubMessageeEmpty = true;
+                            iRetCode = GetMessageFromMapFields(result, pSubMessageObject, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_", &allSubMessageeEmpty);
+                            CHECK_ERR(0, iRetCode, "GetMessageFromMapFields failed, field:{}", lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_");
+                            if (pbAllEmpty && !allSubMessageeEmpty)
+                            {
+                                *pbAllEmpty = false;
+                            }
+                            vecValue.push_back(std::make_pair(pSubMessageObject, allSubMessageeEmpty));
+                        }
+
+                        for (int vec_i = (int)vecValue.size() - 1; vec_i >= 0; vec_i--)
+                        {
+                            if (!vecValue[vec_i].second) break;
+                            pMessageObjectReflect->RemoveLast(pMessageObject, pFieldDesc);
                         }
                     }
                 }
             }
         }
     }
+    return 0;
 }
 
-bool NFProtobufCommon::ProtoMessageToJson(const google::protobuf::Message &message,
-                                          std::string *json,
-                                          std::string *error)
+bool NFProtobufCommon::ProtoMessageToJson(const google::protobuf::Message& message,
+                                          std::string* json,
+                                          std::string* error)
 {
     return NFJson2PB::ProtoMessageToJson(message, json, error);
 }
 
-bool NFProtobufCommon::ProtoMessageToJson(const google::protobuf::Message &message,
-                                          google::protobuf::io::ZeroCopyOutputStream *json,
-                                          std::string *error)
+bool NFProtobufCommon::ProtoMessageToJson(const NFJson2PB::Pb2JsonOptions& options, const google::protobuf::Message& message,
+                                          std::string* json,
+                                          std::string* error)
+{
+    return NFJson2PB::ProtoMessageToJson(message, json, options, error);
+}
+
+bool NFProtobufCommon::ProtoMessageToJson(const google::protobuf::Message& message,
+                                          google::protobuf::io::ZeroCopyOutputStream* json,
+                                          std::string* error)
 {
     return NFJson2PB::ProtoMessageToJson(message, json, error);
 }
 
-bool NFProtobufCommon::JsonToProtoMessage(const std::string &json,
-                                          google::protobuf::Message *message,
-                                          std::string *error)
+bool NFProtobufCommon::CheckJsonToProtoMessage(const std::string& json_string, google::protobuf::Message* message, bool repeated)
 {
+    std::string error;
+    if (!NFJson2PB::CheckJsonToProtoMessage(json_string, message, NFJson2PB::Json2PbOptions(), &error, repeated) || !error.empty())
+    {
+        LOG_ERR(0, -1, "json parse error, json:{} error:{}", json_string, error);
+        return false;
+    }
+    return true;
+}
+
+bool NFProtobufCommon::CheckJsonValueToProtoField(const std::string& json_string, const std::string& fieldName, google::protobuf::FieldDescriptor::CppType fieldType, bool isRepeated)
+{
+    std::string error;
+    if (!NFJson2PB::CheckJsonValueToProtoField(json_string, fieldName, fieldType, isRepeated, &error) || !error.empty())
+    {
+        LOG_ERR(0, -1, "json parse error, json:{} error:{}", json_string, error);
+        return false;
+    }
+    return true;
+}
+
+bool NFProtobufCommon::JsonToProtoField(const std::string& json, google::protobuf::Message* pMessage, const google::protobuf::FieldDescriptor* pFiledDesc)
+{
+    std::string error;
+    if (!NFJson2PB::JsonValueToProtoField(json, pFiledDesc, pMessage, NFJson2PB::Json2PbOptions(), &error) || !error.empty())
+    {
+        LOG_ERR(0, -1, "json parse error, json:{} error:{}", json, error);
+        return false;
+    }
+    return true;
+}
+
+bool NFProtobufCommon::JsonToProtoMessage(const std::string& json,
+                                          google::protobuf::Message* message,
+                                          std::string* error)
+{
+    if (json.empty())
+    {
+        return true;
+    }
     return NFJson2PB::JsonToProtoMessage(json, message, error);
 }
 
-bool NFProtobufCommon::JsonToProtoMessage(google::protobuf::io::ZeroCopyInputStream *stream,
-                                          google::protobuf::Message *message,
-                                          std::string *error)
+bool NFProtobufCommon::JsonToProtoMessage(google::protobuf::io::ZeroCopyInputStream* stream,
+                                          google::protobuf::Message* message,
+                                          std::string* error)
 {
-
     return NFJson2PB::JsonToProtoMessage(stream, message, error);
 }
 
-bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Message *pMessageObject)
+bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Message* pMessageObject)
 {
     if (pMessageObject == NULL) return false;
     if (!luaRef.isTable()) return false;
 
-    const google::protobuf::Descriptor *pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
-    const google::protobuf::Reflection *pMessageObjectReflect = pMessageObject->GetReflection();
+    const google::protobuf::Descriptor* pMessageObjectFieldDesc = pMessageObject->GetDescriptor();
+    const google::protobuf::Reflection* pMessageObjectReflect = pMessageObject->GetReflection();
     if (pMessageObjectFieldDesc == NULL || pMessageObjectReflect == NULL) return false;
 
     for (int i = 0; i < pMessageObjectFieldDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pMessageObjectFieldDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pMessageObjectFieldDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        const google::protobuf::Reflection *pReflect = pMessageObject->GetReflection();
+        const google::protobuf::Reflection* pReflect = pMessageObject->GetReflection();
         if (pReflect == nullptr || pFieldDesc == nullptr) continue;
 
         //如果不是repeated, 只是简单信息，就直接给
@@ -1204,7 +1513,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetInt32(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
                 {
                     int64_t value = 0;
@@ -1213,7 +1522,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetInt64(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
                 {
                     uint32_t value = 0;
@@ -1222,7 +1531,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetUInt32(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
                 {
                     uint64_t value = 0;
@@ -1231,7 +1540,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetUInt64(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
                 {
                     double value = 0;
@@ -1240,7 +1549,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetDouble(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
                 {
                     float value = 0;
@@ -1249,7 +1558,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetFloat(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
                 {
                     bool value = false;
@@ -1258,19 +1567,19 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetBool(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
                 {
                     int value = 0;
                     if (luaRef.has(field) && NFILuaLoader::GetLuaTableValue(luaRef, field, value))
                     {
-                        const google::protobuf::EnumDescriptor *pEnumDesc = pFieldDesc->enum_type();
-                        const google::protobuf::EnumValueDescriptor *pEnumValueDesc = pEnumDesc->FindValueByNumber(
-                                value);
+                        const google::protobuf::EnumDescriptor* pEnumDesc = pFieldDesc->enum_type();
+                        const google::protobuf::EnumValueDescriptor* pEnumValueDesc = pEnumDesc->FindValueByNumber(
+                            value);
                         pReflect->SetEnum(pMessageObject, pFieldDesc, pEnumValueDesc);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
                 {
                     std::string value;
@@ -1279,13 +1588,13 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                         pReflect->SetString(pMessageObject, pFieldDesc, value);
                     }
                 }
-                    break;
+                break;
                 case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
                 {
                     LuaIntf::LuaRef valueRef = luaRef[field];
                     if (valueRef.isTable())
                     {
-                        google::protobuf::Message *pMutableMessage = pReflect->MutableMessage(pMessageObject, pFieldDesc);
+                        google::protobuf::Message* pMutableMessage = pReflect->MutableMessage(pMessageObject, pFieldDesc);
                         LuaToProtoMessage(valueRef, pMutableMessage);
                     }
                 }
@@ -1314,7 +1623,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddInt32(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
                         {
                             int64_t value = 0;
@@ -1323,7 +1632,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddInt64(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
                         {
                             uint32_t value = 0;
@@ -1332,7 +1641,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddUInt32(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
                         {
                             uint64_t value = 0;
@@ -1341,7 +1650,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddUInt64(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
                         {
                             double value = 0;
@@ -1350,7 +1659,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddDouble(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
                         {
                             float value = 0;
@@ -1359,7 +1668,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddFloat(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
                         {
                             bool value = false;
@@ -1368,18 +1677,18 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddBool(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
                         {
                             int value = 0;
                             if (NFILuaLoader::GetLuaTableValue(listRef, j, value))
                             {
-                                const google::protobuf::EnumDescriptor *pEnumDesc = pFieldDesc->enum_type();
-                                const google::protobuf::EnumValueDescriptor *pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
+                                const google::protobuf::EnumDescriptor* pEnumDesc = pFieldDesc->enum_type();
+                                const google::protobuf::EnumValueDescriptor* pEnumValueDesc = pEnumDesc->FindValueByNumber(value);
                                 pReflect->AddEnum(pMessageObject, pFieldDesc, pEnumValueDesc);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
                         {
                             std::string value;
@@ -1388,17 +1697,17 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
                                 pReflect->AddString(pMessageObject, pFieldDesc, value);
                             }
                         }
-                            break;
+                        break;
                         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
                         {
                             NFLuaRef value;
                             if (NFILuaLoader::GetLuaTableValue(listRef, j, value))
                             {
-                                google::protobuf::Message *pSubMessage = pReflect->AddMessage(pMessageObject, pFieldDesc);
+                                google::protobuf::Message* pSubMessage = pReflect->AddMessage(pMessageObject, pFieldDesc);
                                 LuaToProtoMessage(value, pSubMessage);
                             }
                         }
-                            break;
+                        break;
                         default:
                             break;
                     }
@@ -1410,7 +1719,7 @@ bool NFProtobufCommon::LuaToProtoMessage(NFLuaRef luaRef, google::protobuf::Mess
 }
 
 bool
-NFProtobufCommon::ProtoMessageToXml(const google::protobuf::Message &message, std::string *json)
+NFProtobufCommon::ProtoMessageToXml(const google::protobuf::Message& message, std::string* json)
 {
     CHECK_EXPR(json, false, "json == NULL");
     NFXmlMessageCodec codec;
@@ -1428,7 +1737,7 @@ NFProtobufCommon::ProtoMessageToXml(const google::protobuf::Message &message, st
     return ret;
 }
 
-bool NFProtobufCommon::XmlToProtoMessage(const string &json, google::protobuf::Message *message)
+bool NFProtobufCommon::XmlToProtoMessage(const string& json, google::protobuf::Message* message)
 {
     CHECK_EXPR(message, false, "message == NULL");
     NFXmlMessageCodec codec;
@@ -1441,20 +1750,24 @@ bool NFProtobufCommon::XmlToProtoMessage(const string &json, google::protobuf::M
     return ret;
 }
 
-int NFProtobufCommon::GetMessageFromGetHttp(google::protobuf::Message *pSrcMessage, const NFIHttpHandle &req)
+int NFProtobufCommon::GetMessageFromGetHttp(google::protobuf::Message* pSrcMessage, const NFIHttpHandle& req)
 {
     if (!pSrcMessage) return -1;
 
-    const google::protobuf::Descriptor *pSrcDesc = pSrcMessage->GetDescriptor();
+    const google::protobuf::Descriptor* pSrcDesc = pSrcMessage->GetDescriptor();
     if (!pSrcDesc) return -1;
 
     for (int i = 0; i < pSrcDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pSrcFieldDesc = pSrcDesc->field(i);
+        const google::protobuf::FieldDescriptor* pSrcFieldDesc = pSrcDesc->field(i);
         if (pSrcFieldDesc == NULL) continue;
 
         std::string strValue = req.GetQuery(pSrcFieldDesc->lowercase_name());
-        SetFieldsString(*pSrcMessage, pSrcFieldDesc, strValue);
+        if (!SetFieldsString(*pSrcMessage, pSrcFieldDesc, strValue))
+        {
+            LOG_ERR(0, -1, "SetFieldsString failed, value:{}", strValue);
+            return -1;
+        }
     }
 
     return 0;
@@ -1470,7 +1783,7 @@ NFProtobufCommon::~NFProtobufCommon()
 {
     NF_SAFE_DELETE(m_pDynamicMessageFactory);
     NF_SAFE_DELETE(m_pDescriptorPool);
-    for(int i = 0; i < (int)m_pOldPoolVec.size(); i++)
+    for (int i = 0; i < (int)m_pOldPoolVec.size(); i++)
     {
         NF_SAFE_DELETE(m_pOldPoolVec[i]);
     }
@@ -1478,7 +1791,7 @@ NFProtobufCommon::~NFProtobufCommon()
 }
 
 
-int NFProtobufCommon::LoadProtoDsFile(const std::string &ds)
+int NFProtobufCommon::LoadProtoDsFile(const std::string& ds)
 {
     std::ifstream pb_file(ds.c_str(), std::ios::binary);
     if (!pb_file.is_open())
@@ -1522,7 +1835,7 @@ int NFProtobufCommon::LoadProtoDsFile(const std::string &ds)
     return 0;
 }
 
-const google::protobuf::Descriptor *NFProtobufCommon::FindDynamicMessageTypeByName(const std::string &full_name)
+const google::protobuf::Descriptor* NFProtobufCommon::FindDynamicMessageTypeByName(const std::string& full_name)
 {
     auto pDesc = m_pDescriptorPool->FindMessageTypeByName(full_name);
     if (pDesc == NULL)
@@ -1532,22 +1845,23 @@ const google::protobuf::Descriptor *NFProtobufCommon::FindDynamicMessageTypeByNa
     return pDesc;
 }
 
-::google::protobuf::Message *NFProtobufCommon::CreateDynamicMessageByName(const std::string &full_name)
+::google::protobuf::Message* NFProtobufCommon::CreateDynamicMessageByName(const std::string& full_name)
 {
-    const google::protobuf::Descriptor *pDescriptor = m_pDescriptorPool->FindMessageTypeByName(full_name);
+    const google::protobuf::Descriptor* pDescriptor = m_pDescriptorPool->FindMessageTypeByName(full_name);
     if (pDescriptor)
     {
-        const ::google::protobuf::Message *pMessageType = m_pDynamicMessageFactory->GetPrototype(pDescriptor);
+        const ::google::protobuf::Message* pMessageType = m_pDynamicMessageFactory->GetPrototype(pDescriptor);
         if (pMessageType)
         {
             return pMessageType->New();
         }
     }
-    else {
+    else
+    {
         pDescriptor = google::protobuf::DescriptorPool::generated_pool()->FindMessageTypeByName(full_name);
         if (pDescriptor)
         {
-            const ::google::protobuf::Message *pMessageType = google::protobuf::MessageFactory::generated_factory()->GetPrototype(pDescriptor);
+            const ::google::protobuf::Message* pMessageType = google::protobuf::MessageFactory::generated_factory()->GetPrototype(pDescriptor);
             if (pMessageType)
             {
                 return pMessageType->New();
@@ -1558,15 +1872,15 @@ const google::protobuf::Descriptor *NFProtobufCommon::FindDynamicMessageTypeByNa
     return NULL;
 }
 
-int NFProtobufCommon::GetDbFieldsInfoFromMessage(const google::protobuf::Descriptor *pDesc, std::map<std::string, DBTableColInfo> &primaryKeyMap, std::map<std::string, DBTableColInfo> &mapFileds)
+int NFProtobufCommon::GetDbFieldsInfoFromMessage(const google::protobuf::Descriptor* pDesc, std::map<std::string, DBTableColInfo>& primaryKeyMap, std::vector<std::pair<std::string, DBTableColInfo>>& mapFileds, const std::string& lastFieldName, const std::string& lastComment)
 {
-    CHECK_NULL(pDesc);
+    CHECK_NULL(0, pDesc);
 
     for (int i = 0; i < pDesc->field_count(); i++)
     {
-        const google::protobuf::FieldDescriptor *pFieldDesc = pDesc->field(i);
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->options().HasExtension(yd_fieldoptions::no_db_field)) continue;
+        if (pFieldDesc->options().GetExtension(nanopb).db_no_field()) continue;
 
         //如果不是repeated, 只是简单信息，就直接给
         if (pFieldDesc->is_repeated() == false)
@@ -1574,60 +1888,63 @@ int NFProtobufCommon::GetDbFieldsInfoFromMessage(const google::protobuf::Descrip
             DBTableColInfo colInfo;
             colInfo.m_colType = pFieldDesc->cpp_type();
             colInfo.m_fieldIndex = i;
-            if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_type))
+            if (pFieldDesc->options().GetExtension(nanopb).db_type() != E_FIELD_TYPE_NORMAL)
             {
-                if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) ==
-                    ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_PRIMARYKEY)
+                colInfo.m_notNull = true;
+
+                if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_PRIMARYKEY)
                 {
                     colInfo.m_primaryKey = true;
-                    colInfo.m_notNull = true;
-
-                    if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_auto_increment))
-                    {
-                        colInfo.m_autoIncrement = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_auto_increment);
-                        if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_auto_increment_value))
-                        {
-                            colInfo.m_autoIncrementValue = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_auto_increment_value);
-                        }
-                    }
+                    colInfo.m_autoIncrement = pFieldDesc->options().GetExtension(nanopb).db_auto_increment();
+                    colInfo.m_autoIncrementValue = pFieldDesc->options().GetExtension(nanopb).db_auto_increment_value();
                 }
-                else if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) ==
-                         ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_UNIQUE_INDEX)
+                else if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_UNIQUE_INDEX)
                 {
                     colInfo.m_unionKey = true;
                 }
-                else if (pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_type) ==
-                         ::yd_fieldoptions::message_db_field_type::E_FIELDTYPE_INDEX)
+                else if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_INDEX)
                 {
                     colInfo.m_indexKey = true;
                 }
             }
 
-            if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_STRING || colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_STRING)
             {
-                if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_bufsize))
+                colInfo.m_bufsize = NFProtobufCommon::Instance()->GetFieldsDBMaxSize(pFieldDesc);
+            }
+
+            if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                if (pFieldDesc->options().GetExtension(nanopb).db_message_expand())
                 {
-                    colInfo.m_bufsize = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_bufsize);
+                    const google::protobuf::Descriptor* pSubDescriptor = pFieldDesc->message_type();
+                    GetDbFieldsInfoFromMessage(pSubDescriptor, primaryKeyMap, mapFileds, lastFieldName + pFieldDesc->name() + "_", lastComment + pFieldDesc->options().GetExtension(nanopb).db_comment());
+                    continue;
+                }
+                else
+                {
+                    colInfo.m_bufsize = NFProtobufCommon::Instance()->GetFieldsDBMaxSize(pFieldDesc);
                 }
             }
 
-            if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_not_null))
+            if (pFieldDesc->options().GetExtension(nanopb).db_not_null())
             {
-                colInfo.m_notNull = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_not_null);
+                colInfo.m_notNull = pFieldDesc->options().GetExtension(nanopb).db_not_null();
             }
 
 
-            if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_comment))
+            if (pFieldDesc->options().GetExtension(nanopb).db_comment().size() > 0)
             {
-                colInfo.m_comment = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_comment);
+                colInfo.m_comment = lastComment + pFieldDesc->options().GetExtension(nanopb).db_comment();
             }
 
             if (colInfo.m_primaryKey)
             {
-                primaryKeyMap.emplace(pFieldDesc->name(), colInfo);
+                primaryKeyMap.emplace(lastFieldName + pFieldDesc->name(), colInfo);
             }
-            else {
-                mapFileds.emplace(pFieldDesc->name(), colInfo);
+            else
+            {
+                mapFileds.push_back(std::make_pair(lastFieldName + pFieldDesc->name(), colInfo));
             }
         }
         else
@@ -1636,31 +1953,30 @@ int NFProtobufCommon::GetDbFieldsInfoFromMessage(const google::protobuf::Descrip
             //把数据库里的多行，搞成数组的形式
             if (pFieldDesc->cpp_type() != google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
             {
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
                         DBTableColInfo colInfo;
                         colInfo.m_colType = pFieldDesc->cpp_type();
                         colInfo.m_fieldIndex = i;
-                        std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1);
+                        std::string field = lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i);
 
-                        if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_STRING || colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+                        if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_STRING ||
+                            colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
                         {
-                            if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_bufsize))
-                            {
-                                colInfo.m_bufsize = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_bufsize);
-                            }
+                            colInfo.m_bufsize = NFProtobufCommon::Instance()->GetFieldsDBMaxSize(pFieldDesc);
                         }
 
-                        if (pFieldDesc->options().HasExtension(yd_fieldoptions::db_field_not_null))
+                        colInfo.m_notNull = pFieldDesc->options().GetExtension(nanopb).db_not_null();
+
+                        if (pFieldDesc->options().GetExtension(nanopb).db_comment().size() > 0)
                         {
-                            colInfo.m_notNull = pFieldDesc->options().GetExtension(yd_fieldoptions::db_field_not_null);
+                            colInfo.m_comment = lastComment + pFieldDesc->options().GetExtension(nanopb).db_comment() + NFCommon::tostr(a_i);
                         }
 
-                        mapFileds.emplace(field, colInfo);
+                        mapFileds.push_back(std::make_pair(field, colInfo));
                     }
                 }
             }
@@ -1669,55 +1985,25 @@ int NFProtobufCommon::GetDbFieldsInfoFromMessage(const google::protobuf::Descrip
                 //如果只是复杂的repeated, 比如:
                 //message AttrValue
                 //{
-                //	optional int32 attr = 1 [(yd_fieldoptions.field_cname) = "attr"];
-                //	optional int32 value = 2 [(yd_fieldoptions.field_cname) = "value"];
-                //	optional string value2 = 3 [(yd_fieldoptions.field_cname) = "value2", (yd_fieldoptions.db_field_bufsize)=128];
+                //	optional int32 attr = 1 [(nanopb).field_cname = "attr"];
+                //	optional int32 value = 2 [(nanopb).field_cname = "value"];
+                //	optional string value2 = 3 [(nanopb).field_cname = "value2", (yd_fieldoptions.db_field_bufsize)=128];
                 //}
-                //repeated AttrValue attr_values = 8 [(yd_fieldoptions.field_cname) = "attr_values", (yd_fieldoptions.field_arysize)=2];
+                //repeated AttrValue attr_values = 8 [(nanopb).field_cname = "attr_values", (nanopb).max_count=2];
                 //把数据库里的多行，配合结构转成repeated数组
-                const google::protobuf::Descriptor *pSubDescriptor = pFieldDesc->message_type();
+                const google::protobuf::Descriptor* pSubDescriptor = pFieldDesc->message_type();
                 if (pSubDescriptor == NULL) continue;
-                const google::protobuf::FieldOptions &fieldoptions = pFieldDesc->options();
-
-                if (fieldoptions.HasExtension(yd_fieldoptions::db_field_arysize))
+                ::google::protobuf::int32 arysize = NFProtobufCommon::Instance()->GetFieldsDBMaxCount(pFieldDesc);
+                if (arysize > 0)
                 {
-                    ::google::protobuf::int32 arysize = fieldoptions.GetExtension(yd_fieldoptions::db_field_arysize);
                     for (::google::protobuf::int32 a_i = 0; a_i < arysize; a_i++)
                     {
-                        for (int field_i = 0; field_i < pSubDescriptor->field_count(); field_i++)
-                        {
-                            const google::protobuf::FieldDescriptor *pSubFieldDesc = pSubDescriptor->field(field_i);
-                            if (pSubFieldDesc == NULL) continue;
-                            if (pSubFieldDesc->is_repeated() == false)
-                            {
-                                DBTableColInfo colInfo;
-                                colInfo.m_colType = pSubFieldDesc->cpp_type();
-                                colInfo.m_fieldIndex = i;
-
-                                std::string field = pFieldDesc->name() + "_" + NFCommon::tostr(a_i + 1) + "_" + pSubFieldDesc->name();
-
-                                if (colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_STRING || colInfo.m_colType == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
-                                {
-                                    if (pSubFieldDesc->options().HasExtension(yd_fieldoptions::db_field_bufsize))
-                                    {
-                                        colInfo.m_bufsize = pSubFieldDesc->options().GetExtension(yd_fieldoptions::db_field_bufsize);
-                                    }
-                                }
-
-                                if (pSubFieldDesc->options().HasExtension(yd_fieldoptions::db_field_not_null))
-                                {
-                                    colInfo.m_notNull = pSubFieldDesc->options().GetExtension(yd_fieldoptions::db_field_not_null);
-                                }
-
-                                mapFileds.emplace(field, colInfo);
-                            }
-                        }
+                        GetDbFieldsInfoFromMessage(pSubDescriptor, primaryKeyMap, mapFileds, lastFieldName + pFieldDesc->name() + "_" + NFCommon::tostr(a_i) + "_", lastComment + pFieldDesc->options().GetExtension(nanopb).db_comment() + NFCommon::tostr(a_i));
                     }
                 }
             }
         }
     }
-
     return 0;
 }
 
@@ -1733,7 +2019,8 @@ uint32_t NFProtobufCommon::GetPBDataTypeFromDBDataType(const std::string& dbData
         {
             return google::protobuf::FieldDescriptor::CPPTYPE_UINT32;
         }
-        else {
+        else
+        {
             return google::protobuf::FieldDescriptor::CPPTYPE_INT32;
         }
     }
@@ -1755,7 +2042,8 @@ uint32_t NFProtobufCommon::GetPBDataTypeFromDBDataType(const std::string& dbData
         {
             return google::protobuf::FieldDescriptor::CPPTYPE_UINT64;
         }
-        else {
+        else
+        {
             return google::protobuf::FieldDescriptor::CPPTYPE_INT64;
         }
     }
@@ -1769,48 +2057,48 @@ uint32_t NFProtobufCommon::GetPBDataTypeFromDBDataType(const std::string& dbData
 
 std::string NFProtobufCommon::GetDBDataTypeFromPBDataType(uint32_t pbDataType, uint32_t textMax)
 {
-    switch(pbDataType)
+    switch (pbDataType)
     {
         case google::protobuf::FieldDescriptor::CPPTYPE_INT32:
         {
             return "int";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_INT64:
         {
             return "bigint";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT32:
         {
             return "int unsigned";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_UINT64:
         {
             return "bigint unsigned";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_DOUBLE:
         {
             return "double";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_FLOAT:
         {
             return "float";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_BOOL:
         {
             return "int";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_ENUM:
         {
             return "int";
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_STRING:
         {
             if (textMax > 16777216)
@@ -1821,7 +2109,8 @@ std::string NFProtobufCommon::GetDBDataTypeFromPBDataType(uint32_t pbDataType, u
             {
                 return "MEDIUMBLOB";
             }
-            else if (textMax > 1025) {
+            else if (textMax > 1025)
+            {
                 return "blob";
             }
             else
@@ -1829,7 +2118,7 @@ std::string NFProtobufCommon::GetDBDataTypeFromPBDataType(uint32_t pbDataType, u
                 return "varchar(" + NFCommon::tostr(textMax) + ")";
             }
         }
-            break;
+        break;
         case google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE:
         {
             if (textMax > 16777216)
@@ -1840,7 +2129,8 @@ std::string NFProtobufCommon::GetDBDataTypeFromPBDataType(uint32_t pbDataType, u
             {
                 return "MEDIUMBLOB";
             }
-            else {
+            else
+            {
                 return "blob";
             }
         }
@@ -1851,15 +2141,17 @@ std::string NFProtobufCommon::GetDBDataTypeFromPBDataType(uint32_t pbDataType, u
 
 std::string NFProtobufCommon::GetDescStoreClsName(const google::protobuf::Message& message)
 {
-    const google::protobuf::Descriptor *pSheetFieldDesc = message.GetDescriptor();
+    const google::protobuf::Descriptor* pSheetFieldDesc = message.GetDescriptor();
     CHECK_EXPR(pSheetFieldDesc, std::string(), "pSheetFieldDesc == NULL");
-    const google::protobuf::Reflection *pSheetReflect = message.GetReflection();
+    const google::protobuf::Reflection* pSheetReflect = message.GetReflection();
     CHECK_EXPR(pSheetReflect, std::string(), "pSheetFieldDesc == NULL");
 
-    for (int sheet_field_index = 0; sheet_field_index < pSheetFieldDesc->field_count(); sheet_field_index++) {
-        const google::protobuf::FieldDescriptor *pSheetRepeatedFieldDesc = pSheetFieldDesc->field(sheet_field_index);
+    for (int sheet_field_index = 0; sheet_field_index < pSheetFieldDesc->field_count(); sheet_field_index++)
+    {
+        const google::protobuf::FieldDescriptor* pSheetRepeatedFieldDesc = pSheetFieldDesc->field(sheet_field_index);
         if (pSheetRepeatedFieldDesc->is_repeated() &&
-            pSheetRepeatedFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE) {
+            pSheetRepeatedFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+        {
             return pSheetRepeatedFieldDesc->message_type()->name();
         }
     }
@@ -1882,7 +2174,7 @@ std::string NFProtobufCommon::GetProtoBaseName(const std::string& fullName)
 {
     std::vector<std::string> result;
     NFStringUtility::Split(fullName, ".", &result);
-    for(int i = result.size() - 1; i >= 0; i--)
+    for (int i = result.size() - 1; i >= 0; i--)
     {
         if (result[i].size() > 0)
         {
@@ -1908,7 +2200,7 @@ std::string NFProtobufCommon::GetProtoPackageName(const std::string& fullName)
 {
     std::vector<std::string> result;
     NFStringUtility::Split(fullName, ".", &result);
-    for(int i = 0; i < (int)result.size(); i++)
+    for (int i = 0; i < (int)result.size(); i++)
     {
         if (result[i].size() > 0)
         {
@@ -1924,3 +2216,236 @@ std::string NFProtobufCommon::GetProtoPackageName(const std::string& fullName)
 
     return fullName.substr(0, pos);
 }
+
+FieldParseType NFProtobufCommon::GetFieldPasreType(const google::protobuf::FieldDescriptor *pFieldDesc)
+{
+    const NanoPBOptions& opt = pFieldDesc->options().GetExtension(nanopb);
+    return opt.parse_type();
+}
+
+int NFProtobufCommon::GetFieldsDBMaxCount(const google::protobuf::FieldDescriptor* pFieldDesc) const
+{
+    const NanoPBOptions& opt = pFieldDesc->options().GetExtension(nanopb);
+    if (opt.db_max_count() > 0)
+    {
+        return opt.db_max_count();
+    }
+    else if (!opt.db_max_count_enum().empty())
+    {
+        std::string db_max_count_enum = opt.db_max_count_enum();
+        auto pDesc = FindEnumValueByName(db_max_count_enum);
+        if (pDesc)
+        {
+            return pDesc->number();
+        }
+        else
+        {
+            NFLogError(NF_LOG_DEFAULT, 0, "error can't find the db_max_count_enum:{}", db_max_count_enum);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int NFProtobufCommon::GetFieldsDBMaxSize(const google::protobuf::FieldDescriptor* pFieldDesc) const
+{
+    const NanoPBOptions& opt = pFieldDesc->options().GetExtension(nanopb);
+    if (opt.db_max_size() > 0)
+    {
+        return opt.db_max_size();
+    }
+    else if (!opt.db_max_size_enum().empty())
+    {
+        std::string db_max_size_enum = opt.db_max_size_enum();
+        auto pDesc = FindEnumValueByName(db_max_size_enum);
+        if (pDesc)
+        {
+            return pDesc->number();
+        }
+        else
+        {
+            NFLogError(NF_LOG_DEFAULT, 0, "error can't find the db_max_size_enum:{}", db_max_size_enum);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int NFProtobufCommon::GetFieldsMaxCount(const google::protobuf::FieldDescriptor* pFieldDesc) const
+{
+    const NanoPBOptions& opt = pFieldDesc->options().GetExtension(nanopb);
+    if (opt.max_count() > 0)
+    {
+        return opt.max_count();
+    }
+    else if (!opt.max_count_enum().empty())
+    {
+        std::string max_count_enum = opt.max_count_enum();
+        auto pDesc = FindEnumValueByName(max_count_enum);
+        if (pDesc)
+        {
+            return pDesc->number();
+        }
+        else
+        {
+            NFLogError(NF_LOG_DEFAULT, 0, "error can't find the max_count_enum:{}", max_count_enum);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+int NFProtobufCommon::GetFieldsMaxSize(const google::protobuf::FieldDescriptor* pFieldDesc) const
+{
+    const NanoPBOptions& opt = pFieldDesc->options().GetExtension(nanopb);
+    if (opt.max_size() > 0)
+    {
+        return opt.max_size();
+    }
+    else if (!opt.max_size_enum().empty())
+    {
+        std::string max_size_enum = opt.max_size_enum();
+        auto pDesc = FindEnumValueByName(max_size_enum);
+        if (pDesc)
+        {
+            return pDesc->number();
+        }
+        else
+        {
+            NFLogError(NF_LOG_DEFAULT, 0, "error can't find the max_size_enum:{}", max_size_enum);
+            return 0;
+        }
+    }
+    return 0;
+}
+
+const ::google::protobuf::EnumValueDescriptor* NFProtobufCommon::FindEnumValueByName(const string& name) const
+{
+    auto pDesc = m_pDescriptorPool->FindEnumValueByName(name);
+    if (pDesc == NULL)
+    {
+        pDesc = google::protobuf::DescriptorPool::generated_pool()->FindEnumValueByName(name);
+    }
+    return pDesc;
+}
+
+const ::google::protobuf::EnumDescriptor* NFProtobufCommon::FindEnumTypeByName(const string& name) const
+{
+    auto pDesc = m_pDescriptorPool->FindEnumTypeByName(name);
+    if (pDesc == NULL)
+    {
+        pDesc = google::protobuf::DescriptorPool::generated_pool()->FindEnumTypeByName(name);
+    }
+    return pDesc;
+}
+
+bool NFProtobufCommon::FindEnumNumberByMacroName(const std::string& enumName, const std::string& macroName, std::string& value)
+{
+    auto iter = m_enumMacroData.find(enumName);
+    if (iter == m_enumMacroData.end())
+    {
+        auto pDesc = FindEnumTypeByName(enumName);
+        CHECK_EXPR(pDesc, false, "can't find the enumName from pb:{}, macroName:{}", enumName, macroName);
+        auto& enumTypeData = m_enumMacroData[enumName];
+        for (int i = 0; i < (int)pDesc->value_count(); i++)
+        {
+            auto pEnumValue = pDesc->value(i);
+            CHECK_EXPR(pEnumValue, false, "the enumName index:{} error from pb:{}, macroName:{}", i, enumName, macroName);
+            auto opt = pEnumValue->options().GetExtension(nanopb_enumvopt);
+            std::string macro_name = NFStringUtility::RemoveSpace(opt.macro_name());
+            if (!macro_name.empty())
+            {
+                if (!NFStringUtility::IsUTF8String(macro_name))
+                {
+                    macro_name = NFStringUtility::GBKToUTF8(macro_name);
+                }
+                enumTypeData.m_enumNameToNumber[macro_name] = pEnumValue->number();
+                enumTypeData.m_enumToNumber[pEnumValue->name()] = pEnumValue->number();
+            }
+            enumTypeData.m_numberToEnumName[pEnumValue->number()] = macro_name;
+        }
+
+        iter = m_enumMacroData.find(enumName);
+    }
+
+    std::string valueName = NFStringUtility::RemoveSpace(macroName);
+    if (!valueName.empty())
+    {
+        if (!NFStringUtility::IsUTF8String(valueName))
+        {
+            valueName = NFStringUtility::GBKToUTF8(valueName);
+        }
+    }
+
+    auto iter_value = iter->second.m_enumNameToNumber.find(valueName);
+    if (iter_value != iter->second.m_enumNameToNumber.end())
+    {
+        value = NFCommon::tostr(iter_value->second);
+    }
+    else
+    {
+        if (NFStringUtility::CheckIsDigit(valueName))
+        {
+            auto iter_num = iter->second.m_numberToEnumName.find(NFCommon::strto<int>(valueName));
+            CHECK_EXPR(iter_num != iter->second.m_numberToEnumName.end(), false, "the enumName from pb:{} can't find macroName:{}", enumName, macroName);
+            value = valueName;
+        }
+        else
+        {
+            auto iter_enum = iter->second.m_enumToNumber.find(valueName);
+            if (iter_enum != iter->second.m_enumToNumber.end())
+            {
+                value = NFCommon::tostr(iter_enum->second);
+            }
+            else
+            {
+                CHECK_EXPR(iter_value != iter->second.m_enumNameToNumber.end(), false, "the enumName from pb:{} can't find macroName:{}", enumName, macroName);
+            }
+        }
+    }
+    return true;
+}
+
+int NFProtobufCommon::GetPrimarykeyFromMessage(const google::protobuf::Message* pMessage, std::string& result)
+{
+    CHECK_NULL(0, pMessage);
+    const google::protobuf::Descriptor* pDesc = pMessage->GetDescriptor();
+    CHECK_NULL(0, pDesc);
+
+    for (int i = 0; i < pDesc->field_count(); i++)
+    {
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
+        if (pFieldDesc == NULL) continue;
+
+        if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_PRIMARYKEY)
+        {
+            result = GetFieldsString(*pMessage, pFieldDesc);
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int NFProtobufCommon::SetPrimarykeyFromMessage(google::protobuf::Message* pMessage, const std::string& data)
+{
+    CHECK_NULL(0, pMessage);
+    const google::protobuf::Descriptor* pDesc = pMessage->GetDescriptor();
+    CHECK_NULL(0, pDesc);
+
+    for (int i = 0; i < pDesc->field_count(); i++)
+    {
+        const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
+        if (pFieldDesc == NULL) continue;
+
+        if (pFieldDesc->options().GetExtension(nanopb).db_type() == E_FIELD_TYPE_PRIMARYKEY)
+        {
+            if (!SetFieldsString(*pMessage, pFieldDesc, data))
+            {
+                return -1;
+            }
+            return 0;
+        }
+    }
+    return -1;
+}
+

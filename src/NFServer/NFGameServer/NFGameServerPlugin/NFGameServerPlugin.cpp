@@ -42,6 +42,7 @@ std::string NFGameServerPlugin::GetPluginName()
 
 void NFGameServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_GAME_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIGameServerModule, NFCGameServerModule);
 }
 

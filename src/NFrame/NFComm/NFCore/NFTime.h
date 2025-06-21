@@ -38,16 +38,10 @@ protected:
 	uint64_t realSec_;
 	NFTime() : sec_(0), nsec_(0), realSec_(0) {}
 public:
-	static  uint64_t gmStartTime_;	//GM设置的时间
-	static  uint64_t gmSetTimeTime_; //gm开始设置时，系统的时间
-public:
 	// create Time represents now
 	static NFTime Now();
 
-	//gm set time
-	static NFTime GmSetTime(int year, int month, int day, int hour, int min, int sec);
-
-	//convert time 
+	//convert time
 	static uint64_t GetSecTime(int year, int month, int day, int hour, int min, int sec);
 
 	// create Time by specific date 年月日公历 非1900开始
@@ -81,7 +75,6 @@ public:
 	// return unix timestamp, from Jan 1 1970 UTC
 	uint64_t UnixMSec();
 
-	// return unix timestamp, from Jan 1 1970 UTC
 	uint64_t UnixNano();
 
 	void LocalDate(struct NFDate *d);
@@ -143,7 +136,7 @@ public:
         return LocalDateFormat("%Y-%m-%d", timestr, len);
     }
 
-    // %Y-%m-%d %H:%M:%S
+    // %Y-%m-%d
     std::string GetFormatDate()
     {
         char str[32];
@@ -198,3 +191,15 @@ public:
     //获取当前服务器所在的时区,单位秒
     static int32_t GetCurTimeZone();
 };
+
+//ret time_t 系统时间
+#define NF_TIMENOW() (NFServerTime::Instance()->UnixSec())
+
+//ret time_t 系统时间，毫秒
+#define NF_TIMENOW_MS() (NFServerTime::Instance()->UnixMSec())
+
+//ret time_t 偏移时间
+#define NF_ADJUST_TIMENOW() NFTime::Now().UnixSec()
+
+//ret time_t 偏移时间，毫秒
+#define NF_ADJUST_TIMENOW_MS() NFTime::Now().UnixMSec()

@@ -366,9 +366,9 @@ std::string NFFileUtility::NormalizePath(const std::string& init, bool with_trai
 		NFStringUtility::Trim(path, "/", false, true);
 	}
 
-#if NF_PLATFORM == NF_PLATFORM_WIN
+/*#if NF_PLATFORM == NF_PLATFORM_WIN
 	NFStringUtility::ToLower(path);
-#endif
+#endif*/
 
 	return path;
 }
@@ -391,9 +391,9 @@ std::wstring NFFileUtility::NormalizePath(const std::wstring& init, bool with_tr
 		NFStringUtility::Trim(path, L"/", false, true);
 	}
 
-#if NF_PLATFORM == NF_PLATFORM_WIN
+/*#if NF_PLATFORM == NF_PLATFORM_WIN
 	NFStringUtility::ToLower(path);
-#endif
+#endif*/
 	return path;
 }
 
@@ -424,10 +424,10 @@ void NFFileUtility::SplitFileName(const std::string& filepath,
 		}
 	}
 
-#if NF_PLATFORM == NF_PLATFORM_WIN
+/*#if NF_PLATFORM == NF_PLATFORM_WIN
 	NFStringUtility::ToLower(base);
 	NFStringUtility::ToLower(dir_path);
-#endif
+#endif*/
 }
 
 void NFFileUtility::SplitFileName(const std::wstring& filepath,
@@ -458,10 +458,10 @@ void NFFileUtility::SplitFileName(const std::wstring& filepath,
 		}
 	}
 
-#if NF_PLATFORM == NF_PLATFORM_WIN
+/*#if NF_PLATFORM == NF_PLATFORM_WIN
 	NFStringUtility::ToLower(base);
 	NFStringUtility::ToLower(dir_path);
-#endif
+#endif*/
 }
 
 bool NFFileUtility::CreateLink(const std::string& oldpath, const std::string& newpath)
@@ -1008,7 +1008,12 @@ uint64_t NFFileUtility::GetWindowsToUnixBaseTimeOffset()
 }
 #endif
 
-uint32_t NFFileUtility::GetFileModificationDate(const std::string &filename)
+uint64_t NFFileUtility::GetFileModificationSecond(const std::string& filename)
+{
+	return GetFileModificationMicroSec(filename) / 1000000;
+}
+
+uint64_t NFFileUtility::GetFileModificationMicroSec(const std::string& filename)
 {
 	std::string::size_type pos;
 	std::string fn;
@@ -1067,13 +1072,11 @@ uint32_t NFFileUtility::GetFileModificationDate(const std::string &filename)
 	// adjust time base to unix epoch base
 	t -= GetWindowsToUnixBaseTimeOffset();
 
-	// convert the resulting time into seconds
+	// convert the resulting time into micro sec
 	t /= 10;	// microsec
-	t /= 1000;	// millisec
-	t /= 1000;	// sec
 
 	// return the resulting time
-	return uint32_t(t);
+	return t;
 
 #else
 	struct stat buf;
@@ -1084,7 +1087,7 @@ uint32_t NFFileUtility::GetFileModificationDate(const std::string &filename)
 		return 0;
 	}
 	else
-		return (uint32_t)buf.st_mtime;
+		return ((uint64_t)buf.st_mtim.tv_sec) * 1000 * 1000 + buf.st_mtim.tv_nsec / 1000;
 #endif
 
 }

@@ -11,7 +11,7 @@
 
 #include "NFIAsySqlModule.h"
 #include "google/protobuf/message.h"
-#include "NFComm/NFKernelMessage/storesvr_sqldata.pb.h"
+#include "NFComm/NFKernelMessage/FrameSqlData.pb.h"
 #include <vector>
 #include <functional>
 

@@ -9,15 +9,15 @@
 
 #include "ExcelToProto.h"
 
+#include "ExcelJsonParse.h"
+
 
 ExcelToProto::ExcelToProto()
 {
-
 }
 
 ExcelToProto::~ExcelToProto()
 {
-
 }
 
 int ExcelToProto::HandleExcel()
@@ -28,42 +28,15 @@ int ExcelToProto::HandleExcel()
         return iRet;
     }
 
+    uint64_t startTime = NFGetTime();
     WriteExcelProto();
     WriteSheetDescStore();
     WriteMakeFile();
+    double useTime = (NFGetTime() - startTime) / 1000.0;
+    NFLogInfo(NF_LOG_DEFAULT, 0, "write execel proto use time:{}", useTime)
 
     return iRet;
 }
-
-void ExcelToProto::HandleColOtherInfo(int col_index, MiniExcelReader::Sheet &sheet, const std::string &colType, uint32_t &uniqueKeysNum,
-                                      uint32_t &uniqueKeysListNum,
-                                      uint32_t &maxSize)
-{
-    std::unordered_map<std::string, uint32_t> map;
-    for (int i = 4; i < (int) sheet.rows(); i++)
-    {
-        std::string str = sheet.getCell(i, col_index)->to_string();
-        NFStringUtility::Trim(str);
-        map[str]++;
-        if (colType == "string")
-        {
-            if (str.size() > maxSize)
-            {
-                maxSize = str.size();
-            }
-        }
-    }
-
-    uniqueKeysNum = map.size();
-    for (auto iter = map.begin(); iter != map.end(); iter++)
-    {
-        if (iter->second > uniqueKeysListNum)
-        {
-            uniqueKeysListNum = iter->second;
-        }
-    }
-}
-
 
 void ExcelToProto::WriteExcelProto()
 {
@@ -71,14 +44,46 @@ void ExcelToProto::WriteExcelProto()
 
     std::string excel_proto_file = m_outPath + "E_" + NFStringUtility::Capitalize(m_excelName) + ".proto";
 
+    write_str += "syntax = \"proto2\";\n\n";
     write_str += "package proto_ff;\n\n";
-    write_str += "import \"yd_fieldoptions.proto\";\n\n";
-    std::vector<MiniExcelReader::Sheet> &sheets = m_excelReader->sheets();
-    for (MiniExcelReader::Sheet &sheet: sheets)
+    write_str += "import \"nanopb.proto\";\n";
+
+    XLWorkbook wxbook = m_excelReader.workbook();
+    std::vector<std::string> vecSheet = wxbook.worksheetNames();
+    std::unordered_set<std::string> protoFileMap;
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            WriteSheetProto(&m_sheets[sheet.title()], write_str);
+            auto pSheet = &m_sheets[sheet.name()];
+            for (auto iter = pSheet->m_protoFileMap.begin(); iter != pSheet->m_protoFileMap.end(); iter++)
+            {
+                protoFileMap.insert(*iter);
+            }
+        }
+    }
+
+    for (auto iter = protoFileMap.begin(); iter != protoFileMap.end(); iter++)
+    {
+        std::string proto_file_name = *iter;
+        write_str += "import \"" + proto_file_name + "\";\n";
+    }
+
+    write_str += "\n";
+
+    for (int i = 0; i < (int)vecSheet.size(); i++)
+    {
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
+        {
+            auto pSheet = &m_sheets[sheet.name()];
+            if (pSheet->m_sheetMsgNameStr.empty() && pSheet->m_protoMsgNameStr.empty())
+            {
+                WriteSheetProto(pSheet, write_str);
+            }
         }
     }
 
@@ -87,13 +92,16 @@ void ExcelToProto::WriteExcelProto()
 
 void ExcelToProto::WriteSheetDescStore()
 {
-    std::vector<MiniExcelReader::Sheet> &sheets = m_excelReader->sheets();
-    for (MiniExcelReader::Sheet &sheet: sheets)
+    XLWorkbook wxbook = m_excelReader.workbook();
+    std::vector<std::string> vecSheet = wxbook.worksheetNames();
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            WriteSheetDescStoreH(&m_sheets[sheet.title()]);
-            WriteSheetDescStoreCpp(&m_sheets[sheet.title()]);
+            WriteSheetDescStoreH(&m_sheets[sheet.name()]);
+            WriteSheetDescStoreCpp(&m_sheets[sheet.name()]);
         }
     }
 
@@ -103,285 +111,787 @@ void ExcelToProto::WriteSheetDescStore()
     WriteDestStoreDefine();
 }
 
-void ExcelToProto::WriteSheetProto(ExcelSheet *pSheet, std::string &proto_file)
+int ExcelToProto::WriteSheetProto(ExcelSheet* pSheet, std::string& proto_file, ExcelSheetColInfo* pColInfo)
 {
-    std::string sheet_name = pSheet->m_name;
-    for (auto iter = pSheet->m_colInfoVec.begin(); iter != pSheet->m_colInfoVec.end(); iter++)
+    CHECK_NULL(0, pColInfo);
+    if (pColInfo->m_colInfoMap.empty()) return 0;
+    if (pSheet->m_colMessageTypeMap.find(pColInfo->m_colFullName) != pSheet->m_colMessageTypeMap.end())
     {
-        ExcelSheetColInfo *pColInfo = iter->second;
-        if (pColInfo->m_subInfoMap.empty()) continue;
+        return 0;
+    }
 
+    for (auto iter = pColInfo->m_colInfoList.begin(); iter != pColInfo->m_colInfoList.end(); iter++)
+    {
         std::string struct_en_name = pColInfo->m_structEnName;
+        auto pNewColInfo = iter->second;
+        CHECK_NULL(0, pNewColInfo);
+        WriteSheetProto(pSheet, proto_file, pNewColInfo);
+    }
 
-        proto_file += "\nmessage E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                      NFStringUtility::Capitalize(struct_en_name) + "Desc\n";
-        proto_file += "{\n";
-        int index = 0;
+    proto_file += "\nmessage " + pColInfo->m_pbDescName + "\n";
+    proto_file += "{\n";
 
-        for (auto sub_iter = pColInfo->m_subInfoMap.begin(); sub_iter != pColInfo->m_subInfoMap.end(); sub_iter++)
+    int index = 0;
+
+    for (auto iter = pColInfo->m_colInfoList.begin(); iter != pColInfo->m_colInfoList.end(); iter++)
+    {
+        index++;
+        auto pSubColInfo = iter->second;
+        CHECK_NULL(0, pSubColInfo);
+        std::string col_en_name = pSubColInfo->m_structEnName;
+        std::string col_cn_name = pSubColInfo->m_structCnName;
+        NF_ENUM_COL_TYPE col_type = pSubColInfo->m_colCppType;
+        std::string strJsonRepeatdNum = pSubColInfo->m_strParseRepeatedNum;
+        std::string strJsonMessage = pSubColInfo->m_strParseMessage;
+        uint32_t colTypeStrMaxSize = pSubColInfo->m_colTypeStrMaxSize;
+        int32_t int_col_max_size = pColInfo->m_maxSubNum;
+        if (pColInfo->m_strutNumFromZero)
         {
-            index = index + 1;
-            std::string sub_en_name = "m_" + sub_iter->second.m_enSubName;
-            std::string cn_sub_name = sub_iter->second.m_cnSubName;
-            std::string col_type = sub_iter->second.m_colType;
-            uint32_t colTypeStrMaxSize = sub_iter->second.m_colTypeStrMaxSize;
-            if (col_type == "int" || col_type == "int32")
+            int_col_max_size = pColInfo->m_maxSubNum + 1;
+        }
+        std::string col_max_size = NFCommon::tostr(int_col_max_size);
+
+        if (!pSubColInfo->m_isArray && strJsonRepeatdNum.empty() && pSubColInfo->m_colInfoMap.empty())
+        {
+            if (col_type == NF_ENUM_COL_TYPE_INT32)
             {
-                proto_file +=
-                        "\toptional int32 " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "uint" || col_type == "uint32")
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
             {
-                proto_file +=
-                        "\toptional uint32 " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "int64")
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
             {
-                proto_file +=
-                        "\toptional int64 " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "uint64")
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
             {
-                proto_file +=
-                        "\toptional uint64 " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "float")
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
             {
-                proto_file +=
-                        "\toptional float " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "double")
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
             {
-                proto_file +=
-                        "\toptional double " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"";
+                proto_file += "\toptional double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
             }
-            else if (col_type == "string")
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
             {
-                proto_file +=
-                        "\toptional string " + sub_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + cn_sub_name +
-                        "\"," + " (yd_fieldoptions.field_bufsize) = " + NFCommon::tostr(get_max_num(colTypeStrMaxSize));
+                proto_file += "\toptional bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
+            {
+                proto_file += "\toptional " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
+            {
+                proto_file += "\toptional string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"," + " (nanopb).max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
 
                 if (pSheet->m_createSql)
                 {
-                    proto_file += ", (yd_fieldoptions.db_field_bufsize) = " + NFCommon::tostr(get_max_num(colTypeStrMaxSize));
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file += "\toptional string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"," + " (nanopb).max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"];\n";
+
+                index++;
+                proto_file += "\toptional uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\"";
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file += "\toptional " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", (nanopb).parse_type=FPT_JSON";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+            }
+        }
+        else if (pSubColInfo->m_isArray && !strJsonRepeatdNum.empty() && pSubColInfo->m_colInfoMap.empty())
+        {
+            CHECK_EXPR(false, -1, "excel:{} sheet:{} not right, col:{} enName:{} cnName:{}", pSheet->m_excelName, pSheet->m_sheetName, pColInfo->m_colIndex, pColInfo->m_colType, pColInfo->m_structEnName, pColInfo->m_structCnName);
+        }
+        else if (pSubColInfo->m_isArray && strJsonRepeatdNum.empty() && pSubColInfo->m_colInfoMap.empty())
+        {
+            std::string nanopb_max_count = "(nanopb).max_count = " + col_max_size;
+            if (!NFStringUtility::IsDigital(col_max_size))
+            {
+                nanopb_max_count = "(nanopb).max_count_enum = \"" + col_max_size + "\"";
+            }
+            if (col_type == NF_ENUM_COL_TYPE_INT32)
+            {
+                proto_file += "\trepeated int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
+            {
+                proto_file += "\trepeated uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
+            {
+                proto_file += "\trepeated int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
+            {
+                proto_file += "\trepeated uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
+            {
+                proto_file += "\trepeated float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
+            {
+                proto_file += "\trepeated double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
+            {
+                proto_file += "\trepeated bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    + "\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"";
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"];\n";
+
+                index++;
+                proto_file += "\trepeated uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).parse_type=FPT_JSON";
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
                 }
             }
 
             if (pSheet->m_createSql)
             {
-                proto_file += ", (yd_fieldoptions.db_field_comment) = \"" + cn_sub_name + "\"";
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_max_count = " + col_max_size;
+            }
+        }
+        else if (!pSubColInfo->m_isArray && !strJsonRepeatdNum.empty() && pSubColInfo->m_colInfoMap.empty())
+        {
+            if (!strJsonRepeatdNum.empty())
+            {
+                col_max_size = strJsonRepeatdNum;
             }
 
-            proto_file += "];\n";
+            std::string nanopb_max_count = "(nanopb).max_count = " + col_max_size;
+            if (!NFStringUtility::IsDigital(col_max_size))
+            {
+                nanopb_max_count = "(nanopb).max_count_enum = \"" + col_max_size + "\"";
+            }
+
+            nanopb_max_count += ", (nanopb).parse_type=FPT_JSON";
+            if (col_type == NF_ENUM_COL_TYPE_INT32)
+            {
+                proto_file += "\trepeated int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
+            {
+                proto_file += "\trepeated uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
+            {
+                proto_file += "\trepeated int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
+            {
+                proto_file += "\trepeated uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
+            {
+                proto_file += "\trepeated float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
+            {
+                proto_file += "\trepeated double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
+            {
+                proto_file += "\trepeated bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"";
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"];\n";
+
+                index++;
+                proto_file += "\trepeated uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count;
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+            }
+        }
+        else if (pSubColInfo->m_isArray && !pSubColInfo->m_colInfoMap.empty())
+        {
+            proto_file += "\trepeated " + pSubColInfo->m_pbDescName + " " + col_en_name + " = " + NFCommon::tostr(index) +
+                "[(nanopb).field_cname = \"" + col_cn_name + "\"," + " (nanopb).max_count = " +
+                col_max_size;
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_max_count = " + col_max_size;
+            }
+        }
+        else if (!pSubColInfo->m_isArray && !pSubColInfo->m_colInfoMap.empty())
+        {
+            proto_file += "\toptional " + pSubColInfo->m_pbDescName + " " + col_en_name + " = " + NFCommon::tostr(index) +
+                "[(nanopb).field_cname = \"" + col_cn_name + "\"";
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_message_expand = true";
+            }
+        }
+        else
+        {
+            CHECK_EXPR(false, -1, "excel:{} sheet:{} not right, col:{} enName:{} cnName:{}", pSheet->m_excelName, pSheet->m_sheetName, pColInfo->m_colIndex, pColInfo->m_colType, pColInfo->m_structEnName, pColInfo->m_structCnName);
         }
 
-        proto_file += "}\n";
+        if (pSheet->m_colEnumMap.find(pSubColInfo->m_colFullName) != pSheet->m_colEnumMap.end())
+        {
+            proto_file += ", (nanopb).macro_type = \"" + pSheet->m_colEnumMap[pSubColInfo->m_colFullName].m_enumPbName + "\"";
+        }
+
+        proto_file += "];\n";
     }
 
-    proto_file += "\nmessage E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "\n";
+    proto_file += "}\n";
+
+    return 0;
+}
+
+int ExcelToProto::WriteSheetProto(ExcelSheet* pSheet, std::string& proto_file)
+{
+    std::string sheet_name = pSheet->m_sheetName;
+    for (auto iter = pSheet->m_colInfoVec.begin(); iter != pSheet->m_colInfoVec.end(); iter++)
+    {
+        ExcelSheetColInfo* pColInfo = iter->second;
+        WriteSheetProto(pSheet, proto_file, pColInfo);
+    }
+
+    proto_file += "\nmessage " + pSheet->m_protoInfo.m_protoMsgName + "\n";
     proto_file += "{\n";
+    if (pSheet->m_createSql)
+    {
+        proto_file += "\toption (nanopb_msgopt).to_db_sql = true;\n";
+    }
 
     int index = 0;
     for (auto iter = pSheet->m_colInfoVec.begin(); iter != pSheet->m_colInfoVec.end(); iter++)
     {
-        ExcelSheetColInfo *pColInfo = iter->second;
-        if (!pColInfo->m_subInfoMap.empty()) continue;
-        if (pColInfo->m_maxSubNum != 0) continue;
-
-        index += 1;
-        std::string col_en_name = "m_" + pColInfo->m_structEnName;
+        ExcelSheetColInfo* pColInfo = iter->second;
+        std::string col_en_name = pColInfo->m_structEnName;
         std::string col_cn_name = pColInfo->m_structCnName;
-        std::string col_type = pColInfo->m_colType;
+        NF_ENUM_COL_TYPE col_type = pColInfo->m_colCppType;
+        std::string strJsonRepeatdNum = pColInfo->m_strParseRepeatedNum;
+        std::string strJsonMessage = pColInfo->m_strParseMessage;
         uint32_t colTypeStrMaxSize = pColInfo->m_colTypeStrMaxSize;
-        if (col_type == "int" || col_type == "int32")
+        int32_t int_col_max_size = pColInfo->m_maxSubNum;
+        if (pColInfo->m_strutNumFromZero)
         {
-            proto_file +=
-                    "\toptional int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            int_col_max_size = pColInfo->m_maxSubNum + 1;
+        }
+        std::string col_max_size = NFCommon::tostr(int_col_max_size);
+
+        if (pColInfo->m_colInfoMap.empty() && !pColInfo->m_isArray && strJsonRepeatdNum.empty())
+        {
+            index += 1;
+
+            if (col_type == NF_ENUM_COL_TYPE_INT8 || col_type == NF_ENUM_COL_TYPE_UINT8)
+            {
+                proto_file +=
+                    "\toptional int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).int_size = IS_8, (nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "uint" || col_type == "uint32")
-        {
-            proto_file +=
-                    "\toptional uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            }
+            if (col_type == NF_ENUM_COL_TYPE_INT16 || col_type == NF_ENUM_COL_TYPE_UINT16)
+            {
+                proto_file +=
+                    "\toptional int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).int_size = IS_16, (nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "int64")
-        {
-            proto_file +=
-                    "\toptional int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT32)
+            {
+                proto_file +=
+                    "\toptional int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "uint64")
-        {
-            proto_file +=
-                    "\toptional uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
+            {
+                proto_file +=
+                    "\toptional uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "float")
-        {
-            proto_file +=
-                    "\toptional float " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
+            {
+                proto_file +=
+                    "\toptional int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "double")
-        {
-            proto_file +=
-                    "\toptional double " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
+            {
+                proto_file +=
+                    "\toptional uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
                     "\"";
-        }
-        else if (col_type == "string")
-        {
-            proto_file +=
-                    "\toptional string " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                    "\"," + " (yd_fieldoptions.field_bufsize) = " + NFCommon::tostr(get_max_num(colTypeStrMaxSize));
-
-            if (pSheet->m_createSql)
-            {
-                proto_file += ", (yd_fieldoptions.db_field_bufsize) = " + NFCommon::tostr(get_max_num(colTypeStrMaxSize));
             }
-        }
-
-        if (pSheet->m_createSql)
-        {
-            proto_file += ", (yd_fieldoptions.db_field_comment) = \"" + col_cn_name + "\"";
-
-            if (index == 1)
-            {
-                proto_file += ", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_PRIMARYKEY";
-            }
-            else
-            {
-                if (pSheet->m_indexMap.find(pColInfo->m_structEnName) != pSheet->m_indexMap.end())
-                {
-                    if (pSheet->m_indexMap[pColInfo->m_structEnName].m_unique)
-                    {
-                        proto_file += ", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_UNIQUE_INDEX";
-                    }
-                    else
-                    {
-                        proto_file += ", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_INDEX";
-                    }
-                }
-                else
-                {
-                    for (auto com_iter = pSheet->m_comIndexMap.begin(); com_iter != pSheet->m_comIndexMap.end(); com_iter++)
-                    {
-                        bool find = false;
-                        for (int com_i = 0; com_i < (int) com_iter->second.m_index.size(); com_i++)
-                        {
-                            if (com_iter->second.m_index[com_i].m_key == pColInfo->m_structEnName)
-                            {
-                                proto_file += ", (yd_fieldoptions.db_field_type) = E_FIELDTYPE_INDEX";
-                                find = true;
-                                break;
-                            }
-                        }
-
-                        if (find)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        proto_file += "];\n";
-    }
-
-    for (auto iter = pSheet->m_colInfoVec.begin(); iter != pSheet->m_colInfoVec.end(); iter++)
-    {
-        ExcelSheetColInfo *pColInfo = iter->second;
-        if (pColInfo->m_subInfoMap.empty() && pColInfo->m_maxSubNum == 0) continue;
-
-        index += 1;
-        std::string col_en_name = "m_" + pColInfo->m_structEnName;
-        std::string col_cn_name = pColInfo->m_structCnName;
-        std::string col_type = pColInfo->m_colType;
-        uint32_t colTypeStrMaxSize = pColInfo->m_colTypeStrMaxSize;
-        uint32_t col_max_size = pColInfo->m_maxSubNum;
-
-        if (pColInfo->m_subInfoMap.size() > 0)
-        {
-            proto_file += "\trepeated E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                          NFStringUtility::Capitalize(pColInfo->m_structEnName) + "Desc " + col_en_name + " = " + NFCommon::tostr(index) +
-                          "[(yd_fieldoptions.field_cname) = \"" + col_cn_name + "\"," + " (yd_fieldoptions.field_arysize) = " +
-                          NFCommon::tostr(pColInfo->m_maxSubNum);
-        }
-        else
-        {
-            if (col_type == "int" || col_type == "int32")
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
             {
                 proto_file +=
-                        "\trepeated int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
+                    "\toptional float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"";
             }
-            else if (col_type == "uint" || col_type == "uint32")
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
             {
                 proto_file +=
-                        "\trepeated uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
+                    "\toptional double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"";
             }
-            else if (col_type == "int64")
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
             {
                 proto_file +=
-                        "\trepeated int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
+                    "\toptional bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"";
             }
-            else if (col_type == "uint64")
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
             {
                 proto_file +=
-                        "\trepeated uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
+                    "\toptional " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"";
             }
-            else if (col_type == "float")
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
             {
                 proto_file +=
-                        "\trepeated float " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
-            }
-            else if (col_type == "double")
-            {
-                proto_file +=
-                        "\trepeated double " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        "\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size);
-            }
-            else if (col_type == "string")
-            {
-                proto_file +=
-                        "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(yd_fieldoptions.field_cname) = \"" + col_cn_name +
-                        +"\", (yd_fieldoptions.field_arysize) = " + NFCommon::tostr(col_max_size) + ", (yd_fieldoptions.field_bufsize) = " +
-                        NFCommon::tostr(get_max_num(colTypeStrMaxSize));
+                    "\toptional string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"," + " (nanopb).max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
 
                 if (pSheet->m_createSql)
                 {
-                    proto_file += ", (yd_fieldoptions.db_field_bufsize) = " + NFCommon::tostr(get_max_num(colTypeStrMaxSize));
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
                 }
             }
-        }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file +=
+                    "\toptional string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"," + " (nanopb).max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"];\n";
+                index++;
+                proto_file +=
+                    "\toptional uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\"";
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file +=
+                    "\toptional " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name + "\", (nanopb).parse_type=FPT_JSON";
 
-        if (pSheet->m_createSql)
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+
+            if (pSheet->m_colEnumMap.find(col_en_name) != pSheet->m_colEnumMap.end())
+            {
+                proto_file += ", (nanopb).macro_type = \"" + pSheet->m_colEnumMap[col_en_name].m_enumPbName + "\"";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+
+                if (index == 1)
+                {
+                    proto_file += ", (nanopb).db_type = E_FIELD_TYPE_PRIMARYKEY";
+                }
+                else
+                {
+                    if (pSheet->m_indexMap.find(pColInfo->m_structEnName) != pSheet->m_indexMap.end())
+                    {
+                        if (pSheet->m_indexMap[pColInfo->m_structEnName].m_unique)
+                        {
+                            proto_file += ", (nanopb).db_type = E_FIELD_TYPE_UNIQUE_INDEX";
+                        }
+                        else
+                        {
+                            proto_file += ", (nanopb).db_type = E_FIELD_TYPE_INDEX";
+                        }
+                    }
+                    else
+                    {
+                        for (auto com_iter = pSheet->m_comIndexMap.begin(); com_iter != pSheet->m_comIndexMap.end(); com_iter++)
+                        {
+                            bool find = false;
+                            for (int com_i = 0; com_i < (int)com_iter->second.m_index.size(); com_i++)
+                            {
+                                if (com_iter->second.m_index[com_i].m_key == pColInfo->m_structEnName)
+                                {
+                                    proto_file += ", (nanopb).db_type = E_FIELD_TYPE_INDEX";
+                                    find = true;
+                                    break;
+                                }
+                            }
+
+                            if (find)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            proto_file += "];\n";
+        }
+        else if (pColInfo->m_colInfoMap.size() > 0 && pColInfo->m_isArray)
         {
-            proto_file += ", (yd_fieldoptions.db_field_comment) = \"" + col_cn_name + "\"";
-            proto_file += ", (yd_fieldoptions.db_field_arysize) = " + NFCommon::tostr(col_max_size);
-        }
+            index += 1;
 
-        proto_file += "];\n";
+            if (pColInfo->m_colInfoMap.size() > 0)
+            {
+                proto_file += "\trepeated " + pColInfo->m_pbDescName + " " + col_en_name + " = " + NFCommon::tostr(index) +
+                    "[(nanopb).field_cname = \"" + col_cn_name + "\"," + " (nanopb).max_count = " +
+                    col_max_size;
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_max_count = " + col_max_size;
+            }
+
+            proto_file += "];\n";
+        }
+        else if (pColInfo->m_colInfoMap.empty() && pColInfo->m_isArray && !strJsonRepeatdNum.empty())
+        {
+            CHECK_EXPR(false, -1, "excel:{} sheet:{} not right, col:{} enName:{} cnName:{}", pSheet->m_excelName, pSheet->m_sheetName, pColInfo->m_colIndex, pColInfo->m_colType, pColInfo->m_structEnName, pColInfo->m_structCnName);
+        }
+        else if (pColInfo->m_colInfoMap.empty() && !pColInfo->m_isArray && !strJsonRepeatdNum.empty())
+        {
+            if (!strJsonRepeatdNum.empty())
+            {
+                col_max_size = strJsonRepeatdNum;
+            }
+            std::string nanopb_max_count = "(nanopb).max_count = " + col_max_size;
+            if (!NFStringUtility::IsDigital(col_max_size))
+            {
+                nanopb_max_count = "(nanopb).max_count_enum = \"" + col_max_size + "\"";
+            }
+
+            nanopb_max_count += ", (nanopb).parse_type=FPT_JSON";
+
+            index += 1;
+
+            if (col_type == NF_ENUM_COL_TYPE_INT32)
+            {
+                proto_file +=
+                    "\trepeated int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
+            {
+                proto_file +=
+                    "\trepeated uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
+            {
+                proto_file +=
+                    "\trepeated int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
+            {
+                proto_file +=
+                    "\trepeated uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
+            {
+                proto_file +=
+                    "\trepeated float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
+            {
+                proto_file +=
+                    "\trepeated double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
+            {
+                proto_file +=
+                    "\trepeated bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
+            {
+                proto_file +=
+                    "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
+            {
+                proto_file +=
+                    "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"";
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file +=
+                    "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"];\n";
+                index++;
+                proto_file +=
+                    "\trepeated uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file +=
+                    "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count;
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+            }
+
+            if (pSheet->m_colEnumMap.find(col_en_name) != pSheet->m_colEnumMap.end())
+            {
+                proto_file += ", (nanopb).macro_type = \"" + pSheet->m_colEnumMap[col_en_name].m_enumPbName + "\"";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_max_count = " + col_max_size;
+            }
+
+            proto_file += "];\n";
+        }
+        else if (pColInfo->m_colInfoMap.empty() && pColInfo->m_isArray && strJsonRepeatdNum.empty())
+        {
+            std::string nanopb_max_count = "(nanopb).max_count = " + col_max_size;
+            if (!NFStringUtility::IsDigital(col_max_size))
+            {
+                nanopb_max_count = "(nanopb).max_count_enum = \"" + col_max_size + "\"";
+            }
+
+            index += 1;
+
+            if (col_type == NF_ENUM_COL_TYPE_INT32)
+            {
+                proto_file += "\trepeated int32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT32)
+            {
+                proto_file += "\trepeated uint32 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_INT64)
+            {
+                proto_file += "\trepeated int64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_UINT64)
+            {
+                proto_file += "\trepeated uint64 " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_FLOAT)
+            {
+                proto_file += "\trepeated float " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DOUBLE)
+            {
+                proto_file += "\trepeated double " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_BOOL)
+            {
+                proto_file += "\trepeated bool " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_ENUM)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_STRING)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"";
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_DATE)
+            {
+                proto_file += "\trepeated string " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).max_size_enum = \"" +
+                    get_string_define(colTypeStrMaxSize) + "\"];\n";
+                index++;
+                proto_file += "\trepeated uint64 " + col_en_name + "_t = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    "\", " + nanopb_max_count;
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+            else if (col_type == NF_ENUM_COL_TYPE_MESSAGE)
+            {
+                proto_file += "\trepeated " + strJsonMessage + " " + col_en_name + " = " + NFCommon::tostr(index) + "[(nanopb).field_cname = \"" + col_cn_name +
+                    +"\", " + nanopb_max_count + ", (nanopb).parse_type=FPT_JSON";
+
+                if (pSheet->m_createSql)
+                {
+                    proto_file += ", (nanopb).db_max_size_enum = \"" + get_string_define(colTypeStrMaxSize) + "\"";
+                }
+            }
+
+            if (pSheet->m_colEnumMap.find(col_en_name) != pSheet->m_colEnumMap.end())
+            {
+                proto_file += ", (nanopb).macro_type = \"" + pSheet->m_colEnumMap[col_en_name].m_enumPbName + "\"";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_max_count = " + col_max_size;
+            }
+
+            proto_file += "];\n";
+        }
+        else if (pColInfo->m_colInfoMap.size() > 0 && !pColInfo->m_isArray)
+        {
+            index += 1;
+
+
+            if (pColInfo->m_colInfoMap.size() > 0)
+            {
+                proto_file += "\toptional " + pColInfo->m_pbDescName + " " + col_en_name + " = " + NFCommon::tostr(index) +
+                    "[(nanopb).field_cname = \"" + col_cn_name + "\"";
+            }
+
+            if (pSheet->m_createSql)
+            {
+                proto_file += ", (nanopb).db_comment = \"" + col_cn_name + "\"";
+                proto_file += ", (nanopb).db_message_expand = true";
+            }
+
+            proto_file += "];\n";
+        }
+    }
+
+    if (pSheet->m_addFileVec.size() > 0)
+    {
+        proto_file += "////////////////////////////add field//////////////////////////////////////\n";
+    }
+
+    for (auto iter = pSheet->m_addFileVec.begin(); iter != pSheet->m_addFileVec.end(); iter++)
+    {
+        proto_file += "\t" + *iter + ";\n";
     }
 
     proto_file += "}\n";
 
-    proto_file += "\n\nmessage Sheet_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "\n";
+    proto_file += "\n\nmessage " + pSheet->m_protoInfo.m_sheetMsgName + "\n";
     proto_file += "{\n";
-    proto_file += "\trepeated E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + " E_" +
-                  NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_List = 1[(yd_fieldoptions.field_arysize)=" +
-                  NFCommon::tostr(get_max_num(pSheet->m_rows)) + "];\n";
+    proto_file += "\trepeated " + pSheet->m_protoInfo.m_protoMsgName + " " + pSheet->m_protoInfo.m_protoMsgName + "_List = 1[(nanopb).max_count=" +
+        NFCommon::tostr(get_max_num(pSheet->m_rows)) + "];\n";
     proto_file += "}\n";
+
+    return 0;
 }
 
 void ExcelToProto::WriteSheetDescStoreExH()
@@ -392,15 +902,15 @@ void ExcelToProto::WriteSheetDescStoreExH()
     desc_file += "#pragma once\n\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescStoreEx.h\"\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescTemplate.h\"\n";
-    desc_file += "#include \"NFComm/NFShmCore/NFResDb.h\"\n";
-    desc_file += "#include \"NFComm/NFShmCore/NFShmMgr.h\"\n";
+    desc_file += "#include \"NFComm/NFObjCommon/NFResDb.h\"\n";
+    desc_file += "#include \"NFComm/NFObjCommon/NFShmMgr.h\"\n";
     desc_file += "#include \"NFComm/NFShmStl/NFShmHashMap.h\"\n";
     desc_file += "#include \"NFComm/NFShmStl/NFShmVector.h\"\n";
     desc_file += "#include \"NFLogicCommon/NFDescStoreTypeDefines.h\"\n";
 
     desc_file += "\nclass " + NFStringUtility::Capitalize(m_excelName) + "DescEx : public NFShmObjGlobalTemplate<" +
-                NFStringUtility::Capitalize(m_excelName) + "DescEx, EOT_CONST_" +
-                NFStringUtility::Upper(m_excelName) + "_DESC_EX_ID, NFIDescStoreEx>\n";
+        NFStringUtility::Capitalize(m_excelName) + "DescEx, EOT_CONST_" +
+        NFStringUtility::Upper(m_excelName) + "_DESC_EX_ID, NFIDescStoreEx>\n";
     desc_file += "{\n";
     desc_file += "public:\n";
     desc_file += "\t" + NFStringUtility::Capitalize(m_excelName) + "DescEx();\n";
@@ -410,68 +920,34 @@ void ExcelToProto::WriteSheetDescStoreExH()
     desc_file += "public:\n";
     desc_file += "\tvirtual int Load() override;\n";
     desc_file += "\tvirtual int CheckWhenAllDataLoaded() override;\n";
-    
+
     desc_file += "};\n";
     NFFileUtility::WriteFile(desc_file_path, desc_file);
 }
 
-void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
+void ExcelToProto::WriteSheetDescStoreH(ExcelSheet* pSheet)
 {
-    std::string sheet_name = pSheet->m_name;
-    std::string desc_file_name = NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc.h";
+    std::string sheet_name = pSheet->m_sheetName;
+    std::string desc_file_name = pSheet->m_otherName + "Desc.h";
     std::string desc_file_path = m_outPath + desc_file_name;
     std::string desc_file;
     desc_file += "#pragma once\n\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescStore.h\"\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescTemplate.h\"\n";
     desc_file += "#include \"NFLogicCommon/NFDescStoreTypeDefines.h\"\n";
-    desc_file += "#include \"NFServerLogicMessage/E_" + NFStringUtility::Capitalize(m_excelName) + "_s.h\"\n";
+    desc_file += "#include \"E_" + NFStringUtility::Capitalize(m_excelName) + ".nanopb.h\"\n";
 
-    desc_file += "\n#define MAX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_NUM " +
-                 NFCommon::tostr(get_max_num(pSheet->m_rows)) + "\n";
-    for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
-    {
-        ExcelSheetIndex &index = iter->second;
-        std::string index_key = iter->second.m_key;
-        index.m_max_num_by_key = "MAX_INDEX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_" +
-                                 NFStringUtility::Upper(index_key) + "_NUM";
-        index.m_unique_num = "UNIQUE_KEY_MAX_INDEX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_" +
-                             NFStringUtility::Upper(index_key) + "_NUM";
-        desc_file += "\n#define " + index.m_max_num_by_key + " " + NFCommon::tostr(get_max_num(index.m_maxUniqueListNum)) + "\n";
-        desc_file += "\n#define " + index.m_unique_num + " " + NFCommon::tostr(get_max_num(index.m_maxUniqueNum)) + "\n";
-    }
+    pSheet->m_define_max_rows = "MAX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_NUM";
+
+    desc_file += "#define " + pSheet->m_define_max_rows + " " + NFCommon::tostr(get_max_num(pSheet->m_rows)) + "\n";
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
-        ExcelSheetComIndex &comIndex = iter->second;
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-        {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            index.m_max_num_by_key = "MAX_COM_INDEX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_" +
-                                     NFStringUtility::Upper(index_key) + "_NUM";
-            index.m_unique_num = "UNIQUE_KEY_MAX_COM_INDEX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_" +
-                                 NFStringUtility::Upper(index_key) + "_NUM";
-            desc_file += "\n#define " + index.m_max_num_by_key + " " + NFCommon::tostr(get_max_num(index.m_maxUniqueListNum)) + "\n";
-            desc_file += "\n#define " + index.m_unique_num + " " + NFCommon::tostr(get_max_num(index.m_maxUniqueNum)) + "\n";
-        }
-    }
-
-    for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
-    {
-        ExcelSheetComIndex &comIndex = iter->second;
+        ExcelSheetComIndex& comIndex = iter->second;
         desc_file += "\nstruct ";
-        std::string className;
-        className += NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name);
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-        {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            className += NFStringUtility::Capitalize(index_key);
-        }
-        desc_file += className + "\n";
+        desc_file += comIndex.m_structComName + "\n";
         desc_file += "{\n";
-        desc_file += "\t" + className + "()\n";
+        desc_file += "\t" + comIndex.m_structComName + "()\n";
         desc_file += "\t{\n";
         desc_file += "\t\tif (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode()) {\n";
         desc_file += "\t\t\tCreateInit();\n";
@@ -482,10 +958,10 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
         desc_file += "\t}\n";
         desc_file += "\tint CreateInit()\n";
         desc_file += "\t{\n";
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = "m_" + index.m_key;
+            ExcelSheetIndex& index = comIndex.m_index[i];
+            std::string index_key = index.m_key;
             desc_file += "\t\t" + index_key + "=0;\n";
         }
         desc_file += "\t\treturn 0;\n";
@@ -494,44 +970,59 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
         desc_file += "\t{\n";
         desc_file += "\t\treturn 0;\n";
         desc_file += "\t}\n";
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = "m_" + index.m_key;
+            ExcelSheetIndex& index = comIndex.m_index[i];
+            std::string index_key = index.m_key;
             desc_file += "\tint64_t " + index_key + ";\n";
         }
-        desc_file += "\tbool operator==(const " + className + "& data) const\n";
+        desc_file += "\tbool operator==(const " + comIndex.m_structComName + "& data) const\n";
         desc_file += "\t{\n";
         desc_file += "\t\t return ";
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = "m_" + index.m_key;
-            if (i != (int) comIndex.m_index.size() - 1)
+            ExcelSheetIndex& index = comIndex.m_index[i];
+            std::string index_key = index.m_key;
+            if (i != (int)comIndex.m_index.size() - 1)
             {
-                desc_file += index_key + "==data." + index_key + " && ";
+                desc_file += index_key + "== data." + index_key + " && ";
             }
             else
             {
-                desc_file += index_key + "==data." + index_key + ";\n";
+                desc_file += index_key + "== data." + index_key + ";\n";
             }
         }
+        desc_file += "\t}\n";
+        desc_file += "\tstd::string ToString() const\n";
+        desc_file += "\t{\n";
+        desc_file += "\t\tstd::stringstream ios;\n";
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
+        {
+            ExcelSheetIndex& index = comIndex.m_index[i];
+            std::string index_key = index.m_key;
+            desc_file += "\t\tios << " + index_key + ";\n";
+            if (i != (int)comIndex.m_index.size() - 1)
+            {
+                desc_file += "\t\tios << \",\";\n";
+            }
+        }
+        desc_file += "\t\treturn ios.str();\n";
         desc_file += "\t}\n";
         desc_file += "};\n";
 
         desc_file += "\nnamespace std\n";
         desc_file += "{\n";
         desc_file += "\ttemplate<>\n";
-        desc_file += "\tstruct hash<" + className + ">\n";
+        desc_file += "\tstruct hash<" + comIndex.m_structComName + ">\n";
         desc_file += "\t{\n";
-        desc_file += "\t\tsize_t operator()(const " + className + "& data) const\n";
+        desc_file += "\t\tsize_t operator()(const " + comIndex.m_structComName + "& data) const\n";
         desc_file += "\t\t{\n";
         desc_file += "\t\t\treturn NFHash::hash_combine(";
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = "m_" + index.m_key;
-            if (i != (int) comIndex.m_index.size() - 1)
+            ExcelSheetIndex& index = comIndex.m_index[i];
+            std::string index_key = index.m_key;
+            if (i != (int)comIndex.m_index.size() - 1)
             {
                 desc_file += "data." + index_key + ",";
             }
@@ -545,15 +1036,15 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
         desc_file += "}\n\n";
     }
 
-    desc_file += "\nclass " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc : public NFIDescTemplate<" +
-        NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc, proto_ff_s::E_" +
-        NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_s, EOT_CONST_" +
-        NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name)+ "_DESC_ID, MAX_" +
+    desc_file += "\nclass " + pSheet->m_otherName + "Desc : public NFIDescTemplate<" +
+        pSheet->m_otherName + "Desc, " +
+        pSheet->m_protoInfo.m_protoMsgName + ", EOT_CONST_" +
+        NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_DESC_ID, MAX_" +
         NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_NUM>\n";
     desc_file += "{\n";
     desc_file += "public:\n";
-    desc_file += "\t" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc();\n";
-    desc_file += "\tvirtual ~" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc();\n";
+    desc_file += "\t" + pSheet->m_otherName + "Desc();\n";
+    desc_file += "\tvirtual ~" + pSheet->m_otherName + "Desc();\n";
     desc_file += "\tint CreateInit();\n";
     desc_file += "\tint ResumeInit();\n";
     if (pSheet->m_createSql)
@@ -561,43 +1052,44 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
         desc_file += "\tvirtual bool IsFileLoad() { return false; }\n";
     }
     desc_file += "public:\n";
-    desc_file += "\tvirtual int Load(NFResDB *pDB) override;\n";
+    desc_file += "\tvirtual int Load(NFResDb *pDB) override;\n";
     desc_file += "\tvirtual int CheckWhenAllDataLoaded() override;\n";
+    if (pSheet->m_protoMsgNameStr.size() > 0)
+    {
+        desc_file += "\tvirtual std::string GetFileName() { return \"" + pSheet->m_protoInfo.m_binFileName + "\"; }\n";
+    }
 
     for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
     {
-        ExcelSheetIndex &index = iter->second;
+        ExcelSheetIndex& index = iter->second;
         std::string index_key = iter->second.m_key;
         if (index.m_unique)
         {
             desc_file +=
-                    "\tconst proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_s* GetDescBy" +
-                    NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const;\n";
+                "\tconst " + pSheet->m_protoInfo.m_protoMsgName + "* GetDescBy" +
+                NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const;\n";
         }
         else
         {
-            desc_file += "\tstd::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> GetDescBy" + NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) +
-                         ") const;\n";
+            desc_file += "\tstd::vector<const " + pSheet->m_protoInfo.m_protoMsgName +
+                "*> GetDescBy" + NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) +
+                ") const;\n";
         }
-
     }
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
-        ExcelSheetComIndex &comIndex = iter->second;
+        ExcelSheetComIndex& comIndex = iter->second;
         if (comIndex.m_unique)
         {
-            desc_file +=
-                    "\tconst proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_s* GetDescBy";
+            desc_file += "\tconst " + pSheet->m_protoInfo.m_protoMsgName + "* GetDescBy";
         }
         else
         {
-            desc_file += "\tstd::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> GetDescBy";
+            desc_file += "\tstd::vector<const " + pSheet->m_protoInfo.m_protoMsgName + "*> GetDescBy";
         }
 
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
             std::string index_key = comIndex.m_index[i].m_key;
             desc_file += NFStringUtility::Capitalize(index_key);
@@ -605,10 +1097,10 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
 
         desc_file += "(";
 
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
             std::string index_key = comIndex.m_index[i].m_key;
-            if (i == (int) comIndex.m_index.size() - 1)
+            if (i == (int)comIndex.m_index.size() - 1)
             {
                 desc_file += "int64_t " + NFStringUtility::Capitalize(index_key);
             }
@@ -626,79 +1118,30 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet *pSheet)
 
     for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
     {
-        ExcelSheetIndex &index = iter->second;
+        ExcelSheetIndex& index = iter->second;
         std::string index_key = iter->second.m_key;
         if (index.m_unique)
         {
-            desc_file += "\tNFShmHashMap<int64_t, uint64_t, " + index.m_unique_num + "> m_" + NFStringUtility::Capitalize(index_key) + "IndexMap;\n";
+            desc_file += "\tNFShmHashMap<int64_t, uint64_t, " + pSheet->m_define_max_rows + "> m_" + NFStringUtility::Capitalize(index_key) + "IndexMap;\n";
         }
         else
         {
-            desc_file += "\tNFShmHashMap<int64_t, NFShmVector<uint64_t, " + index.m_max_num_by_key + ">," + index.m_unique_num + "> m_" +
-                         NFStringUtility::Capitalize(index_key) + "IndexMap;\n";
+            desc_file += "\tNFShmHashMultiMap<int64_t, uint64_t, " + pSheet->m_define_max_rows + "> m_" + NFStringUtility::Capitalize(index_key) + "IndexMap;\n";
         }
     }
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
-        ExcelSheetComIndex &comIndex = iter->second;
-        desc_file += "\tNFShmHashMap<" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name);
-        std::string comIndexKey;
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        ExcelSheetComIndex& comIndex = iter->second;
+        if (comIndex.m_unique)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            comIndexKey += NFStringUtility::Capitalize(index_key);
+            desc_file += "\tNFShmHashMap<" + comIndex.m_structComName;
         }
-        desc_file += comIndexKey;
-        desc_file += " ,";
-
+        else
         {
-            if (comIndex.m_unique)
-            {
-                desc_file += "uint64_t, ";
-                for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-                {
-                    ExcelSheetIndex &index = comIndex.m_index[i];
-                    std::string index_key = index.m_key;
-                    if (i != (int) comIndex.m_index.size() - 1)
-                    {
-                        desc_file += index.m_unique_num + "*";
-                    }
-                    else
-                    {
-                        desc_file += index.m_unique_num;
-                    }
-                }
-                desc_file += ">";
-            }
-            else
-            {
-                desc_file += "NFShmVector<uint64_t, ";
-                if (comIndex.m_index.size() > 0)
-                {
-                    ExcelSheetIndex &index = comIndex.m_index[comIndex.m_index.size() - 1];
-                    desc_file += index.m_max_num_by_key + ">, ";
-                }
-
-                for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-                {
-                    ExcelSheetIndex &index = comIndex.m_index[i];
-                    if (i != (int) comIndex.m_index.size() - 1)
-                    {
-                        desc_file += index.m_unique_num + "*";
-                    }
-                    else
-                    {
-                        desc_file += index.m_unique_num;
-                    }
-                }
-                desc_file += ">";
-            }
+            desc_file += "\tNFShmHashMultiMap<" + comIndex.m_structComName;
         }
-
-        desc_file += " m_" + comIndexKey;
-        desc_file += "ComIndexMap;\n";
+        desc_file += ", uint64_t, " + pSheet->m_define_max_rows + ">" + " " + comIndex.m_varName + ";\n";
     }
 
     desc_file += "};\n";
@@ -713,7 +1156,7 @@ void ExcelToProto::WriteSheetDescStoreExCpp()
     std::string desc_file;
     desc_file += "#include \"" + NFStringUtility::Capitalize(m_excelName) + "DescEx.h\"\n\n";
     desc_file += NFStringUtility::Capitalize(m_excelName) + "DescEx::" + NFStringUtility::Capitalize(m_excelName) +
-                 "DescEx()\n";
+        "DescEx()\n";
     desc_file += "{\n";
     desc_file += "\tif (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode()) {\n";
     desc_file += "\t\tCreateInit();\n";
@@ -722,27 +1165,27 @@ void ExcelToProto::WriteSheetDescStoreExCpp()
     desc_file += "\t\tResumeInit();\n";
     desc_file += "\t}\n";
     desc_file += "}\n\n";
-//////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////
     desc_file += NFStringUtility::Capitalize(m_excelName) + "DescEx::~" +
-                 NFStringUtility::Capitalize(m_excelName) + "DescEx()\n";
+        NFStringUtility::Capitalize(m_excelName) + "DescEx()\n";
     desc_file += "{\n";
     desc_file += "}\n\n";
-///////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////
     desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + "DescEx::CreateInit()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
     desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + "DescEx::ResumeInit()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
     desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + "DescEx::Load()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////
     desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + "DescEx::CheckWhenAllDataLoaded()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
@@ -750,24 +1193,52 @@ void ExcelToProto::WriteSheetDescStoreExCpp()
     NFFileUtility::WriteFile(desc_file_path, desc_file);
 }
 
-void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
+void WriteRelationHead(ExcelRelation* pRelation, std::set<std::string>& headFileHead)
 {
-    ExcelSheetColInfo *one_col_info = pSheet->m_colInfoVec.begin()->second;
-    std::string key_en_name = "m_" + NFStringUtility::Lower(one_col_info->m_structEnName);
+    for (auto iter = pRelation->m_relationMap.begin(); iter != pRelation->m_relationMap.end(); iter++)
+    {
+        auto pLastRelation = iter->second;
+        if (pLastRelation->m_relationMap.empty())
+        {
+            for (int i = 0; i < (int)pLastRelation->m_dst.size(); i++)
+            {
+                ExcelRelationDst& relationDst = pLastRelation->m_dst[i];
+                headFileHead.insert(relationDst.m_descName);
+            }
+        }
+        else
+        {
+            WriteRelationHead(pLastRelation, headFileHead);
+        }
+    }
+}
 
-    std::string sheet_name = pSheet->m_name;
-    std::string desc_file_name = NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc.cpp";
+void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet* pSheet)
+{
+    ExcelSheetColInfo* one_col_info = pSheet->m_colInfoVec.begin()->second;
+    std::string key_en_name = NFStringUtility::Lower(one_col_info->m_structEnName);
+
+    std::string sheet_name = pSheet->m_sheetName;
+    std::string desc_file_name = pSheet->m_otherName + "Desc.cpp";
     std::string desc_file_path = m_outPath + desc_file_name;
     std::string desc_file;
 
-    desc_file += "#include \"" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc.h\"\n";
+    desc_file += "#include \"" + pSheet->m_otherName + "Desc.h\"\n";
     std::set<std::string> headFileHead;
     for (auto iter = pSheet->m_colRelationMap.begin(); iter != pSheet->m_colRelationMap.end(); iter++)
     {
-        for (int i = 0; i < (int) iter->second.m_dst.size(); i++)
+        auto pLastRelation = &iter->second;
+        if (pLastRelation->m_relationMap.empty())
         {
-            ExcelRelationDst &relationDst = iter->second.m_dst[i];
-            headFileHead.insert(NFStringUtility::Capitalize(relationDst.m_excelName) + NFStringUtility::Capitalize(relationDst.m_sheetName));
+            for (int i = 0; i < (int)pLastRelation->m_dst.size(); i++)
+            {
+                ExcelRelationDst& relationDst = pLastRelation->m_dst[i];
+                headFileHead.insert(relationDst.m_descName);
+            }
+        }
+        else
+        {
+            WriteRelationHead(pLastRelation, headFileHead);
         }
     }
 
@@ -778,10 +1249,9 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
 
     desc_file += "#include \"NFComm/NFPluginModule/NFCheck.h\"\n\n";
 
-//////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
     desc_file +=
-            NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::" + NFStringUtility::Capitalize(m_excelName) +
-            NFStringUtility::Capitalize(sheet_name) + "Desc()\n";
+        pSheet->m_otherName + "Desc::" + pSheet->m_otherName + "Desc()\n";
     desc_file += "{\n";
     desc_file += "\tif (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode()) {\n";
     desc_file += "\t\tCreateInit();\n";
@@ -790,31 +1260,31 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
     desc_file += "\t\tResumeInit();\n";
     desc_file += "\t}\n";
     desc_file += "}\n\n";
-//////////////////////////////////////////////////////////////////
-    desc_file += NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::~" +
-                 NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc()\n";
+    //////////////////////////////////////////////////////////////////
+    desc_file += pSheet->m_otherName + "Desc::~" +
+        pSheet->m_otherName + "Desc()\n";
     desc_file += "{\n";
     desc_file += "}\n\n";
-///////////////////////////////////////////////////////////
-    desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::CreateInit()\n";
+    ///////////////////////////////////////////////////////////
+    desc_file += "int " + pSheet->m_otherName + "Desc::CreateInit()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
-    desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::ResumeInit()\n";
+    ////////////////////////////////////////////////////////////////
+    desc_file += "int " + pSheet->m_otherName + "Desc::ResumeInit()\n";
     desc_file += "{\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
-    desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::Load(NFResDB *pDB)\n";
+    ////////////////////////////////////////////////////////////////
+    desc_file += "int " + pSheet->m_otherName + "Desc::Load(NFResDb *pDB)\n";
     desc_file += "{\n";
-    desc_file += "\tNFLogTrace(NF_LOG_SYSTEMLOG, 0, \"--begin--\");\n";
+    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"--begin--\");\n";
     desc_file += "\tCHECK_EXPR(pDB != NULL, -1, \"pDB == NULL\");\n";
     desc_file += "\n";
-    desc_file += "\tNFLogTrace(NF_LOG_SYSTEMLOG, 0, \"" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                 "Desc::Load() strFileName = {}\", GetFileName());\n";
+    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"" + pSheet->m_otherName +
+        "Desc::Load() strFileName = {}\", GetFileName());\n";
     desc_file += "\n";
-    desc_file += "\tproto_ff::Sheet_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + " table;\n";
+    desc_file += "\tproto_ff::Sheet_" + pSheet->m_otherName + " table;\n";
     desc_file += "\tNFResTable* pResTable = pDB->GetTable(GetFileName());\n";
     desc_file += "\tCHECK_EXPR(pResTable != NULL, -1, \"pTable == NULL, GetTable:{} Error\", GetFileName());\n";
     desc_file += "\n";
@@ -822,168 +1292,122 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
     desc_file += "\tiRet = pResTable->FindAllRecord(GetDBName(), &table);\n";
     desc_file += "\tCHECK_EXPR(iRet == 0, -1, \"FindAllRecord Error:{}\", GetFileName());\n";
     desc_file += "\n";
-    desc_file += "\t//NFLogTrace(NF_LOG_SYSTEMLOG, 0, \"{}\", table.Utf8DebugString());\n";
+    desc_file += "\t//NFLogTrace(NF_LOG_DEFAULT, 0, \"{}\", table.Utf8DebugString());\n";
     desc_file += "\n";
-    desc_file += "\tif ((table.e_" + NFStringUtility::Lower(m_excelName) + NFStringUtility::Lower(sheet_name) + "_list_size() < 0) || (table.e_" +
-                 NFStringUtility::Lower(m_excelName) + NFStringUtility::Lower(sheet_name) + "_list_size() > (int)(m_astDescMap.max_size())))\n";
+    desc_file += "\tif ((table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size() < 0) || (table.e_" +
+        NFStringUtility::Lower(pSheet->m_otherName) + "_list_size() > (int)(m_astDescVec.max_size())))\n";
     desc_file += "\t{\n";
-    desc_file += "\t\tNFLogError(NF_LOG_SYSTEMLOG, 0, \"Invalid TotalNum:{}\", table.e_" + NFStringUtility::Lower(m_excelName) +
-                 NFStringUtility::Lower(sheet_name) + "_list_size());\n";
+    desc_file += "\t\tNFLogError(NF_LOG_DEFAULT, 0, \"Invalid TotalNum:{}\", table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size());\n";
     desc_file += "\t\treturn -2;\n";
     desc_file += "\t}\n";
     desc_file += "\n";
-    desc_file += "\tm_minId = INVALID_ID;\n";
     desc_file +=
-            "\tfor (int i = 0; i < (int)table.e_" + NFStringUtility::Lower(m_excelName) + NFStringUtility::Lower(sheet_name) + "_list_size(); i++)\n";
+        "\tfor (int i = 0; i < (int)table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size(); i++)\n";
     desc_file += "\t{\n";
-    desc_file += "\t\tconst proto_ff::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "& desc = table.e_" +
-                 NFStringUtility::Lower(m_excelName) + NFStringUtility::Lower(sheet_name) + "_list(i);\n";
+    desc_file += "\t\tconst proto_ff::" + pSheet->m_protoInfo.m_protoMsgName + "& desc = table.e_" +
+        NFStringUtility::Lower(pSheet->m_otherName) + "_list(i);\n";
     desc_file += "\t\tif (desc.has_" + key_en_name + "() == false && desc.ByteSize() == 0)\n";
     desc_file += "\t\t{\n";
-    desc_file += "\t\t\tNFLogError(NF_LOG_SYSTEMLOG, 0, \"the desc no value, {}\", desc.Utf8DebugString());\n";
+    desc_file += "\t\t\tNFLogError(NF_LOG_DEFAULT, 0, \"the desc no value, {}\", desc.Utf8DebugString());\n";
     desc_file += "\t\t\tcontinue;\n";
     desc_file += "\t\t}\n\n";
-    desc_file += "\t\tif (m_minId == INVALID_ID)\n";
-    desc_file += "\t\t{\n";
-    desc_file += "\t\t\tm_minId = desc." + key_en_name + "();\n";
-    desc_file += "\t\t}\n";
-    desc_file += "\t\telse\n";
-    desc_file += "\t\t{\n";
-    desc_file += "\t\t\tif (desc." + key_en_name + "() < m_minId)\n";
-    desc_file += "\t\t\t{\n";
-    desc_file += "\t\t\t\tm_minId = desc." + key_en_name + "();\n";
-    desc_file += "\t\t\t}\n";
-    desc_file += "\t\t}\n\n";
 
-    desc_file += "\t\t//NFLogTrace(NF_LOG_SYSTEMLOG, 0, \"{}\", desc.Utf8DebugString());\n";
+    desc_file += "\t\t//NFLogTrace(NF_LOG_DEFAULT, 0, \"{}\", desc.Utf8DebugString());\n";
     desc_file += "\t\tif (m_astDescMap.find(desc." + key_en_name + "()) != m_astDescMap.end())\n";
     desc_file += "\t\t{\n";
     desc_file += "\t\t\tif (IsReloading())\n";
     desc_file += "\t\t\t{\n";
     desc_file += "\t\t\t\tauto pDesc = GetDesc(desc." + key_en_name + "());\n";
     desc_file += "\t\t\t\tNF_ASSERT_MSG(pDesc, \"the desc:{} Reload, GetDesc Failed!, id:{}\", GetClassName(), desc." + key_en_name + "());\n";
-    desc_file += "\t\t\t\tpDesc->read_from_pbmsg(desc);\n";
+    desc_file += "\t\t\t\tpDesc->FromPb(desc);\n";
     desc_file += "\t\t\t}\n";
     desc_file += "\t\t\telse\n";
     desc_file += "\t\t\t{\n";
-    desc_file += "\t\t\t\tNFLogError(NF_LOG_SYSTEMLOG, 0, \"the desc:{} id:{} exist\", GetClassName(), desc." + key_en_name + "());\n";
+    desc_file += "\t\t\t\tNFLogError(NF_LOG_DEFAULT, 0, \"the desc:{} id:{} exist\", GetClassName(), desc." + key_en_name + "());\n";
     desc_file += "\t\t\t}\n";
     desc_file += "\t\t\tcontinue;\n";
     desc_file += "\t\t}\n";
-    
-    
+
+
+    desc_file += "\t\tCHECK_EXPR_ASSERT(m_astDescVec.size() < m_astDescVec.max_size(), -1, \"m_astDescVec Space Not Enough\");\n";
+    desc_file += "\t\tm_astDescVec.emplace_back();\n";
+    desc_file += "\t\tauto pDesc = &m_astDescVec.back();\n";
+    desc_file += "\t\tCHECK_EXPR_ASSERT(pDesc, -1, \"m_astDescVec Insert Failed desc.id:{}\", desc." + key_en_name + "());\n";
+    desc_file += "\t\tpDesc->FromPb(desc);\n";
     desc_file += "\t\tCHECK_EXPR_ASSERT(m_astDescMap.size() < m_astDescMap.max_size(), -1, \"m_astDescMap Space Not Enough\");\n";
-    desc_file += "\t\tauto pDesc = &m_astDescMap[desc." + key_en_name + "()];\n";
-    desc_file += "\t\tCHECK_EXPR_ASSERT(pDesc, -1, \"m_astDescMap Insert Failed desc.id:{}\", desc." + key_en_name + "());\n";
-    desc_file += "\t\tpDesc->read_from_pbmsg(desc);\n";
+    desc_file += "\t\tm_astDescMap.insert(std::make_pair(desc." + key_en_name + "(), m_astDescVec.size()-1));\n";
     desc_file += "\t\tCHECK_EXPR_ASSERT(GetDesc(desc." + key_en_name + "()) == pDesc, -1, \"GetDesc != pDesc, id:{}\", desc." + key_en_name + "());\n";
 
     desc_file += "\t}\n\n";
-    desc_file += "\tfor(int i = 0; i < (int)m_astDescIndex.size(); i++)\n";
-    desc_file += "\t{\n";
-    desc_file += "\t\tm_astDescIndex[i] = INVALID_ID;\n";
-    desc_file += "\t}\n\n";
-    desc_file += "\tfor(auto iter = m_astDescMap.begin(); iter != m_astDescMap.end(); iter++)\n";
-    desc_file += "\t{\n";
-    desc_file += "\t\tint64_t index = (int64_t)iter->first - (int64_t)m_minId;\n";
-    desc_file += "\t\tif (index >= 0 && index < (int64_t)m_astDescIndex.size())\n";
-    desc_file += "\t\t{\n";
-    desc_file += "\t\t\tm_astDescIndex[index] = iter.m_curNode->m_self;\n";
-    desc_file += "\t\t\tCHECK_EXPR_ASSERT(iter == m_astDescMap.get_iterator(m_astDescIndex[index]), -1, \"index error\");\n";
-    desc_file += "\t\t\tCHECK_EXPR_ASSERT(GetDesc(iter->first) == &iter->second, -1, \"GetDesc != iter->second, id:{}\", iter->first);\n";
-
-    desc_file += "\t\t}\n";
-    desc_file += "\t}\n";
 
     for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
     {
-        ExcelSheetIndex &index = iter->second;
-        std::string index_key = index.m_key;
-        std::string index_map = "m_" + NFStringUtility::Capitalize(index_key) + "IndexMap";
-        desc_file += "\t" + index_map + ".clear();\n";
+        ExcelSheetIndex& index = iter->second;
+        desc_file += "\t" + index.m_varName + ".clear();\n";
     }
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
-        ExcelSheetComIndex &comIndex = iter->second;
-        std::string index_map = "m_";
-        std::string comIndexKey;
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-        {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            comIndexKey += NFStringUtility::Capitalize(index_key);
-        }
-        index_map += comIndexKey + "ComIndexMap";
-        desc_file += "\t" + index_map + ".clear();\n";
+        ExcelSheetComIndex& comIndex = iter->second;
+        desc_file += "\t" + comIndex.m_varName + ".clear();\n";
     }
 
     if (pSheet->m_indexMap.size() > 0 || pSheet->m_comIndexMap.size() > 0)
     {
-        desc_file += "\tfor(auto iter = m_astDescMap.begin(); iter != m_astDescMap.end(); iter++)\n";
+        desc_file += "\tfor(int i = 0; i < (int)m_astDescVec.size(); i++)\n";
         desc_file += "\t{\n";
-        desc_file += "\t\tauto pDesc = &iter->second;\n";
+        desc_file += "\t\tauto pDesc = &m_astDescVec[i];\n";
         for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
         {
-            ExcelSheetIndex &index = iter->second;
+            ExcelSheetIndex& index = iter->second;
             std::string index_key = index.m_key;
-            std::string index_key_en_name = "m_" + index_key;
-            std::string index_map = "m_" + NFStringUtility::Capitalize(index_key) + "IndexMap";
+            std::string index_key_en_name = index_key;
+            std::string index_map = index.m_varName;
+            desc_file += "\t\t{\n";
             if (index.m_unique)
             {
-                desc_file += "\t\tCHECK_EXPR_ASSERT(" + index_map + ".find(pDesc->" + index_key_en_name + ") == " + index_map +
-                             ".end(), -1, \"unique index:" + index_key + " repeat key:{}\", pDesc->" + index_key_en_name + ");\n";
-                desc_file += "\t\tauto key_iter = " + index_map + ".emplace_hint(pDesc->" + index_key_en_name + ", iter->first);\n";
-                desc_file += "\t\tCHECK_EXPR_ASSERT(key_iter != " + index_map + ".end(), -1, \"" + index_map + ".emplace_hint Failed pDesc->" +
-                             index_key_en_name + ":{}, space not enough\", pDesc->" + index_key_en_name + ");\n";
+                desc_file += "\t\t\tCHECK_EXPR_ASSERT(" + index_map + ".find(pDesc->" + index_key_en_name + ") == " + index_map +
+                    ".end(), -1, \"unique index:" + index_key + " repeat key:{}\", pDesc->" + index_key_en_name + ");\n";
+                desc_file += "\t\t\tauto pair_iter = " + index_map + ".insert(std::make_pair(pDesc->" + index_key_en_name + ", i));\n";
+                desc_file += "\t\t\tCHECK_EXPR_ASSERT(pair_iter.second && pair_iter.first != " + index_map + ".end(), -1, \"" + index_map + ".insert Failed pDesc->" +
+                    index_key_en_name + ":{}, space not enough\", pDesc->" + index_key_en_name + ");\n";
             }
             else
             {
-                desc_file += "\t\tif(" + index_map + ".size() >= " + index_map + ".max_size())\n";
-                desc_file += "\t\t{\n";
-                desc_file +=
-                        "\t\t\tCHECK_EXPR_ASSERT(" + index_map + ".find(pDesc->" + index_key_en_name + ") != " + index_map + ".end(), -1, \"index:" +
-                        index_key + " key:{}, space not enough\", pDesc->" + index_key_en_name + ");\n";
-                desc_file += "\t\t}\n";
-                desc_file += "\t\t" + index_map + "[pDesc->" + index_key_en_name + "].push_back(iter->first);\n";
+                desc_file += "\t\t\tauto iter = " + index_map + ".insert(std::make_pair(pDesc->" + index_key_en_name + ", i));\n";
+                desc_file += "\t\t\tCHECK_EXPR_ASSERT(iter != " + index_map + ".end(), -1, \"" + index_map + ".insert Failed pDesc->" +
+                    index_key_en_name + ":{}, space not enough\", pDesc->" + index_key_en_name + ");\n";
             }
+            desc_file += "\t\t}\n";
         }
 
         for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
         {
-            ExcelSheetComIndex &comIndex = iter->second;
-            std::string index_map = "m_";
-            std::string comIndexKey;
-            for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-            {
-                ExcelSheetIndex &index = comIndex.m_index[i];
-                std::string index_key = index.m_key;
-                comIndexKey += NFStringUtility::Capitalize(index_key);
-            }
-            index_map += comIndexKey + "ComIndexMap";
-            std::string comIndexClassName = NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + comIndexKey;
+            ExcelSheetComIndex& comIndex = iter->second;
+            std::string index_map = comIndex.m_varName;
+            std::string comIndexClassName = comIndex.m_structComName;
             desc_file += "\t\t{\n";
             desc_file += "\t\t\t" + comIndexClassName + " data;\n";
-            for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+            for (int i = 0; i < (int)comIndex.m_index.size(); i++)
             {
-                ExcelSheetIndex &index = comIndex.m_index[i];
+                ExcelSheetIndex& index = comIndex.m_index[i];
                 std::string index_key = index.m_key;
-                std::string index_key_en_name = "m_" + index_key;
-                desc_file += "\t\t\tdata.m_" + index_key + " = pDesc->" + index_key_en_name + ";\n";
+                desc_file += "\t\t\tdata." + index_key + " = pDesc->" + index_key + ";\n";
             }
-            desc_file += "\t\t\tif(" + index_map + ".size() >= " + index_map + ".max_size())\n";
-            desc_file += "\t\t\t{\n";
-            desc_file += "\t\t\t\tCHECK_EXPR_ASSERT(" + index_map + ".find(data) != " + index_map +
-                         ".end(), -1, \"space not enough\");\n";
-            desc_file += "\t\t\t}\n";
+
             if (comIndex.m_unique)
             {
-                desc_file += "\t\t\t" + index_map + "[data] = iter->first;\n";
+                desc_file += "\t\t\tCHECK_EXPR_ASSERT(" + index_map + ".find(data) == " + index_map +
+                    ".end(), -1, \"unique index:" + comIndexClassName + " repeat key:{}\", data.ToString());\n";
+                desc_file += "\t\t\tauto key_iter = " + index_map + ".insert(std::make_pair(data, i));\n";
+                desc_file += "\t\t\t\tCHECK_EXPR_ASSERT(key_iter.second && key_iter.first != " + index_map +
+                    ".end(), -1, \"key:{} space not enough\", data.ToString());\n";
             }
             else
             {
-                desc_file += "\t\t\tCHECK_EXPR_ASSERT(" + index_map + "[data].size() < " + index_map + "[data].max_size(), -1, \"space not enough\");\n";
-                desc_file += "\t\t\t" + index_map + "[data].push_back(iter->first);\n";
+                desc_file += "\t\t\tauto key_iter = " + index_map + ".insert(std::make_pair(data, i));\n";
+                desc_file += "\t\t\t\tCHECK_EXPR_ASSERT(key_iter != " + index_map +
+                    ".end(), -1, \"key:{} space not enough\", data.ToString());\n";
             }
             desc_file += "\t\t}\n";
         }
@@ -992,131 +1416,26 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
     }
 
     desc_file += "\n";
-    desc_file += "\tNFLogTrace(NF_LOG_SYSTEMLOG, 0, \"load {}, num={}\", iRet, table.e_" + NFStringUtility::Lower(m_excelName) +
-                 NFStringUtility::Lower(sheet_name) + "_list_size());\n";
-    desc_file += "\tNFLogTrace(NF_LOG_SYSTEMLOG, 0, \"--end--\");\n";
+    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"load {}, num={}\", iRet, table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size());\n";
+    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"--end--\");\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
-////////////////////////////////////////////////////////////////
-    desc_file += "int " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::CheckWhenAllDataLoaded()\n";
+    ////////////////////////////////////////////////////////////////
+    desc_file += "int " + pSheet->m_otherName + "Desc::CheckWhenAllDataLoaded()\n";
     desc_file += "{\n";
     if (pSheet->m_colRelationMap.size() > 0)
     {
         desc_file += "\tint result = 0;\n";
-        desc_file += "\tfor(auto iter = m_astDescMap.begin(); iter != m_astDescMap.end(); iter++)\n";
+        desc_file += "\tfor(int i = 0; i < (int)m_astDescVec.size(); i++)\n";
         desc_file += "\t{\n";
-        desc_file += "\t\tauto pDesc = &iter->second;\n";
+        desc_file += "\t\tauto pDesc = &m_astDescVec[i];\n";
         for (auto iter = pSheet->m_colRelationMap.begin(); iter != pSheet->m_colRelationMap.end(); iter++)
         {
-            if (iter->second.m_myColSubName.empty())
-            {
-                CHECK_EXPR_ASSERT(pSheet->m_colInfoMap.find(iter->second.m_myColName) != pSheet->m_colInfoMap.end(), , "");
-                ExcelSheetColInfo *pColInfo = pSheet->m_colInfoMap[iter->second.m_myColName];
-                if (pColInfo->m_maxSubNum == 0)
-                {
-                    ExcelRelation &relation = iter->second;
-                    desc_file += "\t\tCHECK_EXPR_MSG_RESULT(";
-                    for (int i = 0; i < (int) relation.m_dst.size(); i++)
-                    {
-                        ExcelRelationDst &relationDst = relation.m_dst[i];
-                        desc_file += "(pDesc->m_" + iter->second.m_myColName + " <= 0 || " + NFStringUtility::Capitalize(relationDst.m_excelName) +
-                                     NFStringUtility::Capitalize(relationDst.m_sheetName) +
-                                     "Desc::Instance()->GetDesc(pDesc->m_" + iter->second.m_myColName +
-                                     "))";
+            auto pRelation = &iter->second;
+            CHECK_EXPR_ASSERT(pSheet->m_colInfoMap.find(pRelation->m_myColName) != pSheet->m_colInfoMap.end(), , "");
+            auto pColInfo = pSheet->m_colInfoMap[pRelation->m_myColName];
 
-                        if (i != (int) relation.m_dst.size() - 1)
-                        {
-                            desc_file += " || ";
-                        }
-                    }
-
-
-                    desc_file += ", result, \"can't find the " + iter->second.m_myColName + ":{} in the " + relation.m_noFindError +
-                                 "\", pDesc->m_" + iter->second.m_myColName + ");\n";
-                }
-                else
-                {
-                    if (pColInfo->m_subInfoMap.empty())
-                    {
-                        desc_file += "\t\tfor(int j = 0; j < (int)pDesc->m_" + iter->second.m_myColName + ".size(); j++)\n";
-                        desc_file += "\t\t{\n";
-                        ExcelRelation &relation = iter->second;
-                        desc_file += "\t\t\tCHECK_EXPR_MSG_RESULT(";
-                        for (int i = 0; i < (int) relation.m_dst.size(); i++)
-                        {
-                            ExcelRelationDst &relationDst = relation.m_dst[i];
-                            desc_file += "(pDesc->m_" + iter->second.m_myColName + "[j] <= 0 || " +
-                                         NFStringUtility::Capitalize(relationDst.m_excelName) +
-                                         NFStringUtility::Capitalize(relationDst.m_sheetName) +
-                                         "Desc::Instance()->GetDesc(pDesc->m_" + iter->second.m_myColName +
-                                         "[j]))";
-
-                            if (i != (int) relation.m_dst.size() - 1)
-                            {
-                                desc_file += " || ";
-                            }
-                        }
-
-                        desc_file += ", result, \"can't find the " + iter->second.m_myColName + ":{} in the " + relation.m_noFindError +
-                                     "\", pDesc->m_" + iter->second.m_myColName + "[j]);\n";
-                        desc_file += "\t\t}\n";
-                    }
-                    else
-                    {
-                        desc_file += "\t\tfor(int j = 0; j < (int)pDesc->m_" + iter->second.m_myColName + ".size(); j++)\n";
-                        desc_file += "\t\t{\n";
-                        ExcelRelation &relation = iter->second;
-                        desc_file += "\t\t\tCHECK_EXPR_MSG_RESULT(";
-                        for (int i = 0; i < (int) relation.m_dst.size(); i++)
-                        {
-                            ExcelRelationDst &relationDst = relation.m_dst[i];
-                            desc_file += "(pDesc->m_" + iter->second.m_myColName + "[j].m_" + iter->second.m_myColName + " <= 0 || " +
-                                         NFStringUtility::Capitalize(relationDst.m_excelName) +
-                                         NFStringUtility::Capitalize(relationDst.m_sheetName) +
-                                         "Desc::Instance()->GetDesc(pDesc->m_" + iter->second.m_myColName
-                                         + "[j].m_" + iter->second.m_myColName + "))";
-
-                            if (i != (int) relation.m_dst.size() - 1)
-                            {
-                                desc_file += " || ";
-                            }
-                        }
-
-                        desc_file += ", result, \"can't find the " + iter->second.m_myColName + ":{} in the " + relation.m_noFindError +
-                                     "\", pDesc->m_" + iter->second.m_myColName + "[j].m_" +
-                                     iter->second.m_myColName + ");\n";
-
-                        desc_file += "\t\t}\n";
-                    }
-                }
-            }
-            else
-            {
-                desc_file += "\t\tfor(int j = 0; j < (int)pDesc->m_" + iter->second.m_myColName + ".size(); j++)\n";
-                desc_file += "\t\t{\n";
-                ExcelRelation &relation = iter->second;
-                desc_file += "\t\t\tCHECK_EXPR_MSG_RESULT(";
-                for (int i = 0; i < (int) relation.m_dst.size(); i++)
-                {
-                    ExcelRelationDst &relationDst = relation.m_dst[i];
-                    desc_file += "(pDesc->m_" + iter->second.m_myColName + "[j].m_" + iter->second.m_myColSubName + " <= 0 || " +
-                                 NFStringUtility::Capitalize(relationDst.m_excelName) +
-                                 NFStringUtility::Capitalize(relationDst.m_sheetName) +
-                                 "Desc::Instance()->GetDesc(pDesc->m_" + iter->second.m_myColName
-                                 + "[j].m_" + iter->second.m_myColSubName + "))";
-
-                    if (i != (int) relation.m_dst.size() - 1)
-                    {
-                        desc_file += " || ";
-                    }
-                }
-
-                desc_file += ", result, \"can't find the " + iter->second.m_myColName + ":{} in the " + relation.m_noFindError +
-                             "\", pDesc->m_" + iter->second.m_myColName + "[j].m_" +
-                             iter->second.m_myColSubName + ");\n";
-
-                desc_file += "\t\t}\n";
-            }
+            WriteRelation(pSheet, desc_file, pRelation, pColInfo, 0);
         }
         desc_file += "\t}\n";
         desc_file += "\treturn result;\n";
@@ -1130,41 +1449,38 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
 
     for (auto iter = pSheet->m_indexMap.begin(); iter != pSheet->m_indexMap.end(); iter++)
     {
-        ExcelSheetIndex &index = iter->second;
+        ExcelSheetIndex& index = iter->second;
         std::string index_key = index.m_key;
-        std::string index_map = "m_" + NFStringUtility::Capitalize(index_key) + "IndexMap";
+        std::string index_map = index.m_varName;
         if (index.m_unique)
         {
-            desc_file += "const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_s* " +
-                         NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::GetDescBy" +
-                         NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const\n";
+            desc_file += "const " + pSheet->m_protoInfo.m_protoMsgName + "* " +
+                pSheet->m_otherName + "Desc::GetDescBy" +
+                NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const\n";
             desc_file += "{\n";
             desc_file += "\tauto iter = " + index_map + ".find(" + NFStringUtility::Capitalize(index_key) + ");\n";
             desc_file += "\tif(iter != " + index_map + ".end())\n";
             desc_file += "\t{\n";
-            desc_file += "\t\treturn GetDesc(iter->second);\n";
+            desc_file += "\t\treturn GetDescByIndex(iter->second);\n";
             desc_file += "\t}\n";
             desc_file += "\treturn nullptr;\n";
             desc_file += "}\n\n";
         }
         else
         {
-            desc_file += "std::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::GetDescBy" +
-                         NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const\n";
+            desc_file += "std::vector<const " + pSheet->m_protoInfo.m_protoMsgName +
+                "*> " + pSheet->m_otherName + "Desc::GetDescBy" +
+                NFStringUtility::Capitalize(index_key) + "(int64_t " + NFStringUtility::Capitalize(index_key) + ") const\n";
             desc_file += "{\n";
-            desc_file += "\tstd::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> m_vec;\n";
-            desc_file += "\tauto iter = " + index_map + ".find(" + NFStringUtility::Capitalize(index_key) + ");\n";
-            desc_file += "\tif(iter != " + index_map + ".end())\n";
+            desc_file += "\tstd::vector<const " + pSheet->m_protoInfo.m_protoMsgName +
+                "*> m_vec;\n";
+            desc_file += "\tauto iter_pair = " + index_map + ".equal_range(" + NFStringUtility::Capitalize(index_key) + ");\n";
+            desc_file += "\tfor(auto iter = iter_pair.first; iter != iter_pair.second; iter++)\n";
             desc_file += "\t{\n";
-            desc_file += "\t\tfor(int i = 0; i < (int)iter->second.size(); i++)\n";
-            desc_file += "\t\t{\n";
-            desc_file += "\t\t\tauto pDesc = GetDesc(iter->second[i]);\n";
-            desc_file += "\t\t\tCHECK_EXPR_CONTINUE(pDesc, \"key:{} GetDesc error:{}\", " + NFStringUtility::Capitalize(index_key) +
-                         ", iter->second[i]);\n";
-            desc_file += "\t\t\tm_vec.push_back(pDesc);\n";
-            desc_file += "\t\t}\n";
+            desc_file += "\t\tauto pDesc = GetDescByIndex(iter->second);\n";
+            desc_file += "\t\tCHECK_EXPR_CONTINUE(pDesc, \"key:{} GetDesc error:{}\", " + NFStringUtility::Capitalize(index_key) +
+                ", iter->second);\n";
+            desc_file += "\t\tm_vec.push_back(pDesc);\n";
             desc_file += "\t}\n";
             desc_file += "\treturn m_vec;\n";
             desc_file += "}\n\n";
@@ -1173,43 +1489,34 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
-        ExcelSheetComIndex &comIndex = iter->second;
-        std::string index_0_key = comIndex.m_index[0].m_key;
-        std::string index_map = "m_";
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-        {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            index_map += NFStringUtility::Capitalize(index_key);
-        }
-
-        index_map += "ComIndexMap";
+        ExcelSheetComIndex& comIndex = iter->second;
+        std::string index_map = comIndex.m_varName;
 
         if (comIndex.m_unique)
         {
-            desc_file += "const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "_s* " +
-                         NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::GetDescBy";
+            desc_file += "const " + pSheet->m_protoInfo.m_protoMsgName + "* " +
+                pSheet->m_otherName + "Desc::GetDescBy";
         }
         else
         {
-            desc_file += "std::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> " + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc::GetDescBy";
+            desc_file += "std::vector<const " + pSheet->m_protoInfo.m_protoMsgName +
+                "*> " + pSheet->m_otherName + "Desc::GetDescBy";
         }
 
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
+            ExcelSheetIndex& index = comIndex.m_index[i];
             std::string index_key = index.m_key;
             desc_file += NFStringUtility::Capitalize(index_key);
         }
 
         desc_file += "(";
 
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+        for (int i = 0; i < (int)comIndex.m_index.size(); i++)
         {
-            ExcelSheetIndex &index = comIndex.m_index[i];
+            ExcelSheetIndex& index = comIndex.m_index[i];
             std::string index_key = index.m_key;
-            if (i == (int) comIndex.m_index.size() - 1)
+            if (i == (int)comIndex.m_index.size() - 1)
             {
                 desc_file += "int64_t " + NFStringUtility::Capitalize(index_key);
             }
@@ -1220,29 +1527,22 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
         }
 
         desc_file += ")\n";
-        std::string className = NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name);
-        for (int i = 0; i < (int) comIndex.m_index.size(); i++)
-        {
-            ExcelSheetIndex &index = comIndex.m_index[i];
-            std::string index_key = index.m_key;
-            className += NFStringUtility::Capitalize(index_key);
-        }
-
+        std::string className = comIndex.m_structComName;
         if (comIndex.m_unique)
         {
             desc_file += "{\n";
             desc_file += "\t" + className + " data;\n";
-            for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+            for (int i = 0; i < (int)comIndex.m_index.size(); i++)
             {
-                ExcelSheetIndex &index = comIndex.m_index[i];
-                std::string index_key = "m_" + index.m_key;
+                ExcelSheetIndex& index = comIndex.m_index[i];
+                std::string index_key = index.m_key;
                 desc_file += "\tdata." + index_key + " = " + NFStringUtility::Capitalize(index.m_key) + ";\n";
             }
 
             desc_file += "\tauto iter = " + index_map + ".find(data);\n";
             desc_file += "\tif(iter != " + index_map + ".end())\n";
             desc_file += "\t{\n";
-            desc_file += "\t\tauto pDesc = GetDesc(iter->second);\n";
+            desc_file += "\t\tauto pDesc = GetDescByIndex(iter->second);\n";
             desc_file += "\t\tCHECK_EXPR(pDesc, nullptr, \"GetDesc failed:{}\", iter->second);\n";
             desc_file += "\t\treturn pDesc;\n";
             desc_file += "\t}\n";
@@ -1253,32 +1553,149 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet *pSheet)
         {
             desc_file += "{\n";
             desc_file += "\t" + className + " data;\n";
-            for (int i = 0; i < (int) comIndex.m_index.size(); i++)
+            for (int i = 0; i < (int)comIndex.m_index.size(); i++)
             {
-                ExcelSheetIndex &index = comIndex.m_index[i];
-                std::string index_key = "m_" + index.m_key;
+                ExcelSheetIndex& index = comIndex.m_index[i];
+                std::string index_key = index.m_key;
                 desc_file += "\tdata." + index_key + " = " + NFStringUtility::Capitalize(index.m_key) + ";\n";
             }
-            desc_file += "\tstd::vector<const proto_ff_s::E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                         "_s*> m_vec;\n";
-            desc_file += "\tauto iter = " + index_map + ".find(data);\n";
-            desc_file += "\tif(iter != " + index_map + ".end())\n";
+            desc_file += "\tstd::vector<const " + pSheet->m_protoInfo.m_protoMsgName +
+                "*> m_vec;\n";
+            desc_file += "\tauto iter_pair = " + index_map + ".equal_range(data);\n";
+            desc_file += "\tfor(auto iter = iter_pair.first; iter != iter_pair.second; iter++)\n";
             desc_file += "\t{\n";
-            desc_file += "\t\tfor(int i = 0; i < (int)iter->second.size(); i++)\n";
-            desc_file += "\t\t{\n";
-            desc_file += "\t\t\tauto pDesc = GetDesc(iter->second[i]);\n";
-            desc_file += "\t\t\tCHECK_EXPR_CONTINUE(pDesc, \"GetDesc failed:{}\", iter->second[i]);\n";
-            desc_file += "\t\t\tm_vec.push_back(pDesc);\n";
-            desc_file += "\t\t}\n";
+            desc_file += "\t\tauto pDesc = GetDescByIndex(iter->second);\n";
+            desc_file += "\t\tCHECK_EXPR_CONTINUE(pDesc, \"GetDesc failed:{}\", iter->second);\n";
+            desc_file += "\t\tm_vec.push_back(pDesc);\n";
 
             desc_file += "\t}\n";
             desc_file += "\treturn m_vec;\n";
             desc_file += "}\n\n";
         }
-
     }
 
     NFFileUtility::WriteFile(desc_file_path, desc_file);
+}
+
+int ExcelToProto::WriteRelation(ExcelSheet* pSheet, std::string& desc_file, ExcelRelation* pRelation, ExcelSheetColInfo* pColInfo, int depth)
+{
+    CHECK_NULL(0, pRelation);
+    CHECK_NULL(0, pColInfo);
+
+    char var = 'i';
+    var += depth + 1;
+    std::string j = {var};
+    char vark = 'i';
+    vark += depth + 2;
+    std::string k = {vark};
+    std::string pDesc;
+    if (depth == 0)
+    {
+        pDesc = "pDesc";
+    }
+    else
+    {
+        pDesc = "pDesc" + j;
+    }
+
+    if (pRelation->m_relationMap.empty())
+    {
+        CHECK_EXPR_ASSERT(pColInfo->m_colInfoMap.empty(), -1, "");
+        if (!pColInfo->m_isArray)
+        {
+            for (int i = 0; i < depth + 2; i++)
+            {
+                desc_file += "\t";
+            }
+            desc_file += "CHECK_EXPR_MSG_RESULT(";
+            for (int i = 0; i < (int)pRelation->m_dst.size(); i++)
+            {
+                ExcelRelationDst& relationDst = pRelation->m_dst[i];
+                desc_file += "(" + pDesc + "->" + pRelation->m_myColName + " <= 0 || " + relationDst.m_descName +
+                    "Desc::Instance()->GetDesc(" + pDesc + "->" + pRelation->m_myColName +
+                    "))";
+
+                if (i != (int)pRelation->m_dst.size() - 1)
+                {
+                    desc_file += " || ";
+                }
+            }
+
+
+            desc_file += ", result, \"can't find the " + pRelation->m_myColName + ":{} in the " + pRelation->m_noFindError +
+                "\", " + pDesc + "->" + pRelation->m_myColName + ");\n";
+        }
+        else
+        {
+            for (int i = 0; i < depth + 2; i++)
+            {
+                desc_file += "\t";
+            }
+            desc_file += "for(int " + j + " = 0; " + j + " < (int)" + pDesc + "->" + pRelation->m_myColName + ".size(); " + j + "++)\n";
+            for (int i = 0; i < depth + 2; i++)
+            {
+                desc_file += "\t";
+            }
+            desc_file += "{\n";
+            for (int i = 0; i < depth + 3; i++)
+            {
+                desc_file += "\t";
+            }
+            desc_file += "CHECK_EXPR_MSG_RESULT(";
+            for (int i = 0; i < (int)pRelation->m_dst.size(); i++)
+            {
+                ExcelRelationDst& relationDst = pRelation->m_dst[i];
+                desc_file += "(" + pDesc + "->" + pRelation->m_myColName + "[" + j + "] <= 0 || " + relationDst.m_descName +
+                    "Desc::Instance()->GetDesc(" + pDesc + "->" + pRelation->m_myColName +
+                    "[" + j + "]))";
+
+                if (i != (int)pRelation->m_dst.size() - 1)
+                {
+                    desc_file += " || ";
+                }
+            }
+
+            desc_file += ", result, \"can't find the " + pRelation->m_myColName + ":{} in the " + pRelation->m_noFindError +
+                "\", " + pDesc + "->" + pRelation->m_myColName + "[" + j + "]);\n";
+            for (int i = 0; i < depth + 2; i++)
+            {
+                desc_file += "\t";
+            }
+            desc_file += "}\n";
+        }
+    }
+    else
+    {
+        CHECK_EXPR_ASSERT(!pColInfo->m_colInfoMap.empty(), -1, "");
+        for (int i = 0; i < depth + 2; i++)
+        {
+            desc_file += "\t";
+        }
+        desc_file += "for(int " + j + " = 0; " + j + " < (int)" + pDesc + "->" + pRelation->m_myColName + ".size(); " + j + "++)\n";
+        for (int i = 0; i < depth + 2; i++)
+        {
+            desc_file += "\t";
+        }
+        desc_file += "{\n";
+        for (int i = 0; i < depth + 3; i++)
+        {
+            desc_file += "\t";
+        }
+        desc_file += "auto pDesc" + k + " = &" + pDesc + "->" + pRelation->m_myColName + "[" + j + "];\n";
+        for (auto iter = pRelation->m_relationMap.begin(); iter != pRelation->m_relationMap.end(); iter++)
+        {
+            ExcelRelation* pLastRelation = iter->second;
+            CHECK_EXPR_ASSERT(pColInfo->m_colInfoMap.find(pLastRelation->m_myColName) != pColInfo->m_colInfoMap.end(), -1, "");
+            ExcelSheetColInfo* pLastColInfo = pColInfo->m_colInfoMap[pLastRelation->m_myColName];
+            WriteRelation(pSheet, desc_file, pLastRelation, pLastColInfo, depth + 1);
+        }
+        for (int i = 0; i < depth + 2; i++)
+        {
+            desc_file += "\t";
+        }
+        desc_file += "}\n";
+    }
+    return 0;
 }
 
 void ExcelToProto::WriteMakeFile()
@@ -1291,37 +1708,36 @@ void ExcelToProto::WriteMakeFile()
     makefile_file += "all:${PROTOCGEN_FILE_PATH}/module_" + m_excelName + "_bin\n\n";
 
     makefile_file +=
-            "${PROTOCGEN_FILE_PATH}/module_" + m_excelName + "_bin:${PROTOCGEN_FILE_PATH}/" + m_excelName + ".proto.ds ${RESDB_EXCELMMO_PATH}/" +
-            excel_src_file_name + "\n";
+        "${PROTOCGEN_FILE_PATH}/module_" + m_excelName + "_bin:${PROTOCGEN_FILE_PATH}/" + m_excelName + ".proto.ds ${RESDB_EXCELMMO_PATH}/" +
+        excel_src_file_name + "\n";
     makefile_file += "\tmkdir -p ${PROTOCGEN_FILE_PATH}\n";
     makefile_file += "\trm -rf ${PROTOCGEN_FILE_PATH}/module_" + m_excelName + "_bin\n";
     makefile_file +=
-            "\t${NFEXCELPROCESS} --work=\"exceltobin\" --src=${RESDB_EXCELMMO_PATH}/" + excel_src_file_name + "  --proto_ds=${PROTOCGEN_FILE_PATH}/" +
-            m_excelName + ".proto.ds --dst=${PROTOCGEN_FILE_PATH}/;\n";
+        "\t${NFEXCELPROCESS} --work=\"exceltobin\" --excel_json=${RESDB_EXCEL_JSON} --src=${RESDB_EXCELMMO_PATH}/" + excel_src_file_name + "  --proto_ds=${PROTOCGEN_FILE_PATH}/" +
+        m_excelName + ".proto.ds --dst=${PROTOCGEN_FILE_PATH}/;\n";
 
     makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy_notexist\" --src=\"${PROTOCGEN_FILE_PATH}/" + NFStringUtility::Capitalize(m_excelName) +
-                     + "DescEx.h " + "${PROTOCGEN_FILE_PATH}/" +
-                     NFStringUtility::Capitalize(m_excelName) +
-                     "DescEx.cpp\" --dst=${DESC_STORE_EX_PATH}/\n";
-    std::vector<MiniExcelReader::Sheet> &sheets = m_excelReader->sheets();
-    for (MiniExcelReader::Sheet &sheet: sheets)
+        +"DescEx.h " + "${PROTOCGEN_FILE_PATH}/" +
+        NFStringUtility::Capitalize(m_excelName) +
+        "DescEx.cpp\" --dst=${DESC_STORE_EX_PATH}/\n";
+    XLWorkbook wxbook = m_excelReader.workbook();
+    std::vector<std::string> vecSheet = wxbook.worksheetNames();
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            ExcelSheet *pSheet = &m_sheets[sheet.title()];
-            std::string sheet_name = pSheet->m_name;
+            ExcelSheet* pSheet = &m_sheets[sheet.name()];
+            std::string sheet_name = pSheet->m_sheetName;
 
-            makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(m_excelName) +
-                             NFStringUtility::Capitalize(sheet_name) + ".bin" + "\" --dst=${GAME_DATA_PATH}/\n";
-            makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/" + NFStringUtility::Capitalize(m_excelName) +
-                             NFStringUtility::Capitalize(sheet_name) + "Desc.h " + "${PROTOCGEN_FILE_PATH}/" +
-                             NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) +
-                             "Desc.cpp\" --dst=${DESC_STORE_PATH}/\n";
+            makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/" + pSheet->m_protoInfo.m_binFileName + ".bin" + "\" --dst=${GAME_DATA_PATH}/\n";
+            makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/" + pSheet->m_protoInfo.m_binFileName + "_debug.json" + "\" --dst=${GAME_DATA_PATH}/\n";
+            makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/" + pSheet->m_otherName + "Desc.h " + "${PROTOCGEN_FILE_PATH}/" + pSheet->m_otherName + "Desc.cpp\" --dst=${DESC_STORE_PATH}/\n";
 
             if (pSheet->m_createSql)
             {
-                makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/CreateTable_E_" + NFStringUtility::Capitalize(m_excelName) +
-                                 NFStringUtility::Capitalize(sheet_name) + ".sql\" --dst=${GAME_SQL_PATH}/\n";
+                makefile_file += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/CreateTable_" + pSheet->m_protoInfo.m_binFileName + ".sql\" --dst=${GAME_SQL_PATH}/\n";
             }
         }
     }
@@ -1342,6 +1758,8 @@ void ExcelToProto::WriteDestStoreDefine()
     else
     {
         NFFileUtility::ReadFileContent(descStoreHeadFile, destStoreHeadFileRead);
+        NFStringUtility::Trim(destStoreHeadFileRead);
+        destStoreHeadFileRead += "\n";
     }
 
     std::string descStoreDefineFile = m_outPath + "NFDescStoreDefine.h";
@@ -1349,11 +1767,14 @@ void ExcelToProto::WriteDestStoreDefine()
     std::string descStoreDefineFileRead;
     if (!NFFileUtility::IsFileExist(descStoreDefineFile))
     {
-        descStoreDefineFileStr += "#define EOT_DESC_STORE_ALL_ID_DEFINE \\\n";
+        descStoreDefineFileStr += "#pragma once\n\n";
+        descStoreDefineFileStr += "#define EOT_DESC_STORE_ALL_ID_DEFINE ";
     }
     else
     {
         NFFileUtility::ReadFileContent(descStoreDefineFile, descStoreDefineFileRead);
+        NFStringUtility::Trim(descStoreDefineFileRead);
+        descStoreDefineFileRead += "\n";
     }
 
     std::string descStoreRegisterFile = m_outPath + "NFDescStoreRegister.h";
@@ -1361,24 +1782,30 @@ void ExcelToProto::WriteDestStoreDefine()
     std::string descStoreRegisterFileRead;
     if (!NFFileUtility::IsFileExist(descStoreRegisterFile))
     {
-        descStoreRegisterFileStr += "#define EOT_DESC_STORE_ALL_REGISTER_DEFINE \\\n";
+        descStoreRegisterFileStr += "#pragma once\n\n";
+        descStoreRegisterFileStr += "#define EOT_DESC_STORE_ALL_REGISTER_DEFINE ";
     }
     else
     {
         NFFileUtility::ReadFileContent(descStoreRegisterFile, descStoreRegisterFileRead);
+        NFStringUtility::Trim(descStoreRegisterFileRead);
+        descStoreRegisterFileRead += "\n";
     }
 
 
-    std::vector<MiniExcelReader::Sheet> &sheets = m_excelReader->sheets();
-    for (MiniExcelReader::Sheet &sheet: sheets)
+    XLWorkbook wxbook = m_excelReader.workbook();
+    std::vector<std::string> vecSheet = wxbook.worksheetNames();
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            ExcelSheet *pSheet = &m_sheets[sheet.title()];
-            std::string sheet_name = pSheet->m_name;
-            if (destStoreHeadFileRead.find(NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name)) == std::string::npos)
+            ExcelSheet* pSheet = &m_sheets[sheet.name()];
+            std::string sheet_name = pSheet->m_sheetName;
+            if (destStoreHeadFileRead.find("#include \"DescStore/" + pSheet->m_otherName + "Desc.h\"") == std::string::npos)
             {
-                descStoreHeadFileStr += "#include \"DescStore/" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc.h\"\n";
+                descStoreHeadFileStr += "#include \"DescStore/" + pSheet->m_otherName + "Desc.h\"\n";
             }
         }
     }
@@ -1388,12 +1815,14 @@ void ExcelToProto::WriteDestStoreDefine()
         descStoreHeadFileStr += "#include \"DescStoreEx/" + NFStringUtility::Capitalize(m_excelName) + "DescEx.h\"\n";
     }
 
-    for (MiniExcelReader::Sheet &sheet: sheets)
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            ExcelSheet *pSheet = &m_sheets[sheet.title()];
-            std::string sheet_name = pSheet->m_name;
+            ExcelSheet* pSheet = &m_sheets[sheet.name()];
+            std::string sheet_name = pSheet->m_sheetName;
             if (descStoreDefineFileRead.find("EOT_CONST_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name)) == std::string::npos)
             {
                 descStoreDefineFileStr += "EOT_CONST_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_DESC_ID,\\\n";
@@ -1406,16 +1835,18 @@ void ExcelToProto::WriteDestStoreDefine()
         descStoreDefineFileStr += "EOT_CONST_" + NFStringUtility::Upper(m_excelName) + "_DESC_EX_ID,\\\n";
     }
 
-    for (MiniExcelReader::Sheet &sheet: sheets)
+    for (int i = 0; i < (int)vecSheet.size(); i++)
     {
-        if (m_sheets.find(sheet.title()) != m_sheets.end() && m_sheets[sheet.title()].m_colInfoMap.size() > 0)
+        std::string sheetname = vecSheet[i];
+        XLWorksheet sheet = wxbook.worksheet(sheetname);
+        if (m_sheets.find(sheet.name()) != m_sheets.end() && m_sheets[sheet.name()].m_colInfoMap.size() > 0)
         {
-            ExcelSheet *pSheet = &m_sheets[sheet.title()];
-            std::string sheet_name = pSheet->m_name;
-            if (descStoreRegisterFileRead.find("REGISTER_DESCSTORE(" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name)) ==
+            ExcelSheet* pSheet = &m_sheets[sheet.name()];
+            std::string sheet_name = pSheet->m_sheetName;
+            if (descStoreRegisterFileRead.find("REGISTER_DESCSTORE(" + pSheet->m_otherName) ==
                 std::string::npos)
             {
-                descStoreRegisterFileStr += "REGISTER_DESCSTORE(" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet_name) + "Desc);\\\n";
+                descStoreRegisterFileStr += "REGISTER_DESCSTORE(" + pSheet->m_otherName + "Desc);\\\n";
             }
         }
     }
@@ -1426,7 +1857,13 @@ void ExcelToProto::WriteDestStoreDefine()
         descStoreRegisterFileStr += "REGISTER_DESCSTORE_EX(" + NFStringUtility::Capitalize(m_excelName) + "DescEx);\\\n";
     }
 
-    NFFileUtility::AWriteFile(descStoreHeadFile, descStoreHeadFileStr);
-    NFFileUtility::AWriteFile(descStoreDefineFile, descStoreDefineFileStr);
-    NFFileUtility::AWriteFile(descStoreRegisterFile, descStoreRegisterFileStr);
+    descStoreDefineFileStr += "\n\n";
+    descStoreRegisterFileStr += "\n\n";
+    destStoreHeadFileRead += descStoreHeadFileStr;
+    descStoreDefineFileRead += descStoreDefineFileStr;
+    descStoreRegisterFileRead += descStoreRegisterFileStr;
+
+    NFFileUtility::WriteFile(descStoreHeadFile, destStoreHeadFileRead);
+    NFFileUtility::WriteFile(descStoreDefineFile, descStoreDefineFileRead);
+    NFFileUtility::WriteFile(descStoreRegisterFile, descStoreRegisterFileRead);
 }

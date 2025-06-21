@@ -57,8 +57,8 @@ int NFCMysqlModule::QueryDescStore(const std::string& nServerID, const std::stri
     return pDriver->QueryDescStore(table, pMessage);
 }
 
-int NFCMysqlModule::SelectByCond(const std::string& nServerID, const storesvr_sqldata::storesvr_sel &select,
-                                 storesvr_sqldata::storesvr_sel_res &select_res) {
+int NFCMysqlModule::SelectByCond(const std::string& nServerID, const NFrame::storesvr_sel &select,
+                                 NFrame::storesvr_sel_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->SelectByCond(select, select_res);
@@ -79,8 +79,8 @@ int NFCMysqlModule::SelectObj(const std::string& nServerID, const std::string& t
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::SelectObj(const std::string& nServerID, const storesvr_sqldata::storesvr_selobj &select,
-                              storesvr_sqldata::storesvr_selobj_res &select_res) {
+int NFCMysqlModule::SelectObj(const std::string& nServerID, const NFrame::storesvr_selobj &select,
+                              NFrame::storesvr_selobj_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->SelectObj(select, select_res);
@@ -93,8 +93,8 @@ int NFCMysqlModule::SelectObj(const std::string& nServerID, const storesvr_sqlda
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::DeleteByCond(const std::string& nServerID, const storesvr_sqldata::storesvr_del &select,
-                                 storesvr_sqldata::storesvr_del_res &select_res) {
+int NFCMysqlModule::DeleteByCond(const std::string& nServerID, const NFrame::storesvr_del &select,
+                                 NFrame::storesvr_del_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->DeleteByCond(select, select_res);
@@ -107,8 +107,8 @@ int NFCMysqlModule::DeleteByCond(const std::string& nServerID, const storesvr_sq
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::DeleteObj(const std::string& nServerID, const storesvr_sqldata::storesvr_delobj &select,
-                              storesvr_sqldata::storesvr_delobj_res &select_res) {
+int NFCMysqlModule::DeleteObj(const std::string& nServerID, const NFrame::storesvr_delobj &select,
+                              NFrame::storesvr_delobj_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->DeleteObj(select, select_res);
@@ -128,8 +128,8 @@ int NFCMysqlModule::InsertObj(const std::string& nServerID, const std::string& t
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::InsertObj(const std::string& nServerID, const storesvr_sqldata::storesvr_insertobj &select,
-                              storesvr_sqldata::storesvr_insertobj_res &select_res) {
+int NFCMysqlModule::InsertObj(const std::string& nServerID, const NFrame::storesvr_insertobj &select,
+                              NFrame::storesvr_insertobj_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->InsertObj(select, select_res);
@@ -149,8 +149,8 @@ int NFCMysqlModule::ModifyObj(const std::string& nServerID, const std::string& t
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::ModifyObj(const std::string& nServerID, const storesvr_sqldata::storesvr_modobj &select,
-                              storesvr_sqldata::storesvr_modobj_res &select_res) {
+int NFCMysqlModule::ModifyObj(const std::string& nServerID, const NFrame::storesvr_modobj &select,
+                              NFrame::storesvr_modobj_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->ModifyObj(select, select_res);
@@ -170,8 +170,8 @@ int NFCMysqlModule::UpdateObj(const std::string& nServerID, const std::string& t
  * @param  select_res 查询结果
  * @return int =0执行成功, != 0失败
  */
-int NFCMysqlModule::UpdateObj(const std::string& nServerID, const storesvr_sqldata::storesvr_updateobj &select,
-                              storesvr_sqldata::storesvr_updateobj_res &select_res) {
+int NFCMysqlModule::UpdateObj(const std::string& nServerID, const NFrame::storesvr_updateobj &select,
+                              NFrame::storesvr_updateobj_res &select_res) {
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(nServerID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, nServerID:{}", nServerID);
     return pDriver->UpdateObj(select, select_res);
@@ -279,7 +279,7 @@ int NFCMysqlModule::ExistsDB(const std::string& serverID, const std::string& dbN
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(serverID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, dbName:{} ", dbName);
 
-    return pDriver->ExistsDB(dbName, bExit);
+    return pDriver->ExistsDb(dbName, bExit);
 }
 
 /**
@@ -292,7 +292,7 @@ int NFCMysqlModule::CreateDB(const std::string& serverID, const std::string& dbN
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(serverID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, dbName:{} ", dbName);
 
-    return pDriver->CreateDB(dbName);
+    return pDriver->CreateDb(dbName);
 }
 
 /**
@@ -305,7 +305,7 @@ int NFCMysqlModule::SelectDB(const std::string& serverID, const std::string& dbN
     NFCMysqlDriver *pDriver = m_pMysqlDriverManager->GetMysqlDriver(serverID);
     CHECK_EXPR(pDriver, -1, "pDriver == NULL, dbName:{} ", dbName);
 
-    return pDriver->SelectDB(dbName);
+    return pDriver->SelectDb(dbName);
 }
 
 /**
@@ -361,7 +361,7 @@ int NFCMysqlModule::CreateTable(const std::string& serverID, const std::string& 
     int iRet = pDriver->CreateTable(tableName, primaryKey, needCreateColumn);
     if (iRet != 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "CreateTable Failed! tableName:{}",tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "CreateTable Failed! tableName:{}",tableName);
         return iRet;
     }
 
@@ -376,7 +376,7 @@ int NFCMysqlModule::AddTableRow(const std::string& serverID, const std::string& 
     int iRet = pDriver->AddTableRow(tableName, needCreateColumn);
     if (iRet != 0)
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "AddTableRow Failed! tableName:{}", tableName);
+        NFLogError(NF_LOG_DEFAULT, 0, "AddTableRow Failed! tableName:{}", tableName);
         return iRet;
     }
 

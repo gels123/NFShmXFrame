@@ -8,26 +8,9 @@
 
 #pragma once
 
-#include <time.h>
-#include <stdio.h>
 #include <iostream>
-#include <utility>
-#include <thread>
-#include <chrono>
-#include <future>
-#include <functional>
-#include <atomic>
 
 #include "NFPluginManager/NFCPluginManager.h"
-#include "NFComm/NFCore/NFPlatform.h"
-#include "NFComm/NFCore/NFCmdLine.h"
-#include "NFComm/NFCore/NFCommon.h"
-#include "NFComm/NFCore/NFFileUtility.h"
-#include "NFComm/NFCore/NFSocketLibFunction.h"
-#include "NFPluginManager/NFCrashHandlerMgr.h"
-#include "NFPluginManager/NFSignalHandleMgr.h"
-#include "NFPluginManager/NFPrintfLogo.h"
-#include "NFComm/NFCore/NFServerIDUtil.h"
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 #include <unistd.h>

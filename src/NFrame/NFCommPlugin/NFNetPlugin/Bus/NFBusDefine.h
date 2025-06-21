@@ -9,7 +9,6 @@
 #pragma once
 
 #include "NFComm/NFCore/NFPlatform.h"
-#include "NFComm/NFKernelMessage/proto_kernel.pb.h"
 
 typedef uint64_t NFDataAlignType;
 #define NFBUS_MACRO_SRC_BUS_LIMIT 512     //bus连接方最大数目

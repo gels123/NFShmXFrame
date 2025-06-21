@@ -12,13 +12,11 @@
 #include <NFComm/NFShmStl/NFShmHashSet.h>
 #include <NFComm/NFShmStl/NFShmList.h>
 
-#include "NFComm/NFShmCore/NFShmObj.h"
-#include "NFComm/NFShmCore/NFShmStaticList.hpp"
-#include "NFComm/NFPluginModule/NFServerDefine.h"
+#include "NFComm/NFObjCommon/NFObject.h"
 
 class NFBaseDBObj;
 class NFDBObjTrans;
-class NFDBObjMgr : public NFShmObjTemplate<NFDBObjMgr, EOT_TRANS_DB_OBJ_MGR, NFShmObj>
+class NFDBObjMgr : public NFObjectTemplate<NFDBObjMgr, EOT_TRANS_DB_OBJ_MGR, NFObject>
 {
 public:
     NFDBObjMgr();
@@ -40,6 +38,16 @@ public:
     int SaveToDB(NFBaseDBObj* pObj);
     int Tick();
     int CheckWhenAllDataLoaded();
+public:
+    /*
+     * 停服之前，检查服务器是否满足停服条件
+     * */
+    virtual bool CheckStopServer();
+
+    /*
+     * 停服之前，做一些操作，满足停服条件
+     * */
+    virtual bool StopServer();
 private:
     int m_iLastSavingObjIndex;
     uint32_t m_iLastTickTime;

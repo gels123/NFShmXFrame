@@ -13,31 +13,31 @@
 #include <stdint.h>
 #include "NFComm/NFCore/NFPlatform.h"
 #include "google/protobuf/message.h"
-#include "NFObject.h"
+#include "NFBaseObj.h"
 #include "NFEventTemplate.h"
 
 class NFIPluginManager;
 
 #define EVENT_PROCESS_WITH_PRINTF(serverType, nEventID, bySrcType, nSrcID, pMessage, eventMsg, pEventMsg) \
-    CHECK_NULL(pMessage);\
+    CHECK_NULL(0, pMessage);\
     const eventMsg* pEventMsg = dynamic_cast<const eventMsg*>(pMessage);\
     if (!pEventMsg)                \
     {                                                    \
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Protobuf dynamic_cast Failed, serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
+        NFLogError(NF_LOG_DEFAULT, 0, "Protobuf dynamic_cast Failed, serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
         serverType, nEventID, bySrcType, nSrcID, pMessage->DebugString(), pMessage->GetTypeName());\
         return -1;\
     }\
     else {\
-        NFLogTrace(NF_LOG_SYSTEMLOG, 0, "serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
+        NFLogTrace(NF_LOG_DEFAULT, 0, "serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
         serverType, nEventID, bySrcType, nSrcID, pMessage->DebugString(), pMessage->GetTypeName());\
     }
 
 #define EVENT_PROCESS_NO_PRINTF(serverType, nEventID, bySrcType, nSrcID, pMessage, eventMsg, pEventMsg) \
-    CHECK_NULL(pMessage);\
+    CHECK_NULL(0, pMessage);\
     const eventMsg* pEventMsg = dynamic_cast<const eventMsg*>(pMessage);\
     if (!pEventMsg)                \
     {                                                    \
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "Protobuf dynamic_cast Failed, serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
+        NFLogError(NF_LOG_DEFAULT, 0, "Protobuf dynamic_cast Failed, serverType:{},nEventID:{},bySrcType:{}, nSrcID:{} message:{} messageClass:{}", \
         serverType, nEventID, bySrcType, nSrcID, pMessage->DebugString(), pMessage->GetTypeName());\
         return -1;\
     }
@@ -184,8 +184,11 @@ public:
     * 问题3:假设我在Fire事件里， Fire了别的事件，会导致迭代问题，事件系统已经了做了预付， 相同的事件，最多迭代5次，
     *       所有的Fire事件最多迭代20次
     */
-    virtual void
-    FireExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message) = 0;
+    virtual int FireExecute(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message) = 0;
+    virtual int FireBroadcast(NF_SERVER_TYPE nServerType, NF_SERVER_TYPE nRecvServerType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) = 0;
+    virtual int FireBroadcast(NF_SERVER_TYPE nServerType, NF_SERVER_TYPE nRecvServerType, uint32_t busId, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) = 0;
+    virtual int FireAllBroadcast(NF_SERVER_TYPE nServerType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) = 0;
+    virtual int FireAllBroadcast(NF_SERVER_TYPE nServerType, uint32_t busId, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) = 0;
 
     /**
     * @brief 订阅事件
@@ -196,7 +199,7 @@ public:
     * @param desc		事件描述，用于打印，获取信息，查看BUG之类的
     * @return			订阅事件是否成功
     */
-    virtual bool Subscribe(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string &desc) = 0;
+    virtual bool Subscribe(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string &desc) = 0;
 
     /**
     * @brief 取消订阅事件
@@ -206,7 +209,7 @@ public:
     * @param bySrcType	事件源类型，玩家类型，怪物类型之类的
     * @return			取消订阅事件是否成功
     */
-    virtual bool UnSubscribe(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID) = 0;
+    virtual bool UnSubscribe(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID) = 0;
 
     /**
     * @brief 取消NFEventObj所有订阅事件
@@ -220,7 +223,7 @@ public:
 /**
  *@brief 事件系统对象，所有想使用事件系统的都必须继承这个对象
  */
-class _NFExport NFEventObj : public NFEventObjBase, public NFObject
+class _NFExport NFEventObj : public NFEventObjBase, public NFBaseObj
 {
 public:
     /**
@@ -271,8 +274,11 @@ public:
     * 问题3:假设我在Fire事件里， Fire了别的事件，会导致迭代问题，事件系统已经了做了预付， 相同的事件，最多迭代5次，
     *       所有的Fire事件最多迭代20次
     */
-    virtual void FireExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message);
-
+    virtual int FireExecute(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message) override;
+    virtual int FireBroadcast(NF_SERVER_TYPE nServerType, NF_SERVER_TYPE nRecvServerType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) override;
+    virtual int FireBroadcast(NF_SERVER_TYPE nServerType, NF_SERVER_TYPE nRecvServerType, uint32_t busId, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) override;
+    virtual int FireAllBroadcast(NF_SERVER_TYPE nServerType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) override;
+    virtual int FireAllBroadcast(NF_SERVER_TYPE nServerType, uint32_t busId, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message &message, bool self = false) override;
     /**
     * @brief 订阅事件
     *
@@ -282,7 +288,7 @@ public:
     * @param desc		事件描述，用于打印，获取信息，查看BUG之类的
     * @return			订阅事件是否成功
     */
-    virtual bool Subscribe(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string &desc);
+    virtual bool Subscribe(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const std::string &desc) override;
 
     /**
     * @brief 取消订阅事件
@@ -292,14 +298,14 @@ public:
     * @param bySrcType	事件源类型，玩家类型，怪物类型之类的
     * @return			取消订阅事件是否成功
     */
-    virtual bool UnSubscribe(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID);
+    virtual bool UnSubscribe(NF_SERVER_TYPE serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID) override;
 
     /**
     * @brief 取消NFEventObj所有订阅事件
     *
     * @return			取消订阅事件是否成功
     */
-    virtual bool UnSubscribeAll();
+    virtual bool UnSubscribeAll() override;
 };
 
 

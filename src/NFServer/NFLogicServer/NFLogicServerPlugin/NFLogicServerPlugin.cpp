@@ -41,6 +41,7 @@ std::string NFLogicServerPlugin::GetPluginName()
 
 void NFLogicServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_LOGIC_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFILogicServerModule, NFCLogicServerModule);
 }
 

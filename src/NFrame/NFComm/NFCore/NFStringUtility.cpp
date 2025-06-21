@@ -1026,16 +1026,30 @@ bool NFStringUtility::EqualsIgnoreCase(const std::string& str1, const std::strin
 	return false;
 }
 
-bool NFStringUtility::IsFloatNumber(std::string& s)
+bool NFStringUtility::IsFloatNumber(const std::string& s)
 {
-	if (s.find('.') != std::string::npos
-		|| s.find('e') != std::string::npos
-		|| s.find('E') != std::string::npos)
+	if (s.find('.') == std::string::npos
+		&& s.find('e') == std::string::npos
+		&& s.find('E') == std::string::npos)
 	{
-		return true;
+		return false;
 	}
 
-	return false;
+	size_t nCount = s.length(); // 获得字符个数
+	for (size_t i = 0; i < nCount; i++)
+	{
+		if (s.at(i) == '.' || s.at(i) == 'e' || s.at(i) == 'E')
+		{
+			continue;
+		}
+
+		if (0 == isdigit(s.at(i))) // 不是数字就置标志位
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 std::string NFStringUtility::Rot13(const std::string& s)
@@ -1237,7 +1251,7 @@ void NFStringUtility::SplitDigit(const std::string& str,
 
 std::string& NFStringUtility::Ltrim(std::string& str) // NOLINT
 {
-	std::string::iterator it = find_if(str.begin(), str.end(), std::not1(std::ptr_fun(::isspace)));
+	std::string::iterator it = find_if(str.begin(), str.end(), ::isspace);
 	str.erase(str.begin(), it);
 	return str;
 }
@@ -1245,7 +1259,7 @@ std::string& NFStringUtility::Ltrim(std::string& str) // NOLINT
 std::string& NFStringUtility::Rtrim(std::string& str) // NOLINT
 {
 	std::string::reverse_iterator it = find_if(str.rbegin(),
-	                                           str.rend(), std::not1(std::ptr_fun(::isspace)));
+	                                           str.rend(), ::isspace);
 
 	str.erase(it.base(), str.end());
 	return str;

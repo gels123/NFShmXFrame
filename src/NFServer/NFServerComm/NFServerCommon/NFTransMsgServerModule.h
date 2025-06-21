@@ -15,7 +15,7 @@
 class NFTransMsgServerModule : public NFIDynamicModule
 {
 public:
-    NFTransMsgServerModule(NFIPluginManager *p, NF_SERVER_TYPES serverType) : NFIDynamicModule(p), m_serverType(serverType)
+    NFTransMsgServerModule(NFIPluginManager *p, NF_SERVER_TYPE serverType) : NFIDynamicModule(p), m_serverType(serverType)
     {
         m_connectMasterServer = true;
     }
@@ -75,7 +75,7 @@ public:
      * @param xData
      * @return
      */
-    virtual int ConnectMasterServer(const proto_ff::ServerInfoReport &xData);
+    virtual int ConnectMasterServer(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 注册Master服务器
@@ -114,7 +114,7 @@ public:
      * @param packet
      * @return
      */
-    virtual int OnHandleOtherServerReportFromMasterServer(const proto_ff::ServerInfoReport &xData);
+    virtual int OnHandleOtherServerReportFromMasterServer(const NFrame::ServerInfoReport &xData);
 
     /**
      * @brief 每隔一段时间向Master服务器发送自身信息
@@ -127,7 +127,7 @@ public:
 
     void SetConnectMasterServer(bool connectMasterServer);
 private:
-    NF_SERVER_TYPES m_serverType;
+    NF_SERVER_TYPE m_serverType;
     bool m_connectMasterServer;
 };
 

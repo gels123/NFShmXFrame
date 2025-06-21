@@ -1,0 +1,250 @@
+syntax = "proto3";
+package NFrame;
+
+import "nanopb.proto";
+
+// 关于运算符的定义 http://msdn.microsoft.com/zh-cn/library/ms174986.aspx
+
+enum storesvr_dbtype {
+  E_DBTYPE_SQLITE = 0;
+  E_DBTYPE_MYSQL = 1;
+};
+
+// 逻辑运算
+enum storesvr_logic_operator {
+  E_LOGICOP_NONE = 0;
+  E_LOGICOP_AND = 1;
+  E_LOGICOP_OR = 2;
+};
+
+// 比较运算
+enum storesvr_cmp_operator {
+  E_CMPOP_EQUAL = 0;
+  E_CMPOP_GREATER = 1;
+  E_CMPOP_LESS = 2;
+  E_CMPOP_GREATEREQUAL = 3;
+  E_CMPOP_LESSEQUAL = 4;
+  E_CMPOP_NOTEQUAL = 5;
+};
+
+enum storesvr_column_type {
+  E_COLUMNTYPE_NUM = 0;
+  E_COLUMNTYPE_STRING = 1;
+};
+
+message storesvr_vk {
+  option (nanopb_msgopt).is_std_stl = true;
+  string  column_name = 1;        // 字段名称
+  string column_value = 2;        // 字段值
+  storesvr_cmp_operator cmp_operator = 3;  //
+  storesvr_column_type column_type = 4;
+  storesvr_logic_operator logic_operator = 5;  // 多个条件的相互关系
+};
+
+message storesvr_wherecond {
+  option (nanopb_msgopt).is_std_stl = true;
+  uint64 mod_key = 1;  // 用来取模用
+  repeated storesvr_vk where_conds = 2;  // 可能有多个查询条件，
+  string where_additional_conds = 3;  // where的附加条件，例如limit、orderby, 调用端写好，storesvr会附加在查询的最后。
+  repeated string private_keys = 4; //私有key查询 cache性能高
+};
+
+message storesvr_baseinfo {
+  option (nanopb_msgopt).is_std_stl = true;
+  string dbname = 1;
+  string tbname = 2;
+  string clname = 3; //class name
+  repeated string sel_fields = 4;
+  uint32 max_records = 5;
+  string package_name = 6; //protobuf package
+};
+
+message storesvr_opres {
+  option (nanopb_msgopt).is_std_stl = true;
+  uint64 mod_key = 1;
+  int32 err_code = 2;
+  string errmsg = 3; // 失败的错误原因
+};
+
+//--------------------------------------------------------------------------------------------------
+// 条件查询
+// select的数据包
+message storesvr_sel {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_wherecond  cond = 2;
+};
+
+// select返回数据
+message storesvr_sel_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres      opres = 2;  // 查询结果
+  bool  is_lastbatch = 3;  // 是不是最后一批数据，默认是100条每批次，超过就要多批次返回，true就是最后一批
+  int32  row_count = 4;  // 查询返回行数
+  repeated bytes  record = 5;  // 返回的数据，是个list，多条记录，每条记录就是个pb序列化后的buf
+};
+
+//--------------------------------------------------------------------------------------------------
+// 对象查询
+message storesvr_selobj {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // 查询条件就是对象的key字段
+};
+
+// select返回数据
+message storesvr_selobj_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres    opres = 2;  // 查询结果
+  bytes  record = 3;  // select的结果
+};
+
+//--------------------------------------------------------------------------------------------------
+// insert
+message storesvr_insertobj {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // insert对象序列化后buffer
+};
+
+message storesvr_insertobj_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 插入结果
+}
+
+message storesvr_insert {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  repeated bytes  record = 3;  // insert对象序列化后buffer
+};
+
+message storesvr_insert_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 插入结果
+}
+//--------------------------------------------------------------------------------------------------
+// delete 条件删除
+message storesvr_del {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_wherecond  cond = 2;  // 删除的条件	,可以有多个条件
+};
+
+message storesvr_del_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres      opres = 2;  // 删除的结果
+};
+//--------------------------------------------------------------------------------------------------
+// delete 对象删除
+message storesvr_delobj {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // 查询条件就是对象的key字段
+};
+
+message storesvr_delobj_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres      opres = 2;  // 删除的结果
+};
+
+//--------------------------------------------------------------------------------------------------
+// update
+message storesvr_mod {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_wherecond  cond = 2;
+  bytes  record = 3;  // 对象protobuf序列化后的的buf
+};
+
+// select返回数据
+message storesvr_mod_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 更新的结果
+};
+
+message storesvr_modobj {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // 对象protobuf序列化后的的buf
+};
+
+message storesvr_modobj_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres   opres = 2;  // 更新的结果
+};
+
+//--------------------------------------------------------------------------------------------------
+// update+insert
+message storesvr_update {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_wherecond  cond = 2;
+  bytes  record = 3;  // 对象protobuf序列化后的的buf
+};
+
+// select返回数据
+message storesvr_update_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 更新的结果
+};
+
+message storesvr_updateobj {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // 对象protobuf序列化后的的buf
+};
+
+message storesvr_updateobj_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 更新的结果
+};
+
+//--------------------------------------------------------------------------------------------------
+// execute
+message storesvr_execute {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // execute sql
+};
+
+message storesvr_execute_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 更新的结果
+  bytes  record = 3;  // 返回的数据，是个list，多条记录，每条记录就是个pb序列化后的buf
+};
+
+message storesvr_execute_more {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  uint64 mod_key = 2;  // db+table取模值
+  bytes  record = 3;  // execute sql
+};
+
+message storesvr_execute_more_res {
+  option (nanopb_msgopt).is_std_stl = true;
+  storesvr_baseinfo   baseinfo = 1;
+  storesvr_opres     opres = 2;  // 更新的结果
+  bool  is_lastbatch = 3;  // 是不是最后一批数据，默认是100条每批次，超过就要多批次返回，true就是最后一批
+  int32  row_count = 4;  // 查询返回行数
+  repeated bytes  record = 5;  // 返回的数据，是个list，多条记录，每条记录就是个pb序列化后的buf
+};
+
+

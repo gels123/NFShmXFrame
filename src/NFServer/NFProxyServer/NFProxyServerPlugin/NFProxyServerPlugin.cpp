@@ -41,6 +41,7 @@ std::string NFProxyServerPlugin::GetPluginName()
 
 void NFProxyServerPlugin::Install()
 {
+	NFGlobalSystem::Instance()->AddServerType(NF_ST_PROXY_SERVER);
 	REGISTER_MODULE(m_pObjPluginManager, NFIProxyServerModule, NFCProxyServerModule);
 }
 

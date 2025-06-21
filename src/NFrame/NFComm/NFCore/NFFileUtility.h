@@ -220,8 +220,9 @@ public:
 #if NF_PLATFORM == NF_PLATFORM_WIN
 	static uint64_t GetWindowsToUnixBaseTimeOffset();
 #endif
-	static uint32_t GetFileModificationDate(const std::string &filename);
+	static uint64_t GetFileModificationSecond(const std::string& filename);
+	static uint64_t GetFileModificationMicroSec(const std::string& filename);
 
-    static int GetFileContainMD5(const std::string& strFileName, std::string& fileMd5);
+	static int GetFileContainMD5(const std::string& strFileName, std::string& fileMd5);
 };
 

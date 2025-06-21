@@ -25,16 +25,13 @@
     43-32 12b seq
     31-0  32b time
 */
-enum
-{
-    UNIQUE_ID_START_TIME = 1560000000, //Jun  8 21:20:00 2019
-    WORLDID_MASK        = 0xF000000000000000,
-    ZONEID_MASK         = 0x0FFF000000000000,
-    CHECK_SEQ_MASK      = 0x0000F00000000000,
-    ONE_SECOND_SEQ_MASK = 0x00000FFF00000000,
-    ADAPTIVE_TIME_MASK  = 0x00000000FFFFFFFF,
-    ONE_SECOND_SEQ_NUM = 0xFFF,
-};
+#define    UNIQUE_ID_START_TIME			1560000000//Jun  8 21:20:00 2019
+#define    WORLDID_MASK					0xF000000000000000
+#define    ZONEID_MASK					0x0FFF000000000000
+#define    CHECK_SEQ_MASK				0x0000F00000000000
+#define    ONE_SECOND_SEQ_MASK			0x00000FFF00000000
+#define    ADAPTIVE_TIME_MASK			0x00000000FFFFFFFF
+#define    ONE_SECOND_SEQ_NUM			0xFFF
 
 //由于客户端LUA 中 int64_t 类型最大只能表示 2的53次方，所以角色cid由原来的64位改成现在的54位表示(4表示世界ID,12位区服ID+4checkseq(重启16次)+32位序号)
 /*
@@ -44,12 +41,9 @@ enum
     43-32 12b seq
     31-0  32b time
 */
-enum
-{
-    WORLDID_53_MASK        = 0x000F00000000000000,
-    ZONEID_53_MASK         = 0x0000FFF000000000,
-    CHECK_SEQ_53_MASK      = 0x0000000F00000000,
-};
+#define    WORLDID_53_MASK        0x000F00000000000000
+#define    ZONEID_53_MASK         0x0000FFF000000000
+#define    CHECK_SEQ_53_MASK      0x0000000F00000000
 
 class NFCKernelModule : public NFIKernelModule
 {
@@ -64,6 +58,9 @@ public:
 	virtual bool BeforeShut() override;
 
 	virtual bool Execute() override;
+
+	virtual int OnExecute(uint32_t serverType, uint32_t nEventID, uint32_t bySrcType, uint64_t nSrcID, const google::protobuf::Message *pMessage) override;
+public:
 
 
 	virtual uint64_t GetUUID() override;

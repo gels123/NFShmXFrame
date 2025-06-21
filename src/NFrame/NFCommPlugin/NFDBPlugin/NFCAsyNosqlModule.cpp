@@ -15,13 +15,13 @@
 class NFNosqlTask : public NFTask
 {
 public:
-    NFNosqlTask(const std::string &serverId) : m_serverId(serverId)
+    explicit NFNosqlTask(const std::string& serverId) : m_serverId(serverId)
     {
         m_pNosqlDriver = nullptr;
         m_taskName = GET_CLASS_NAME(NFNosqlTask);
     }
 
-    virtual ~NFNosqlTask()
+    ~NFNosqlTask() override
     {
     }
 
@@ -36,24 +36,24 @@ public:
     }
 
 public:
-    NFINosqlDriver *m_pNosqlDriver;
+    NFINosqlDriver* m_pNosqlDriver;
     std::string m_serverId;
 };
 
-class NFNosqlConnectTask : public NFNosqlTask
+class NFNosqlConnectTask final : public NFNosqlTask
 {
 public:
     NFNosqlConnectTask() : NFNosqlTask("")
     {
         m_taskName = GET_CLASS_NAME(NFNosqlConnectTask);
-        nNosqlPort = 0;
+        m_iNosqlPort = 0;
     }
 
-    virtual ~NFNosqlConnectTask()
+    ~NFNosqlConnectTask() override
     {
     }
 
-    virtual bool IsConnect()
+    bool IsConnect() override
     {
         return true;
     }
@@ -76,13 +76,13 @@ public:
     }
 
 public:
-    std::string nServerID;
-    std::string nNosqlIp;
-    int nNosqlPort;
-    std::string nNosqlPass;
+    std::string m_strServerId;
+    std::string m_strNosqlIp;
+    int m_iNosqlPort;
+    std::string m_strNosqlPass;
 };
 
-class NFNosqlCheckTask : public NFNosqlTask
+class NFNosqlCheckTask final : public NFNosqlTask
 {
 public:
     NFNosqlCheckTask() : NFNosqlTask("")
@@ -90,11 +90,11 @@ public:
         m_taskName = GET_CLASS_NAME(NFNosqlCheckTask);
     }
 
-    virtual ~NFNosqlCheckTask()
+    ~NFNosqlCheckTask() override
     {
     }
 
-    virtual bool IsCheck()
+    bool IsCheck() override
     {
         return true;
     }
@@ -117,21 +117,20 @@ public:
     }
 };
 
-class NFSelectObjNosqlTask : public NFNosqlTask
+class NFSelectObjNosqlTask final : public NFNosqlTask
 {
 public:
-    NFSelectObjNosqlTask(const std::string &serverId, const storesvr_sqldata::storesvr_selobj &select, const SelectObj_CB &cb) : NFNosqlTask(serverId)
+    NFSelectObjNosqlTask(const std::string& serverId, const NFrame::storesvr_selobj& select, const SelectObjCb& cb) : NFNosqlTask(serverId)
     {
         m_balanceId = select.mod_key();
-        mSelect = select;
-        mCB = cb;
-        iRet = 0;
+        m_stSelect = select;
+        m_fCallback = cb;
+        m_iRet = 0;
         m_taskName = GET_CLASS_NAME(NFSelectObjNosqlTask);
     }
 
-    virtual ~NFSelectObjNosqlTask()
+    ~NFSelectObjNosqlTask() override
     {
-
     }
 
     /**
@@ -141,10 +140,11 @@ public:
     {
         if (m_pNosqlDriver)
         {
-            iRet = m_pNosqlDriver->SelectObj(mSelect, mSelectRes);
+            m_iRet = m_pNosqlDriver->SelectObj(m_stSelect, m_stSelectRes);
         }
-        else {
-            iRet = -1;
+        else
+        {
+            m_iRet = -1;
         }
 
         return true;
@@ -156,35 +156,34 @@ public:
     */
     TPTaskState MainThreadProcess() override
     {
-        if (mCB)
+        if (m_fCallback)
         {
-            mCB(iRet, mSelectRes);
+            m_fCallback(m_iRet, m_stSelectRes);
         }
         return TPTASK_STATE_COMPLETED;
     }
 
 public:
-    storesvr_sqldata::storesvr_selobj mSelect;
-    storesvr_sqldata::storesvr_selobj_res mSelectRes;
-    SelectObj_CB mCB;
-    int iRet;
+    NFrame::storesvr_selobj m_stSelect;
+    NFrame::storesvr_selobj_res m_stSelectRes;
+    SelectObjCb m_fCallback;
+    int m_iRet;
 };
 
-class NFDeleteObjNosqlTask : public NFNosqlTask
+class NFDeleteObjNosqlTask final : public NFNosqlTask
 {
 public:
-    NFDeleteObjNosqlTask(const std::string &serverId, const storesvr_sqldata::storesvr_delobj &select, const DeleteObj_CB &cb) : NFNosqlTask(serverId)
+    NFDeleteObjNosqlTask(const std::string& serverId, const NFrame::storesvr_delobj& select, const DeleteObjCb& cb) : NFNosqlTask(serverId)
     {
         m_balanceId = select.mod_key();
-        mSelect = select;
-        mCB = cb;
-        iRet = 0;
-        m_taskName = GET_CLASS_NAME(NFDeleteObjNosqlTask) + std::string("_") + select.baseinfo().tbname();;
+        m_stSelect = select;
+        m_fCallback = cb;
+        m_iRet = 0;
+        m_taskName = GET_CLASS_NAME(NFDeleteObjNosqlTask) + std::string("_") + select.baseinfo().tbname();
     }
 
-    virtual ~NFDeleteObjNosqlTask()
+    ~NFDeleteObjNosqlTask() override
     {
-
     }
 
     /**
@@ -194,7 +193,7 @@ public:
     {
         if (m_pNosqlDriver)
         {
-            iRet = m_pNosqlDriver->DeleteObj(mSelect);
+            m_iRet = m_pNosqlDriver->DeleteObj(m_stSelect);
         }
         return true;
     }
@@ -205,35 +204,34 @@ public:
     */
     TPTaskState MainThreadProcess() override
     {
-        if (mCB)
+        if (m_fCallback)
         {
-            mCB(iRet, mSelectRes);
+            m_fCallback(m_iRet, m_stSelectRes);
         }
         return TPTASK_STATE_COMPLETED;
     }
 
 public:
-    storesvr_sqldata::storesvr_delobj mSelect;
-    storesvr_sqldata::storesvr_delobj_res mSelectRes;
-    DeleteObj_CB mCB;
-    int iRet;
+    NFrame::storesvr_delobj m_stSelect;
+    NFrame::storesvr_delobj_res m_stSelectRes;
+    DeleteObjCb m_fCallback;
+    int m_iRet;
 };
 
-class NFInsertObjNosqlTask : public NFNosqlTask
+class NFInsertObjNosqlTask final : public NFNosqlTask
 {
 public:
-    NFInsertObjNosqlTask(const std::string &serverId, const storesvr_sqldata::storesvr_insertobj &select, const InsertObj_CB &cb) : NFNosqlTask(serverId)
+    NFInsertObjNosqlTask(const std::string& serverId, const NFrame::storesvr_insertobj& select, const InsertObjCb& cb) : NFNosqlTask(serverId)
     {
         m_balanceId = select.mod_key();
-        mSelect = select;
-        mCB = cb;
-        iRet = 0;
-        m_taskName = GET_CLASS_NAME(NFInsertObjNosqlTask) + std::string("_") + select.baseinfo().tbname();;
+        m_stSelect = select;
+        m_fCallback = cb;
+        m_iRet = 0;
+        m_taskName = GET_CLASS_NAME(NFInsertObjNosqlTask) + std::string("_") + select.baseinfo().tbname();
     }
 
-    virtual ~NFInsertObjNosqlTask()
+    ~NFInsertObjNosqlTask() override
     {
-
     }
 
     /**
@@ -243,7 +241,7 @@ public:
     {
         if (m_pNosqlDriver)
         {
-            iRet = m_pNosqlDriver->SaveObj(mSelect, mSelectRes);
+            m_iRet = m_pNosqlDriver->SaveObj(m_stSelect, m_stSelectRes);
         }
         return true;
     }
@@ -254,35 +252,34 @@ public:
     */
     TPTaskState MainThreadProcess() override
     {
-        if (mCB)
+        if (m_fCallback)
         {
-            mCB(iRet, mSelectRes);
+            m_fCallback(m_iRet, m_stSelectRes);
         }
         return TPTASK_STATE_COMPLETED;
     }
 
 public:
-    storesvr_sqldata::storesvr_insertobj mSelect;
-    storesvr_sqldata::storesvr_insertobj_res mSelectRes;
-    InsertObj_CB mCB;
-    int iRet;
+    NFrame::storesvr_insertobj m_stSelect;
+    NFrame::storesvr_insertobj_res m_stSelectRes;
+    InsertObjCb m_fCallback;
+    int m_iRet;
 };
 
-class NFModifyObjNosqlTask : public NFNosqlTask
+class NFModifyObjNosqlTask final : public NFNosqlTask
 {
 public:
-    NFModifyObjNosqlTask(const std::string &serverId, const storesvr_sqldata::storesvr_modobj &select, const ModifyObj_CB &cb) : NFNosqlTask(serverId)
+    NFModifyObjNosqlTask(const std::string& serverId, const NFrame::storesvr_modobj& select, const ModifyObjCb& cb) : NFNosqlTask(serverId)
     {
         m_balanceId = select.mod_key();
-        mSelect = select;
-        mCB = cb;
-        iRet = 0;
-        m_taskName = GET_CLASS_NAME(NFModifyObjNosqlTask) + std::string("_") + select.baseinfo().tbname();;
+        m_stSelect = select;
+        m_fCallback = cb;
+        m_iRet = 0;
+        m_taskName = GET_CLASS_NAME(NFModifyObjNosqlTask) + std::string("_") + select.baseinfo().tbname();
     }
 
-    virtual ~NFModifyObjNosqlTask()
+    ~NFModifyObjNosqlTask() override
     {
-
     }
 
     /**
@@ -292,7 +289,7 @@ public:
     {
         if (m_pNosqlDriver)
         {
-            iRet = m_pNosqlDriver->SaveObj(mSelect, mSelectRes);
+            m_iRet = m_pNosqlDriver->SaveObj(m_stSelect, m_stSelectRes);
         }
         return true;
     }
@@ -303,35 +300,34 @@ public:
     */
     TPTaskState MainThreadProcess() override
     {
-        if (mCB)
+        if (m_fCallback)
         {
-            mCB(iRet, mSelectRes);
+            m_fCallback(m_iRet, m_stSelectRes);
         }
         return TPTASK_STATE_COMPLETED;
     }
 
 public:
-    storesvr_sqldata::storesvr_modobj mSelect;
-    storesvr_sqldata::storesvr_modobj_res mSelectRes;
-    ModifyObj_CB mCB;
-    int iRet;
+    NFrame::storesvr_modobj m_stSelect;
+    NFrame::storesvr_modobj_res m_stSelectRes;
+    ModifyObjCb m_fCallback;
+    int m_iRet;
 };
 
-class NFDBUpdateObjTask : public NFNosqlTask
+class NFDbUpdateObjTask final : public NFNosqlTask
 {
 public:
-    NFDBUpdateObjTask(const std::string &serverId, const storesvr_sqldata::storesvr_updateobj &select, const UpdateObj_CB &cb) : NFNosqlTask(serverId)
+    NFDbUpdateObjTask(const std::string& serverId, const NFrame::storesvr_updateobj& select, const UpdateObjCb& cb) : NFNosqlTask(serverId)
     {
         m_balanceId = select.mod_key();
-        mSelect = select;
-        mCB = cb;
-        iRet = 0;
-        m_taskName = GET_CLASS_NAME(NFDBUpdateObjTask) + std::string("_") + select.baseinfo().tbname();;
+        m_stSelect = select;
+        m_fCallback = cb;
+        m_iRet = 0;
+        m_taskName = GET_CLASS_NAME(NFDBUpdateObjTask) + std::string("_") + select.baseinfo().tbname();
     }
 
-    virtual ~NFDBUpdateObjTask()
+    ~NFDbUpdateObjTask() override
     {
-
     }
 
     /**
@@ -341,7 +337,7 @@ public:
     {
         if (m_pNosqlDriver)
         {
-            iRet = m_pNosqlDriver->SaveObj(mSelect, mSelectRes);
+            m_iRet = m_pNosqlDriver->SaveObj(m_stSelect, m_strSelectRes);
         }
         return true;
     }
@@ -352,21 +348,21 @@ public:
     */
     TPTaskState MainThreadProcess() override
     {
-        if (mCB)
+        if (m_fCallback)
         {
-            mCB(iRet, mSelectRes);
+            m_fCallback(m_iRet, m_strSelectRes);
         }
         return TPTASK_STATE_COMPLETED;
     }
 
 public:
-    storesvr_sqldata::storesvr_updateobj mSelect;
-    storesvr_sqldata::storesvr_updateobj_res mSelectRes;
-    UpdateObj_CB mCB;
-    int iRet;
+    NFrame::storesvr_updateobj m_stSelect;
+    NFrame::storesvr_updateobj_res m_strSelectRes;
+    UpdateObjCb m_fCallback;
+    int m_iRet;
 };
 
-class NFNosqlTaskComponent : public NFITaskComponent
+class NFNosqlTaskComponent final : public NFITaskComponent
 {
 public:
     NFNosqlTaskComponent()
@@ -374,43 +370,61 @@ public:
         m_pNoSqlDriverManager = NF_NEW NFCNosqlDriverManager();
     }
 
-    virtual ~NFNosqlTaskComponent()
+    ~NFNosqlTaskComponent() override
     {
         NF_SAFE_DELETE(m_pNoSqlDriverManager);
     }
 
-
-    void ProcessTaskStart(NFTask *pTask) override
+    /**
+     * @brief 处理任务启动的函数
+     *
+     * 该函数用于处理不同类型的任务启动逻辑，主要针对与NoSQL数据库相关的任务。
+     * 根据任务类型的不同，执行相应的操作，如添加NoSQL服务器、检查NoSQL连接等。
+     *
+     * @param pTask 指向NFTask对象的指针，表示要处理的任务
+     * @return void 无返回值
+     */
+    void ProcessTaskStart(NFTask* pTask) override
     {
-        NFNosqlTask *pMysqlTask = dynamic_cast<NFNosqlTask *>(pTask);
+        // 尝试将传入的任务转换为NFNosqlTask类型
+        auto pMysqlTask = dynamic_cast<NFNosqlTask*>(pTask);
         if (pMysqlTask)
         {
+            // 如果任务是连接任务
             if (pMysqlTask->IsConnect())
             {
-                NFNosqlConnectTask *pConnectTask = dynamic_cast<NFNosqlConnectTask *>(pTask);
-                if (pConnectTask == NULL) return;
-                int iRet = m_pNoSqlDriverManager->AddNosqlServer(pConnectTask->nServerID, pConnectTask->nNosqlIp, pConnectTask->nNosqlPort,
-                                                                 pConnectTask->nNosqlPass);
+                // 进一步将任务转换为NFNosqlConnectTask类型
+                auto pConnectTask = dynamic_cast<NFNosqlConnectTask*>(pTask);
+                if (pConnectTask == nullptr) return;
+
+                // 尝试添加NoSQL服务器，如果失败则等待1秒后退出程序
+                int iRet = m_pNoSqlDriverManager->AddNosqlServer(pConnectTask->m_strServerId, pConnectTask->m_strNosqlIp, pConnectTask->m_iNosqlPort,
+                                                                 pConnectTask->m_strNosqlPass);
                 if (iRet != 0)
                 {
                     NFSLEEP(1000);
                     exit(0);
                 }
             }
+            // 如果任务是检查任务
             else if (pMysqlTask->IsCheck())
             {
+                // 执行NoSQL连接的检查
                 m_pNoSqlDriverManager->CheckNoSql();
             }
+            // 其他任务类型
             else
             {
+                // 先检查NoSQL连接，然后获取对应的NoSQL驱动
                 m_pNoSqlDriverManager->CheckNoSql();
                 pMysqlTask->m_pNosqlDriver = m_pNoSqlDriverManager->GetNosqlDriver(pMysqlTask->m_serverId);
+                // 检查是否成功获取驱动，如果失败则记录错误信息
                 CHECK_EXPR(pMysqlTask->m_pNosqlDriver, , "GetNosqlDriver:{} Failed", pMysqlTask->m_serverId);
             }
         }
     }
 
-    void ProcessTask(NFTask *pTask) override
+    void ProcessTask(NFTask* pTask) override
     {
         if (pTask)
         {
@@ -418,34 +432,33 @@ public:
         }
     }
 
-    void ProcessTaskEnd(NFTask *pTask) override
+    void ProcessTaskEnd(NFTask* pTask) override
     {
-        NFNosqlTask *pMysqlTask = dynamic_cast<NFNosqlTask *>(pTask);
+        auto pMysqlTask = dynamic_cast<NFNosqlTask*>(pTask);
         if (pMysqlTask)
         {
             pMysqlTask->m_pNosqlDriver = nullptr;
         }
     }
 
-    virtual void HandleTaskTimeOut(const std::string &taskName, uint64_t useTime) override
+    void HandleTaskTimeOut(const std::string& taskName, uint64_t useTime) override
     {
-        NFLogError(NF_LOG_SYSTEMLOG, 0, "taskName:{} timeOut, userTime:{}", taskName, useTime);
+        NFLogError(NF_LOG_DEFAULT, 0, "taskName:{} timeOut, userTime:{}", taskName, useTime);
     }
 
 public:
-    NFCNosqlDriverManager *m_pNoSqlDriverManager;
+    NFCNosqlDriverManager* m_pNoSqlDriverManager;
 };
 
 
-NFCAsyNosqlModule::NFCAsyNosqlModule(NFIPluginManager *p) : NFIAsyNosqlModule(p)
+NFCAsyNosqlModule::NFCAsyNosqlModule(NFIPluginManager* pPluginManager) : NFIAsyNosqlModule(pPluginManager)
 {
-    mnLastCheckTime = NFGetTime();
-    m_initComponet = false;
+    m_ullLastCheckTime = NFGetTime();
+    m_bInitComponent = false;
 }
 
 NFCAsyNosqlModule::~NFCAsyNosqlModule()
 {
-
 }
 
 bool NFCAsyNosqlModule::Execute()
@@ -453,88 +466,88 @@ bool NFCAsyNosqlModule::Execute()
     return NFIModule::Execute();
 }
 
-bool NFCAsyNosqlModule::InitActorPool(int maxTaskGroup, int maxActorNum)
+bool NFCAsyNosqlModule::InitActorPool(int iMaxTaskGroup, int iMaxActorNum)
 {
-    NFIAsycModule::InitActorPool(maxTaskGroup, maxActorNum);
-    if (!m_initComponet)
+    NFIAsyModule::InitActorPool(iMaxTaskGroup, iMaxActorNum);
+    if (!m_bInitComponent)
     {
-        m_initComponet = true;
-        for (size_t i = 0; i < m_vecActorGroupPool[NF_TASK_GROUP_DEFAULT].size(); i++)
+        m_bInitComponent = true;
+        for (size_t i = 0; i < m_stVecActorGroupPool[NF_TASK_GROUP_DEFAULT].size(); i++)
         {
-            NFNosqlTaskComponent *pComonnet = NF_NEW NFNosqlTaskComponent();
-            AddActorComponent(NF_TASK_GROUP_DEFAULT, m_vecActorGroupPool[NF_TASK_GROUP_DEFAULT][i], pComonnet);
+            auto pComponent = NF_NEW NFNosqlTaskComponent();
+            AddActorComponent(NF_TASK_GROUP_DEFAULT, m_stVecActorGroupPool[NF_TASK_GROUP_DEFAULT][i], pComponent);
         }
     }
 
     return true;
 }
 
-int NFCAsyNosqlModule::AddDBServer(const std::string& nServerID, const string &noSqlIp, int nosqlPort, const string &noSqlPass)
+int NFCAsyNosqlModule::AddDBServer(const std::string& strServerId, const string& strNoSqlIp, int iNosqlPort, const string& strNoSqlPass)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
     InitActorPool(NF_TASK_MAX_GROUP_DEFAULT);
 
-    for (size_t i = 0; i < m_vecActorGroupPool[NF_TASK_GROUP_DEFAULT].size(); i++)
+    for (size_t i = 0; i < m_stVecActorGroupPool[NF_TASK_GROUP_DEFAULT].size(); i++)
     {
-        NFNosqlConnectTask *pTask = NF_NEW NFNosqlConnectTask();
-        pTask->nServerID = nServerID;
-        pTask->nNosqlIp = noSqlIp;
-        pTask->nNosqlPort = nosqlPort;
-        pTask->nNosqlPass = noSqlPass;
-        int iRet = FindModule<NFITaskModule>()->AddTask(m_vecActorGroupPool[NF_TASK_GROUP_DEFAULT][i], pTask);
+        auto pTask = NF_NEW NFNosqlConnectTask();
+        pTask->m_strServerId = strServerId;
+        pTask->m_strNosqlIp = strNoSqlIp;
+        pTask->m_iNosqlPort = iNosqlPort;
+        pTask->m_strNosqlPass = strNoSqlPass;
+        int iRet = FindModule<NFITaskModule>()->AddTask(m_stVecActorGroupPool[NF_TASK_GROUP_DEFAULT][i], pTask);
         CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
     }
 
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFCAsyNosqlModule::SelectObj(const string &nServerID, const storesvr_sqldata::storesvr_selobj &select, const SelectObj_CB &cb)
+int NFCAsyNosqlModule::SelectObj(const string& strServerId, const NFrame::storesvr_selobj& stSelect, const SelectObjCb& fCallback)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
-    NFSelectObjNosqlTask *pTask = NF_NEW NFSelectObjNosqlTask(nServerID, select, cb);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+    auto pTask = NF_NEW NFSelectObjNosqlTask(strServerId, stSelect, fCallback);
     int iRet = AddTask(NF_TASK_GROUP_DEFAULT, pTask);
     CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFCAsyNosqlModule::DeleteObj(const string &nServerID, const storesvr_sqldata::storesvr_delobj &select, const DeleteObj_CB &cb)
+int NFCAsyNosqlModule::DeleteObj(const string& strServerId, const NFrame::storesvr_delobj& stSelect, const DeleteObjCb& fCallback)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
-    NFDeleteObjNosqlTask *pTask = NF_NEW NFDeleteObjNosqlTask(nServerID, select, cb);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+    auto pTask = NF_NEW NFDeleteObjNosqlTask(strServerId, stSelect, fCallback);
     int iRet = AddTask(NF_TASK_GROUP_DEFAULT, pTask);
     CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFCAsyNosqlModule::InsertObj(const string &nServerID, const storesvr_sqldata::storesvr_insertobj &select, const InsertObj_CB &cb)
+int NFCAsyNosqlModule::InsertObj(const string& strServerId, const NFrame::storesvr_insertobj& stSelect, const InsertObjCb& bCallback)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
-    NFInsertObjNosqlTask *pTask = NF_NEW NFInsertObjNosqlTask(nServerID, select, cb);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+    auto pTask = NF_NEW NFInsertObjNosqlTask(strServerId, stSelect, bCallback);
     int iRet = AddTask(NF_TASK_GROUP_DEFAULT, pTask);
     CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFCAsyNosqlModule::ModifyObj(const string &nServerID, const storesvr_sqldata::storesvr_modobj &select, const ModifyObj_CB &cb)
+int NFCAsyNosqlModule::ModifyObj(const string& strServerId, const NFrame::storesvr_modobj& stSelect, const ModifyObjCb& fCallback)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
-    NFModifyObjNosqlTask *pTask = NF_NEW NFModifyObjNosqlTask(nServerID, select, cb);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+    auto pTask = NF_NEW NFModifyObjNosqlTask(strServerId, stSelect, fCallback);
     int iRet = AddTask(NF_TASK_GROUP_DEFAULT, pTask);
     CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }
 
-int NFCAsyNosqlModule::UpdateObj(const string &nServerID, const storesvr_sqldata::storesvr_updateobj &select, const UpdateObj_CB &cb)
+int NFCAsyNosqlModule::UpdateObj(const string& strServerId, const NFrame::storesvr_updateobj& stSelect, const UpdateObjCb& fCallback)
 {
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- begin -- ");
-    NFDBUpdateObjTask *pTask = NF_NEW NFDBUpdateObjTask(nServerID, select, cb);
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- begin -- ");
+    auto pTask = NF_NEW NFDbUpdateObjTask(strServerId, stSelect, fCallback);
     int iRet = AddTask(NF_TASK_GROUP_DEFAULT, pTask);
     CHECK_EXPR(iRet == 0, -1, "AddTask Failed");
-    NFLogTrace(NF_LOG_SYSTEMLOG, 0, "--- end -- ");
+    NFLogTrace(NF_LOG_DEFAULT, 0, "--- end -- ");
     return 0;
 }

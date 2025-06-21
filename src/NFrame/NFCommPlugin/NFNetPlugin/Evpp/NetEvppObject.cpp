@@ -11,13 +11,13 @@
 
 #define MAGIC_KEY "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
-NetEvppObject::NetEvppObject(const evpp::TCPConnPtr& conn) : m_usLinkId(0), mNeedRemove(false), mConnPtr(conn)
+NetEvppObject::NetEvppObject(const evpp::TCPConnPtr& conn) : m_usLinkId(0), m_needRemove(false), m_connPtr(conn)
 {
-	mIsServer = true;
-	mPacketParseType = 0;
-	mLastHeartBeatTime = NFGetTime();
-    m_port = 0;
-    mSecurity = false;
+	m_isServer = true;
+	m_packetParseType = 0;
+	m_lastHeartBeatTime = NFGetTime();
+	m_port = 0;
+	m_security = false;
 }
 
 NetEvppObject::~NetEvppObject()
@@ -34,7 +34,7 @@ uint32_t NetEvppObject::GetPort() const
     return m_port;
 }
 
-void NetEvppObject::SetStrIp(std::string val)
+void NetEvppObject::SetStrIp(const std::string& val)
 {
 	m_strIp = val;
 }
@@ -46,12 +46,12 @@ void NetEvppObject::SetPort(uint32_t port)
 
 void NetEvppObject::SetIsServer(bool b)
 {
-	mIsServer = b;
+	m_isServer = b;
 }
 
 bool NetEvppObject::IsServer() const
 {
-    return mIsServer;
+    return m_isServer;
 }
 
 uint64_t NetEvppObject::GetLinkId() const
@@ -66,21 +66,21 @@ void NetEvppObject::SetLinkId(uint64_t linkId)
 
 bool NetEvppObject::GetNeedRemove() const
 {
-	return mNeedRemove;
+	return m_needRemove;
 }
 
 void NetEvppObject::SetNeedRemove(bool val)
 {
-	mNeedRemove = val;
+	m_needRemove = val;
 }
 
-void NetEvppObject::CloseObject()
+void NetEvppObject::CloseObject() const
 {
-	if (mConnPtr)
+	if (m_connPtr)
 	{
-		if (mConnPtr->IsConnected() || mConnPtr->IsConnecting())
+		if (m_connPtr->IsConnected() || m_connPtr->IsConnecting())
 		{
-			mConnPtr->Close();
+			m_connPtr->Close();
 		}
 	}
 }

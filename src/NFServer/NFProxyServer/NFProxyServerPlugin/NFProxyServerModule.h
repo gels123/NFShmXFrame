@@ -45,7 +45,7 @@ public:
      * @param unLinkId
      * @return
      */
-    int OnHandleOtherWorkServerRegister(const proto_ff::ServerInfoReport& xData, uint64_t unLinkId);
+    int OnHandleOtherWorkServerRegister(const NFrame::ServerInfoReport& xData, uint64_t unLinkId);
 
     /**
      * @brief 处理NFProxyAgentServer服务器的注册
@@ -53,7 +53,7 @@ public:
      * @param unLinkId
      * @return
      */
-    int OnHandleProxyAgentServerRegister(const proto_ff::ServerInfoReport& xData, uint64_t unLinkId);
+    int OnHandleProxyAgentServerRegister(const NFrame::ServerInfoReport& xData, uint64_t unLinkId);
 
     /**
      * @brief 将自己注册NFPRoxyAgentServer,然后由NFProxyAgentServer转发到其他NFWorkServer业务服务器
