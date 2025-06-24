@@ -30,70 +30,75 @@
     <generated>
       <config projectName="ShmNFrame" targetName="NFMMOCommonPlugin" />
       <config projectName="ShmNFrame" targetName="NFMMOProxyPlayerPlugin" />
-      <config projectName="ShmNFrame" targetName="NFMMOSnsCommon" />
       <config projectName="ShmNFrame" targetName="NFLuaScriptPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishWorldPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFGameCommon" />
-      <config projectName="ShmNFrame" targetName="Behavior" />
       <config projectName="ShmNFrame" targetName="NF3rdCommon" />
       <config projectName="ShmNFrame" targetName="NFLogicServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFSnsServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFRouteAgentServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFGameServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFProxyServerPlugin" />
-      <config projectName="ShmNFrame" targetName="NFMMOGuildPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFServerController" />
-      <config projectName="ShmNFrame" targetName="NFMMORobotPlugin" />
       <config projectName="ShmNFrame" targetName="NFShmPlugin" />
       <config projectName="ShmNFrame" targetName="NFNetPlugin" />
       <config projectName="ShmNFrame" targetName="NFNavMeshServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFGameFishPlugin" />
       <config projectName="ShmNFrame" targetName="NFMMOLogicPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFCore" />
       <config projectName="ShmNFrame" targetName="NFCenterServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishLoginPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFMMOCenterPlayerPlugin" />
-      <config projectName="ShmNFrame" targetName="NFMMOCityPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFTutorialPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishSnsPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFrameStatic" />
       <config projectName="ShmNFrame" targetName="protobuf-nanopb" />
       <config projectName="ShmNFrame" targetName="NFExcelProcess" />
-      <config projectName="ShmNFrame" targetName="NFMMOSnsCommonPlugin" />
       <config projectName="ShmNFrame" targetName="NFProxyAgentServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishLogicPlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishCommonPlugin" />
       <config projectName="ShmNFrame" targetName="NFMasterServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFKernelMessage" />
       <config projectName="ShmNFrame" targetName="NFStoreServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFDescStorePlugin" />
       <config projectName="ShmNFrame" targetName="NFTestPlugin" />
       <config projectName="ShmNFrame" targetName="Sqlite3" />
+      <config projectName="ShmNFrame" targetName="NFFishProxyPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFLoginServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFServerCommonPlugin" />
       <config projectName="ShmNFrame" targetName="mysqlpp" />
       <config projectName="ShmNFrame" targetName="NFOnlineServerPlugin" />
       <config projectName="ShmNFrame" targetName="evpp" />
       <config projectName="ShmNFrame" targetName="NFMMOLogicCommon" />
-      <config projectName="ShmNFrame" targetName="NFMMOResStore" />
       <config projectName="ShmNFrame" targetName="NFServerMessage" />
       <config projectName="ShmNFrame" targetName="NFKernelPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishLogicMessage" />
       <config projectName="ShmNFrame" targetName="NFMMOWorldPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFPluginLoader" />
       <config projectName="ShmNFrame" targetName="RecastNavigation" />
       <config projectName="ShmNFrame" targetName="NFMatchServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFTest" />
+      <config projectName="ShmNFrame" targetName="NFFishLogicCommon" />
       <config projectName="ShmNFrame" targetName="NFWorldServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFProxyClientPlugin" />
+      <config projectName="ShmNFrame" targetName="NFMMODescStore" />
       <config projectName="ShmNFrame" targetName="NFPluginModule" />
       <config projectName="ShmNFrame" targetName="NFObjCommon" />
       <config projectName="ShmNFrame" targetName="NFRouteServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFServerStatic" />
       <config projectName="ShmNFrame" targetName="NFMMOLogicMessage" />
       <config projectName="ShmNFrame" targetName="NFCityServerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishGamePlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFDBPlugin" />
       <config projectName="ShmNFrame" targetName="NFServerCommon" />
       <config projectName="ShmNFrame" targetName="NFCheckServerPlugin" />
       <config projectName="ShmNFrame" targetName="NFLuaBind" />
+      <config projectName="ShmNFrame" targetName="NFFishLoader" />
+      <config projectName="ShmNFrame" targetName="NFFishRobotPlugin" />
       <config projectName="ShmNFrame" targetName="NFMMOSnsPlayerPlugin" />
       <config projectName="ShmNFrame" targetName="NFMemPlugin" />
       <config projectName="ShmNFrame" targetName="NFMMOGamePlayerPlugin" />
-      <config projectName="ShmNFrame" targetName="NFLieRenStatic" />
-      <config projectName="ShmNFrame" targetName="NFMMOOnlinePlayerPlugin" />
+      <config projectName="ShmNFrame" targetName="NFFishDescStore" />
       <config projectName="ShmNFrame" targetName="NFPluginManager" />
       <config projectName="ShmNFrame" targetName="NFWebServerPlugin" />
     </generated>
@@ -107,22 +112,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/NFShmXFrame服务器热更重启详解.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/NFShmXFrame服务器热更重启详解.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/doc/NFShmXFrame服务器重载配置详解.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/NFShmXFrame服务器重载配置详解.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFServer/NFServerStatic/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFServer/NFServerStatic/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFIPluginManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFIPluginManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFSystemInfo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFSystemInfo.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginLoader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginLoader/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFPluginLoader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFPluginLoader.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFProcessParameter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFProcessParameter.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/NFrame/NFrameStatic/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFrameStatic/CMakeLists.txt" afterDir="false" />
-    </list>
+    <list default="true" id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -621,9 +611,9 @@
       <option name="showConsole" value="true" />
       <method v="2" />
     </configuration>
-    <configuration name="Behavior" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="Behavior" CONFIG_NAME="Debug-Visual Studio">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
     <configuration name="CrossLieRenStatic" type="CMakeRunConfiguration" factoryName="Application" PROGRAM_PARAMS="--Server=CrossAllServer --ID=1.13.20.1 --Config=../../Config/LieRen --Plugin=../../LieRenPlugin --restart" REDIRECT_INPUT="false" ELEVATE="true" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFLieRenStatic" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFLieRenStatic">
@@ -681,7 +671,72 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="NFFishCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishDescStore" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishDescStore" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishGamePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishGamePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishLoader" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishLoader" CONFIG_NAME="Debug-Visual Studio" RUN_TARGET_PROJECT_NAME="ShmNFrame" RUN_TARGET_NAME="NFFishLoader">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishLogicCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishLogicCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishLogicMessage" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishLogicMessage" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishLogicPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishLogicPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishLoginPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishLoginPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishProxyPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishProxyPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishRobotPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishRobotPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishSnsPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishSnsPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFFishWorldPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFFishWorldPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="NFGameCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFGameCommon" CONFIG_NAME="Debug-Visual Studio">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NFGameFishPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFGameFishPlugin" CONFIG_NAME="Debug-Visual Studio">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -731,22 +786,17 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="NFMMOCityPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOCityPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="NFMMOCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="NFMMOGamePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOGamePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+    <configuration name="NFMMODescStore" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMODescStore" CONFIG_NAME="Debug-Visual Studio">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="NFMMOGuildPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOGuildPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
+    <configuration name="NFMMOGamePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOGamePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -766,32 +816,7 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="NFMMOOnlinePlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOOnlinePlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="NFMMOProxyPlayerPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOProxyPlayerPlugin" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NFMMOResStore" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOResStore" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NFMMORobotPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMORobotPlugin" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NFMMOSnsCommon" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOSnsCommon" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="NFMMOSnsCommonPlugin" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="NFMMOSnsCommonPlugin" CONFIG_NAME="Debug-Visual Studio">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -989,23 +1014,29 @@
       <item itemvalue="CMake 应用程序.protobuf-nanopb" />
       <item itemvalue="CMake 应用程序.Sqlite3" />
       <item itemvalue="CMake 应用程序.NFLieRenStatic" />
+      <item itemvalue="CMake 应用程序.NFFishLoader" />
+      <item itemvalue="CMake 应用程序.NFFishRobotPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishDescStore" />
+      <item itemvalue="CMake 应用程序.NFFishLogicCommon" />
+      <item itemvalue="CMake 应用程序.NFFishCommonPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishLogicMessage" />
+      <item itemvalue="CMake 应用程序.NFGameFishPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishGamePlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishLogicPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishLoginPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishProxyPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishSnsPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFFishWorldPlayerPlugin" />
+      <item itemvalue="CMake 应用程序.NFMMODescStore" />
       <item itemvalue="CMake 应用程序.NFMMOLogicCommon" />
       <item itemvalue="CMake 应用程序.NFMMOCommonPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOLogicMessage" />
-      <item itemvalue="CMake 应用程序.NFMMOResStore" />
       <item itemvalue="CMake 应用程序.NFMMOCenterPlayerPlugin" />
-      <item itemvalue="CMake 应用程序.NFMMOCityPlayerPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOGamePlayerPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOLogicPlayerPlugin" />
-      <item itemvalue="CMake 应用程序.NFMMOOnlinePlayerPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOProxyPlayerPlugin" />
-      <item itemvalue="CMake 应用程序.NFMMOGuildPlayerPlugin" />
-      <item itemvalue="CMake 应用程序.NFMMOSnsCommon" />
-      <item itemvalue="CMake 应用程序.NFMMOSnsCommonPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOSnsPlayerPlugin" />
       <item itemvalue="CMake 应用程序.NFMMOWorldPlayerPlugin" />
-      <item itemvalue="CMake 应用程序.NFMMORobotPlugin" />
-      <item itemvalue="CMake 应用程序.Behavior" />
       <item itemvalue="CMake 应用程序.NFGameCommon" />
       <item itemvalue="CMake 应用程序.RecastNavigation" />
       <item itemvalue="CMake 应用程序.NFCore" />
@@ -1294,7 +1325,7 @@
       <workItem from="1749346426644" duration="11911000" />
       <workItem from="1749432508023" duration="37992000" />
       <workItem from="1750036954134" duration="14144000" />
-      <workItem from="1750759783033" duration="169000" />
+      <workItem from="1750759783033" duration="261000" />
     </task>
     <task id="LOCAL-00453" summary="refactor(NFShmHashTable): 重构共享内存哈希表实现&#10;&#10;- 重新设计类结构，增加详细注释说明&#10;-优化迭代器实现，增强与STL兼容性&#10;- 扩展接口功能，支持更多STL标准操作&#10;- 改进内存管理，提高共享内存利用率&#10;-修复部分函数逻辑，提升代码稳定性">
       <option name="closed" value="true" />
