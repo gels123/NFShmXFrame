@@ -107,7 +107,22 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑" />
+    <list default="true" id="b61e93bd-e129-4bf0-a7b8-fbf8bb158f0a" name="更改" comment="feat(game): 添加福利系统相关配置和消息结构&#10;&#10;- 在 excel.json 中添加 Welfare 表单配置- 在 list.txt 中添加 Welfare相关的表格引用&#10;- 在 proto_common.proto 中添加与时间相关的消息结构：&#10;  - UnixTimeOne: 表示一个时间点  - UnixTimeRange: 表示一个时间段&#10;  - ServerOpenUnixTimeRange: 表示服务器开启时间段&#10;- 更新 nanopb相关代码，添加新消息类型的处理逻辑">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/NFShmXFrame服务器热更重启详解.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/NFShmXFrame服务器热更重启详解.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/doc/NFShmXFrame服务器重载配置详解.md" beforeDir="false" afterPath="$PROJECT_DIR$/doc/NFShmXFrame服务器重载配置详解.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFServer/NFServerStatic/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFServer/NFServerStatic/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFIPluginManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFIPluginManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFSystemInfo.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFComm/NFPluginModule/NFSystemInfo.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginLoader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginLoader/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFCPluginManager.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFPluginLoader.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFPluginLoader.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFProcessParameter.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFProcessParameter.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFPluginManager/NFSignalHandleMgr.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/NFrame/NFrameStatic/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/NFrame/NFrameStatic/CMakeLists.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -607,11 +622,6 @@
       <method v="2" />
     </configuration>
     <configuration name="Behavior" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ShmNFrame" TARGET_NAME="Behavior" CONFIG_NAME="Debug-Visual Studio">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -1284,6 +1294,7 @@
       <workItem from="1749346426644" duration="11911000" />
       <workItem from="1749432508023" duration="37992000" />
       <workItem from="1750036954134" duration="14144000" />
+      <workItem from="1750759783033" duration="169000" />
     </task>
     <task id="LOCAL-00453" summary="refactor(NFShmHashTable): 重构共享内存哈希表实现&#10;&#10;- 重新设计类结构，增加详细注释说明&#10;-优化迭代器实现，增强与STL兼容性&#10;- 扩展接口功能，支持更多STL标准操作&#10;- 改进内存管理，提高共享内存利用率&#10;-修复部分函数逻辑，提升代码稳定性">
       <option name="closed" value="true" />

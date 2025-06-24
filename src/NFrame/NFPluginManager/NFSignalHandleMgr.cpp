@@ -8,6 +8,8 @@
 
 #include "NFSignalHandleMgr.h"
 
+#include "NFComm/NFPluginModule/NFLogMgr.h"
+
 #if NF_PLATFORM != NF_PLATFORM_WIN
 #include <NFComm/NFCore/NFFileUtility.h>
 #include <NFComm/NFPluginModule/NFCheck.h>
@@ -1223,7 +1225,7 @@ void FailureSignalHandler(int signal_number,
     }
     // This is the first time we enter the signal handler.  We are going to
     // do some interesting stuff from here.
-    // TODO(satorux): We might want to set timeout here using alarm(), but
+    // We might want to set timeout here using alarm(), but
     // mixing alarm() and sleep() can be a bad idea.
 
     std::string dumpInfo;
@@ -1346,3 +1348,128 @@ void InitSignal()
 #endif
 }
 
+#if NF_PLATFORM == NF_PLATFORM_WIN
+#include "NFComm/NFPluginModule/NFGlobalSystem.h"
+#include <functional>
+
+bool NFSignalHandlerMgr::Initialize()
+{
+    if (m_bRunning.load())
+    {
+        return false; // 已经在运行
+    }
+
+    m_processId = GetCurrentProcessId();
+    m_bRunning.store(true);
+
+    // 启动事件处理线程
+    m_eventThread = std::thread(&NFSignalHandlerMgr::EventHandlingThread, this);
+
+    return true;
+}
+
+void NFSignalHandlerMgr::Shutdown()
+{
+    if (!m_bRunning.load())
+    {
+        return;
+    }
+
+    m_bRunning.store(false);
+
+    if (m_eventThread.joinable())
+    {
+        m_eventThread.join();
+    }
+}
+
+void NFSignalHandlerMgr::EventHandlingThread()
+{
+    while (m_bRunning.load())
+    {
+        // 检查重载事件
+        std::string reloadEventName = "NFServer_Reload_" + std::to_string(m_processId);
+        CheckEvent(reloadEventName, [this]
+        {
+            NFLogInfo(NF_LOG_DEFAULT, 0, "Received reload signal from new process, start reload server...");
+            NFGlobalSystem::Instance()->SetReloadServer(true);
+        });
+
+        // 检查停止事件
+        std::string stopEventName = "NFServer_Stop_" + std::to_string(m_processId);
+        CheckEvent(stopEventName, [this]
+        {
+            NFLogInfo(NF_LOG_DEFAULT, 0, "Received stop signal from new process, starting stop server, save db...");
+
+            NFGlobalSystem::Instance()->SetServerStopping(true);
+        });
+
+        // 检查退出事件
+        std::string quitEventName = "NFServer_Quit_" + std::to_string(m_processId);
+        CheckEvent(quitEventName, [this]
+        {
+            NFLogInfo(NF_LOG_DEFAULT, 0, "Received quit signal from new process, starting kill server...");
+
+            NFGlobalSystem::Instance()->SetServerStopping(true);
+            NFGlobalSystem::Instance()->SetServerKilling(true);
+        });
+
+        // 检查杀死事件（程序B收到程序A的kill信号）
+        std::string killEventName = "NFServer_Kill_" + std::to_string(m_processId);
+        CheckEvent(killEventName, [this]
+        {
+            NFLogInfo(NF_LOG_DEFAULT, 0, "Received kill signal from new process, starting kill server...");
+
+            // 程序B开始正常释放资源
+            NFGlobalSystem::Instance()->SetServerStopping(true);
+            NFGlobalSystem::Instance()->SetServerKilling(true);
+        });
+
+        // 休眠一小段时间以避免过度占用CPU
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+bool NFSignalHandlerMgr::CheckEvent(const std::string& eventName, const std::function<void()>& callback)
+{
+    HANDLE hEvent = OpenEventA(EVENT_ALL_ACCESS, FALSE, eventName.c_str());
+    if (hEvent != nullptr)
+    {
+        DWORD waitResult = WaitForSingleObject(hEvent, 0);
+        if (waitResult == WAIT_OBJECT_0)
+        {
+            // 触发回调函数
+            callback();
+            ResetEvent(hEvent);
+            CloseHandle(hEvent);
+            return true;
+        }
+        CloseHandle(hEvent);
+    }
+    return false;
+}
+
+int NFSignalHandlerMgr::SendKillSuccess()
+{
+    // 程序B发送kill成功信号给程序A
+    std::string killSuccessEventName = "NFServer_KillSuccess_" + std::to_string(m_processId);
+    HANDLE hKillSuccessEvent = CreateEventA(nullptr, FALSE, FALSE, killSuccessEventName.c_str());
+    if (hKillSuccessEvent != nullptr)
+    {
+        SetEvent(hKillSuccessEvent);
+        // 等待足够时间确保接收方能处理事件，避免竞态条件
+        Sleep(50);
+        CloseHandle(hKillSuccessEvent);
+        NFLogInfo(NF_LOG_DEFAULT, 0, "Kill success signal sent to new process");
+
+        //等待对方启动，是共享内存其效果
+        Sleep(10000);
+    }
+    else
+    {
+        NFLogError(NF_LOG_DEFAULT, 0, "Failed to create kill success event, error: {}", GetLastError());
+    }
+    return 0;
+}
+
+#endif

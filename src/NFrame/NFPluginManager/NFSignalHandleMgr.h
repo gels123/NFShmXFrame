@@ -9,6 +9,19 @@
 #pragma once
 
 #include "NFComm/NFCore/NFPlatform.h"
+#include "NFComm/NFCore/NFSingleton.hpp"
+
+#if NF_PLATFORM == NF_PLATFORM_WIN
+#include <windows.h>
+#include <thread>
+#include <atomic>
+#include <vector>
+#include <functional>
+#include <chrono>
+
+// 前置声明
+class NFIPluginManager;
+#endif
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 #include <unistd.h>
@@ -159,6 +172,41 @@
 #endif
 #endif
 
+// Linux信号处理函数（保持原有功能）
 void InitSignal();
-
 void HandleSignal(int signo);
+
+#if NF_PLATFORM == NF_PLATFORM_WIN
+// Windows事件处理管理器
+class NFSignalHandlerMgr : public NFSingleton<NFSignalHandlerMgr>
+{
+public:
+    // 初始化事件处理线程
+    bool Initialize();
+
+    // 停止事件处理线程
+    void Shutdown();
+public:
+    NFSignalHandlerMgr() = default;
+    ~NFSignalHandlerMgr() override = default;
+    NFSignalHandlerMgr(const NFSignalHandlerMgr&) = delete;
+    NFSignalHandlerMgr& operator=(const NFSignalHandlerMgr&) = delete;
+
+    // 事件处理线程函数
+    void EventHandlingThread();
+
+    // 检查单个事件
+    bool CheckEvent(const std::string& eventName, const std::function<void()>& callback);
+
+    /**
+	 * @brief 返回成功被杀的信号。
+	 * @return 成功返回 0，失败返回非零值。
+	 */
+	int SendKillSuccess();
+
+private:
+    std::thread m_eventThread;
+    std::atomic<bool> m_bRunning{false};
+    DWORD m_processId = 0;
+};
+#endif

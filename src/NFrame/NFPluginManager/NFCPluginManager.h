@@ -446,6 +446,15 @@ public:
 	 * @return 返回子进程退出状态码。
 	 */
 	virtual int TimedWait(pid_t pid, int sec) override;
+#else
+	/**
+	 * @brief Windows版本的带超时等待进程结束。
+	 * @param proc_id Windows进程 ID。
+	 * @param sec 超时时间（秒）。
+	 * @return 返回进程退出状态码。
+	 */
+	virtual int TimedWait(DWORD proc_id, int sec);
+#endif
 
 	/**
 	 * @brief 检查 PID 文件是否存在。
@@ -479,8 +488,6 @@ public:
 	 * @brief 退出应用程序。
 	 */
 	virtual void QuitApp() override;
-
-#endif
 
 	/**
 	 * @brief 设置是否开启性能分析器。

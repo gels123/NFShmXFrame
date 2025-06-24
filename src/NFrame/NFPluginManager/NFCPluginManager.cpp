@@ -32,7 +32,8 @@
 #include "sigar/sigar.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 int sigar_net_address_to_string(sigar_t* sigar,
                                 sigar_net_address_t* address,
@@ -1146,8 +1147,7 @@ const std::string& NFCPluginManager::GetPidFileName()
 int NFCPluginManager::CheckPidFile()
 {
     // 检查PID文件是否存在
-    bool exist = false;
-    exist = NFFileUtility::IsFileExist(m_strPidFileName);
+    bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
     if (exist == false)
     {
         return 0;
@@ -1170,7 +1170,55 @@ int NFCPluginManager::CheckPidFile()
     // 返回-1表示PID文件存在且对应的进程正在运行
     return -1;
 }
+#else
+/**
+ * @brief Windows版本的检查PID文件函数
+ *
+ * 该函数检查PID文件是否存在，并验证对应的进程是否在运行。
+ *
+ * @return int 返回值为0表示PID文件不存在或对应的进程未运行；返回-1表示PID文件存在且对应的进程正在运行。
+ */
+int NFCPluginManager::CheckPidFile()
+{
+	// 检查PID文件是否存在
+	bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
+	if (exist == false)
+	{
+		return 0;
+	}
 
+	// 读取PID文件内容并解析为进程ID
+	std::string content;
+	NFFileUtility::ReadFileContent(m_strPidFileName, content);
+	DWORD proc_id = NFCommon::strto<DWORD>(content);
+
+	// 尝试打开进程检查是否存在
+	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, proc_id);
+	if (hProcess == NULL)
+	{
+		// 进程不存在，删除过期的PID文件
+		return 0;
+	}
+
+	// 检查进程是否仍在运行
+	DWORD exitCode;
+	if (GetExitCodeProcess(hProcess, &exitCode))
+	{
+		CloseHandle(hProcess);
+		if (exitCode == STILL_ACTIVE)
+		{
+			return -1; // 进程仍在运行
+		}
+		else
+		{
+			// 进程已退出，删除PID文件
+			return 0;
+		}
+	}
+
+	CloseHandle(hProcess);
+	return 0;
+}
 #endif
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
@@ -1206,6 +1254,33 @@ int  NFCPluginManager::CreatePidFile()
     return -1;
 }
 
+#else
+/**
+ * @brief Windows版本的创建PID文件函数
+ *
+ * 该函数用于创建一个PID文件，并将当前进程的PID写入该文件中。
+ *
+ * @return int 返回值为0表示成功创建并写入PID文件，返回-1表示失败。
+ */
+int NFCPluginManager::CreatePidFile()
+{
+	// 获取当前进程的PID
+	DWORD proc_id = GetCurrentProcessId();
+	std::cout << "pid = " << proc_id << std::endl;
+
+	// 将PID转换为字符串
+	std::string pidName = std::to_string(proc_id);
+
+	// 写入PID文件
+	if (NFFileUtility::WriteFile(m_strPidFileName, pidName))
+	{
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
+}
 #endif
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
@@ -1245,36 +1320,32 @@ int  NFCPluginManager::TimedWait(pid_t pid, int sec)
 	} while(true);
 	return 0;  // 进程在指定时间内结束，返回成功
 }
-
-#endif
-
-#if NF_PLATFORM == NF_PLATFORM_LINUX
-// 终止之前的应用程序实例
-int NFCPluginManager::KillPreApp()
+#else
+/**
+ * @brief Windows版本的等待进程结束函数
+ *
+ * 该函数用于等待指定的Windows进程结束，最多等待指定的秒数。
+ *
+ * @param proc_id 要等待的进程ID
+ * @param sec 最大等待时间（秒）
+ * @return int 返回0表示进程在指定时间内结束，返回-1表示超时或错误。
+ */
+int NFCPluginManager::TimedWait(DWORD proc_id, int sec)
 {
-    bool exist = false;
-    // 检查预先记录的进程ID文件是否存在
-    exist = NFFileUtility::IsFileExist(m_strPidFileName);
-    if (exist)
-    {
-        std::string content;
-        // 读取PID文件内容（包含之前实例的进程ID）
-        NFFileUtility::ReadFileContent(m_strPidFileName, content);
+	// 打开进程句柄
+	HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, proc_id);
+	if (hProcess == NULL)
+	{
+		// 如果无法打开进程，可能进程已经不存在
+		return 0;
+	}
 
-        // 将字符串类型的进程ID转换为pid_t类型
-        pid_t proc_id = NFCommon::strto<pid_t>(content);
+	// 等待进程退出，最多等待指定秒数
+	DWORD waitResult = WaitForSingleObject(hProcess, sec * 1000);
+	CloseHandle(hProcess);
 
-        // 向目标进程发送SIGUNUSED信号（通常用于终止进程）
-        kill(proc_id, SIGUNUSED);
-
-        // 等待目标进程退出，最多等待10秒，返回等待结果
-        return TimedWait(proc_id, 10);
-    }
-
-    // 如果不存在PID文件，说明没有之前的实例，直接返回0
-    return 0;
+	return (waitResult == WAIT_OBJECT_0) ? 0 : -1;
 }
-
 #endif
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
@@ -1302,8 +1373,147 @@ void NFCPluginManager::StopApp()
     // 注意：代码假设PID文件存在且包含有效的进程ID
     // 未处理文件读取失败或转换错误的情况
 }
+#else
+// Windows版本的停止应用程序
+void NFCPluginManager::StopApp()
+{
+	// 检查PID文件是否存在
+	bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
 
+	if (exist)
+	{
+		// 读取PID文件内容
+		std::string content;
+		NFFileUtility::ReadFileContent(m_strPidFileName, content);
+
+		// 将字符串转换为DWORD（Windows进程ID类型）
+		DWORD proc_id = NFCommon::strto<DWORD>(content);
+
+		// 在Windows上，使用命名事件来通知进程优雅停止
+		std::string eventName = "NFServer_Stop_" + std::to_string(proc_id);
+		HANDLE hEvent = CreateEventA(NULL, FALSE, FALSE, eventName.c_str());
+
+		if (hEvent != NULL)
+		{
+			// 设置事件，通知目标进程执行优雅停止
+			SetEvent(hEvent);
+			// 等待足够时间确保接收方能处理事件，避免竞态条件
+			Sleep(50);
+			CloseHandle(hEvent);
+		}
+		else
+		{
+			// 如果事件创建失败，尝试通过发送Windows消息的方式
+			HWND hwnd = FindWindowA(NULL, ("NFServer_" + content).c_str());
+			if (hwnd != NULL)
+			{
+				// 发送自定义消息WM_USER+2表示优雅停止
+				PostMessageA(hwnd, WM_USER + 2, 0, 0);
+			}
+		}
+	}
+}
 #endif
+
+
+#if NF_PLATFORM == NF_PLATFORM_LINUX
+// 终止之前的应用程序实例
+int NFCPluginManager::KillPreApp()
+{
+    bool exist = false;
+    // 检查预先记录的进程ID文件是否存在
+    exist = NFFileUtility::IsFileExist(m_strPidFileName);
+    if (exist)
+    {
+        std::string content;
+        // 读取PID文件内容（包含之前实例的进程ID）
+        NFFileUtility::ReadFileContent(m_strPidFileName, content);
+
+        // 将字符串类型的进程ID转换为pid_t类型
+        pid_t proc_id = NFCommon::strto<pid_t>(content);
+
+        // 向目标进程发送SIGUNUSED信号（通常用于终止进程）
+        kill(proc_id, SIGUNUSED);
+
+        // 等待目标进程退出，最多等待10秒，返回等待结果
+        return TimedWait(proc_id, 10);
+    }
+
+    // 如果不存在PID文件，说明没有之前的实例，直接返回0
+    return 0;
+}
+#else
+// Windows版本的终止之前的应用程序实例
+int NFCPluginManager::KillPreApp()
+{
+	bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
+	if (exist)
+	{
+		std::string content;
+		// 读取PID文件内容（包含之前实例的进程ID）
+		NFFileUtility::ReadFileContent(m_strPidFileName, content);
+
+		// 将字符串转换为DWORD（Windows进程ID类型）
+		DWORD proc_id = NFCommon::strto<DWORD>(content);
+		// 打开进程句柄
+		HANDLE hProcess = OpenProcess(SYNCHRONIZE, FALSE, proc_id);
+		if (hProcess == NULL)
+		{
+			// 如果无法打开进程，可能进程已经不存在
+			return 0;
+		}
+		CloseHandle(hProcess);
+
+		// 程序A发送Kill信号给程序B
+		std::string killEventName = "NFServer_Kill_" + std::to_string(proc_id);
+		HANDLE hKillEvent = CreateEventA(NULL, FALSE, FALSE, killEventName.c_str());
+
+		if (hKillEvent != NULL)
+		{
+			NFLogInfo(NF_LOG_DEFAULT, 0, "Sending kill signal to process {}", proc_id);
+
+			// 设置杀死事件，通知目标进程开始释放资源
+			SetEvent(hKillEvent);
+			// 等待足够时间确保接收方能处理事件，避免竞态条件
+			Sleep(50);
+			CloseHandle(hKillEvent);
+
+			// 程序A循环等待程序B返回kill成功信号
+			std::string killSuccessEventName = "NFServer_KillSuccess_" + std::to_string(proc_id);
+			HANDLE hKillSuccessEvent = CreateEventA(NULL, FALSE, FALSE, killSuccessEventName.c_str());
+
+			if (hKillSuccessEvent != NULL)
+			{
+				NFLogInfo(NF_LOG_DEFAULT, 0, "Waiting for kill success signal from process {}", proc_id);
+
+				// 等待程序B发送kill成功信号，最多等待15秒
+				DWORD waitResult = WaitForSingleObject(hKillSuccessEvent, 15000);
+				CloseHandle(hKillSuccessEvent);
+
+				if (waitResult == WAIT_OBJECT_0)
+				{
+					NFLogInfo(NF_LOG_DEFAULT, 0, "Received kill success signal from process {}, resources released gracefully", proc_id);
+					return 0;
+				}
+				else if (waitResult == WAIT_TIMEOUT)
+				{
+					NFLogWarning(NF_LOG_DEFAULT, 0, "Timeout waiting for kill success signal from process {}, proceeding anyway", proc_id);
+					return -1;
+				}
+				else
+				{
+					NFLogError(NF_LOG_DEFAULT, 0, "Error waiting for kill success signal from process {}, error: {}", proc_id, GetLastError());
+					return -1;
+				}
+			}
+		}
+	}
+
+	// 如果不存在PID文件，说明没有之前的实例，直接返回0
+	return 0;
+}
+#endif
+
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 // 重新加载应用程序
@@ -1327,8 +1537,48 @@ void NFCPluginManager::ReloadApp()
         kill(proc_id, SIGUSR2);
     }
 }
+#else
+// Windows版本的重新加载应用程序
+void NFCPluginManager::ReloadApp()
+{
+	// 检查PID文件是否存在
+	bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
 
+	if (exist)
+	{
+		// 从PID文件中读取内容（进程ID）
+		std::string content;
+		NFFileUtility::ReadFileContent(m_strPidFileName, content);
+
+		// 将字符串转换为DWORD（Windows进程ID类型）
+		DWORD proc_id = NFCommon::strto<DWORD>(content);
+
+		// 在Windows上，我们使用命名事件来通知进程重载
+		std::string eventName = "NFServer_Reload_" + std::to_string(proc_id);
+		HANDLE hEvent = CreateEventA(NULL, FALSE, FALSE, eventName.c_str());
+
+		if (hEvent != NULL)
+		{
+			// 设置事件，通知目标进程执行重载
+			SetEvent(hEvent);
+			// 等待足够时间确保接收方能处理事件，避免竞态条件
+			Sleep(50);
+			CloseHandle(hEvent);
+		}
+		else
+		{
+			// 如果事件创建失败，尝试通过发送Windows消息的方式
+			HWND hwnd = FindWindowA(NULL, ("NFServer_" + content).c_str());
+			if (hwnd != NULL)
+			{
+				// 发送自定义消息WM_USER+1表示重载配置
+				PostMessageA(hwnd, WM_USER + 1, 0, 0);
+			}
+		}
+	}
+}
 #endif
+
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
 // 退出应用程序
@@ -1352,7 +1602,56 @@ void NFCPluginManager::QuitApp()
         kill(proc_id, SIGUNUSED);
     }
 }
+#else
+// Windows版本的退出应用程序
+void NFCPluginManager::QuitApp()
+{
+	// 检查PID文件是否存在
+	bool exist = NFFileUtility::IsFileExist(m_strPidFileName);
 
+	if (exist)
+	{
+		// 读取PID文件中存储的进程ID
+		std::string content;
+		NFFileUtility::ReadFileContent(m_strPidFileName, content);
+
+		// 将字符串转换为DWORD（Windows进程ID类型）
+		DWORD proc_id = NFCommon::strto<DWORD>(content);
+
+		// 在Windows上，使用命名事件来通知进程退出
+		std::string eventName = "NFServer_Quit_" + std::to_string(proc_id);
+		HANDLE hEvent = CreateEventA(NULL, FALSE, FALSE, eventName.c_str());
+
+		if (hEvent != NULL)
+		{
+			// 设置事件，通知目标进程退出
+			SetEvent(hEvent);
+			// 等待足够时间确保接收方能处理事件，避免竞态条件
+			Sleep(50);
+			CloseHandle(hEvent);
+		}
+		else
+		{
+			// 如果事件创建失败，尝试通过发送Windows消息的方式
+			HWND hwnd = FindWindowA(NULL, ("NFServer_" + content).c_str());
+			if (hwnd != NULL)
+			{
+				// 发送WM_CLOSE消息要求程序退出
+				PostMessageA(hwnd, WM_CLOSE, 0, 0);
+			}
+			else
+			{
+				// 最后尝试直接终止进程
+				HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, proc_id);
+				if (hProcess != NULL)
+				{
+					TerminateProcess(hProcess, 0);
+					CloseHandle(hProcess);
+				}
+			}
+		}
+	}
+}
 #endif
 
 bool NFCPluginManager::IsInited() const
@@ -1585,3 +1884,5 @@ bool NFCPluginManager::AfterAppInitFinish()
 
 	return true;
 }
+
+

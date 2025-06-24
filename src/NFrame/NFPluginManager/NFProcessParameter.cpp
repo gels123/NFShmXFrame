@@ -106,6 +106,7 @@ void ProcessParameter(int argc, char* argv[])
 		cmdParser.Add("Kill", 0, "Kill the run server, only on linux");
 		cmdParser.Add<std::string>("Param", 0, "Temp Param, You love to use it", false, "Param");
 
+
 		// 打印命令行参数的使用说明
 		std::cout << cmdParser.Usage() << std::endl;
 
@@ -198,7 +199,7 @@ void ProcessParameter(int argc, char* argv[])
  *
  * 该函数负责解析命令行参数，并根据参数配置插件管理器。支持多种命令行选项，
  * 包括服务器名称、ID、配置文件路径、插件路径、日志路径等。还支持特定平台的
- * 操作，如关闭Windows的“X”按钮，或在Linux上以守护进程模式运行。
+ * 操作，如关闭Windows的"X"按钮，或在Linux上以守护进程模式运行。
  *
  * @param pPluginManager 插件管理器的指针，用于配置和初始化插件管理器。
  * @param vecParam 命令行参数列表，包含用户输入的命令行参数。
@@ -247,7 +248,7 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		auto strAppName = cmdParser.Get<std::string>("Server");
 		pPluginManager->SetAppName(strAppName);
 
-		// 如果服务器名称为“AllServer”，则设置加载所有服务器
+		// 如果服务器名称为"AllServer"，则设置加载所有服务器
 		if (strAppName.find(ALL_SERVER) != std::string::npos)
 		{
 			pPluginManager->SetLoadAllServer(true);
@@ -305,6 +306,117 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		{
 			CloseXButton();
 		}
+
+        // Windows平台的命令行参数处理
+        // 检查命令行参数中是否存在 "Kill" 选项
+        if (cmdParser.Exist("Kill"))
+        {
+            // 如果存在，则设置插件管理器杀死前一个应用程序的标志为 true
+            pPluginManager->SetKillPreApp(true);
+        }
+
+        // 检查命令行参数中是否存在 "Stop" 选项
+        if (cmdParser.Exist("Stop"))
+        {
+            // 如果存在，则调用插件管理器的 StopApp 方法停止应用程序
+            pPluginManager->StopApp();
+            // 停止应用程序后，退出当前进程
+            exit(0);
+        }
+        // 若 "Stop" 选项不存在，检查是否存在 "Reload" 选项
+        else if (cmdParser.Exist("Reload"))
+        {
+            // 如果存在，则调用插件管理器的 ReloadApp 方法重新加载应用程序
+            pPluginManager->ReloadApp();
+            // 重新加载应用程序后，退出当前进程
+            exit(0);
+        }
+        // 若 "Stop" 和 "Reload" 选项都不存在，检查是否存在 "Quit" 选项
+        else if (cmdParser.Exist("Quit"))
+        {
+            // 如果存在，则调用插件管理器的 QuitApp 方法退出应用程序
+            pPluginManager->QuitApp();
+            // 退出应用程序后，退出当前进程
+            exit(0);
+        }
+        // 若 "Stop"、"Reload" 和 "Quit" 选项都不存在，检查是否存在 "Restart" 选项
+        else if (cmdParser.Exist("Restart"))
+        {
+            // Windows上不支持守护进程，但可以处理Daemon参数（忽略）
+            if (cmdParser.Exist("Daemon"))
+            {
+                // Windows上忽略守护进程设置，但设置标记
+                pPluginManager->SetDaemon();
+            }
+
+        	// 初始化Windows事件处理管理器
+        	NFSignalHandlerMgr::Instance()->Initialize();
+
+            // Windows不需要信号处理，但设置标记
+            pPluginManager->SetKillPreApp(true);
+
+            // 尝试杀死前一个应用程序
+            if (pPluginManager->KillPreApp() < 0)
+            {
+                // 若杀死失败，输出错误信息
+                std::cout << "kill pre app failed!" << std::endl;
+                // 退出当前进程
+                exit(0);
+            }
+
+            // 尝试创建 PID 文件
+            if (pPluginManager->CreatePidFile() < 0)
+            {
+                // 若创建失败，输出错误信息
+                std::cout << "create " << pPluginManager->GetFullPath() << " pid " << pPluginManager->GetPidFileName() << " failed!" << std::endl;
+                // 退出当前进程
+                exit(0);
+            }
+        }
+        // 若上述选项都不存在，检查是否存在 "Start" 选项
+        else if (cmdParser.Exist("Start"))
+        {
+            // Windows上不支持守护进程，但可以处理Daemon参数（忽略）
+            if (cmdParser.Exist("Daemon"))
+            {
+                // Windows上忽略守护进程设置，但设置标记
+                pPluginManager->SetDaemon();
+            }
+
+        	// 初始化Windows事件处理管理器
+        	NFSignalHandlerMgr::Instance()->Initialize();
+
+            // 检查是否需要杀死前一个应用程序
+            if (pPluginManager->GetKillPreApp())
+            {
+                // 尝试杀死前一个应用程序
+                if (pPluginManager->KillPreApp() < 0)
+                {
+                    // 若杀死失败，输出错误信息
+                    std::cout << "kill pre app failed!" << std::endl;
+                    // 退出当前进程
+                    exit(0);
+                }
+            }
+
+            // 检查 PID 文件是否存在
+            if (pPluginManager->CheckPidFile() < 0)
+            {
+                // 若检查失败，输出错误信息
+                std::cout << "check " << pPluginManager->GetFullPath() << " pid " << pPluginManager->GetPidFileName() << " failed!" << std::endl;
+                // 退出当前进程
+                exit(0);
+            }
+
+            // 尝试创建 PID 文件
+            if (pPluginManager->CreatePidFile() < 0)
+            {
+                // 若创建失败，输出错误信息
+                std::cout << "create " << pPluginManager->GetFullPath() << " pid " << pPluginManager->GetPidFileName() << " failed!" << std::endl;
+                // 退出当前进程
+                exit(0);
+            }
+        }
 #else
         // 检查命令行参数中是否存在 "Init" 选项
         if (cmdParser.Exist("Init"))
@@ -431,6 +543,7 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 #if NF_PLATFORM == NF_PLATFORM_WIN
         // 在 Windows 平台设置控制台窗口标题
 		//SetConsoleTitle(NFStringUtility::char2wchar(strTitleName.c_str(), NULL));
+
 #elif NF_PLATFORM == NF_PLATFORM_LINUX
         // 在 Linux 平台设置进程名称
         prctl(PR_SET_NAME, strTitleName.c_str());

@@ -706,22 +706,49 @@ public:
 	virtual const std::string &GetPidFileName() = 0;
 
 #if NF_PLATFORM == NF_PLATFORM_LINUX
-
 	virtual int TimedWait(pid_t pid, int sec) = 0;
+#else
+	/**
+	 * @brief Windows版本的带超时等待进程结束。
+	 * @param proc_id Windows进程 ID。
+	 * @param sec 超时时间（秒）。
+	 * @return 返回进程退出状态码。
+	 */
+	virtual int TimedWait(DWORD proc_id, int sec) = 0;
+#endif
 
+	/**
+	* @brief Windows版本的检查 PID 文件是否存在。
+	* @return 如果存在返回 0，否则返回非零值。
+	*/
 	virtual int CheckPidFile() = 0;
 
+	/**
+	 * @brief Windows版本的创建 PID 文件。
+	 * @return 成功返回 0，失败返回非零值。
+	 */
 	virtual int CreatePidFile() = 0;
 
+	/**
+	 * @brief Windows版本的杀死之前的应用程序实例。
+	 * @return 成功返回 0，失败返回非零值。
+	 */
 	virtual int KillPreApp() = 0;
 
+	/**
+	 * @brief Windows版本的停止应用程序。
+	 */
 	virtual void StopApp() = 0;
 
+	/**
+	 * @brief Windows版本的重新加载应用程序。
+	 */
 	virtual void ReloadApp() = 0;
 
+	/**
+	 * @brief Windows版本的退出应用程序。
+	 */
 	virtual void QuitApp() = 0;
-
-#endif
 
 	/**
 	 * @brief 获取当前帧的编号。

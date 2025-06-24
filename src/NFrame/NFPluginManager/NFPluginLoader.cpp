@@ -16,6 +16,7 @@
 #include "NFComm/NFCore/NFPlatform.h"
 #include "NFPluginManager/NFProcessParameter.h"
 #include "NFComm/NFPluginModule/NFGlobalSystem.h"
+#include "NFSignalHandleMgr.h"
 
 #if NF_PLATFORM == NF_PLATFORM_WIN
 #elif NF_PLATFORM == NF_PLATFORM_LINUX
@@ -76,9 +77,9 @@ int c_main(int argc, char* argv[])
         {
             bool bExit = true;
             // 正常停止流程
-            if (NFGlobalSystem::Instance()->IsServerStopping())
+            if (NFGlobalSystem::Instance()->IsServerStopping() && !NFGlobalSystem::Instance()->IsServerKilling())
             {
-                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Stop Server................");
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Loop Stop................");
                 for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
                 {
                     NFIPluginManager* pPluginManager = vecPluginManager[i];
@@ -93,7 +94,7 @@ int c_main(int argc, char* argv[])
             // 强制终止流程
             else
             {
-                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Kill Server................");
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Loop Killed................");
                 if (NFGlobalSystem::Instance()->IsServerKilling())
                 {
                     for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
@@ -111,7 +112,7 @@ int c_main(int argc, char* argv[])
             // 全部插件管理器完成停服后退出循环
             if (bExit)
             {
-                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Stop Server To Stop Server................");
+                NFLogInfo(NF_LOG_DEFAULT, 0, "Main Loop Exit, Will Release All................");
                 break;
             }
         }
@@ -141,6 +142,11 @@ int c_main(int argc, char* argv[])
         }
     }
 
+#if NF_PLATFORM == NF_PLATFORM_WIN
+    // 关闭Windows事件处理管理器
+    NFSignalHandlerMgr::Instance()->Shutdown();
+#endif
+
     // 清理资源
     for (int i = 0; i < static_cast<int>(vecPluginManager.size()); i++)
     {
@@ -149,7 +155,13 @@ int c_main(int argc, char* argv[])
         NF_SAFE_DELETE(pPluginManager); // 安全删除插件管理器实例
     }
 
+    if (NFGlobalSystem::Instance()->IsServerKilling())
+    {
+        NFSignalHandlerMgr::Instance()->SendKillSuccess();
+    }
+
     // 释放全局系统单例
+    NFSignalHandlerMgr::Instance()->ReleaseInstance();
     NFGlobalSystem::Instance()->ReleaseSingleton();
 
     return 0;
