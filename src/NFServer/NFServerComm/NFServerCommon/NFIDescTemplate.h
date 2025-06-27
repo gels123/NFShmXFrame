@@ -19,42 +19,46 @@
 #include "NFComm/NFObjCommon/NFObjectTemplate.h"
 #include "NFComm/NFCore/NFStringUtility.h"
 
-template<typename className, typename className_s, int classType, int DescNum>
+template <typename className, typename className_s, int classType, int DescNum>
 class NFIDescTemplate : public NFShmObjGlobalTemplate<className, classType, NFIDescStore>
 {
 public:
     NFIDescTemplate()
     {
-        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode()) {
+        if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
+        {
             CreateInit();
         }
-        else {
+        else
+        {
             ResumeInit();
         }
     }
-    
+
     int CreateInit()
     {
         return 0;
     }
-    
+
     int ResumeInit()
     {
         return 0;
     }
+
 public:
     virtual int GetResNum() const override { return m_astDescVec.size(); }
-    NFShmVector<className_s, DescNum> &GetResDesc() { return m_astDescVec; }
-    const NFShmVector<className_s, DescNum> &GetResDesc() const { return m_astDescVec; }
+    NFShmVector<className_s, DescNum>& GetResDesc() { return m_astDescVec; }
+    const NFShmVector<className_s, DescNum>& GetResDesc() const { return m_astDescVec; }
+
     const className_s* GetDescByIndex(int index) const
     {
         CHECK_EXPR(index >= 0 && index < (int)m_astDescVec.size(), NULL, "index:{} size:{}", index, m_astDescVec.size());
         return &m_astDescVec[index];
     }
-    
+
     className_s* GetDescByIndex(int index)
     {
-        return const_cast<className_s *>((static_cast<const className*>(this))->GetDescByIndex(index));
+        return const_cast<className_s*>((static_cast<const className*>(this))->GetDescByIndex(index));
     }
 
     const className_s* GetDesc(int64_t id) const
@@ -69,28 +73,29 @@ public:
 
     className_s* GetDesc(int64_t id)
     {
-        return const_cast<className_s *>((static_cast<const className*>(this))->GetDesc(id));
+        return const_cast<className_s*>((static_cast<const className*>(this))->GetDesc(id));
     }
+
 public:
     virtual int Initialize() override { return 0; }
-    
-    virtual int Load(NFResDb *pDB) override { return 0; }
-    
+
+    virtual int Load(NFResDb* pDB) override { return 0; }
+
     virtual int CheckWhenAllDataLoaded() override { return 0; }
-    
-    virtual int Reload(NFResDb *pDB) override
+
+    virtual int Reload(NFResDb* pDB) override
     {
         this->PrepareReload();
         int iRetCode = this->Load(pDB);
         return iRetCode;
     }
-    
+
     virtual std::string GetFileName() override
     {
         std::string strSubModuleName = typeid(className).name();
 
 #if NF_PLATFORM == NF_PLATFORM_WIN
-        
+
         std::size_t position = strSubModuleName.find(' ');
         if (string::npos != position)
         {
@@ -116,25 +121,27 @@ public:
         strSubModuleName = "E_" + strSubModuleName;
         return strSubModuleName;
     }
-    
+
     virtual int CalcUseRatio() override
     {
         return m_astDescVec.size() * 100 / m_astDescVec.max_size();
     }
-    
+
     virtual int SaveDescStore() override
     {
         return 0;
     }
-    
-    virtual int InsertDescStore(const className_s &desc) {
-        return 0;
-    }
-    
-    virtual int DeleteDescStore(const className_s &desc)
+
+    virtual int InsertDescStore(const className_s& desc)
     {
         return 0;
     }
+
+    virtual int DeleteDescStore(const className_s& desc)
+    {
+        return 0;
+    }
+
 protected:
     NFShmVector<className_s, DescNum> m_astDescVec;
     NFShmHashMap<int64_t, int, DescNum> m_astDescMap;

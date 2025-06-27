@@ -79,19 +79,7 @@ NFEvppNetMessage::NFEvppNetMessage(NFIPluginManager* p, NF_SERVER_TYPE serverTyp
 
 NFEvppNetMessage::~NFEvppNetMessage()
 {
-    for (auto iter = m_netObjectMap.begin(); iter != m_netObjectMap.end(); ++iter)
-    {
-        auto pObject = iter->second;
-        if (pObject)
-        {
-            m_netObjectPool.FreeObj(pObject);
-        }
-    }
-    m_netObjectMap.clear();
-    for (size_t i = 1; i < m_netObjectArray.size(); i++)
-    {
-        m_netObjectArray[i] = nullptr;
-    }
+
 }
 
 void NFEvppNetMessage::ProcessMsgLogicThread()
@@ -814,12 +802,37 @@ bool NFEvppNetMessage::Finalize()
         }
     }
 
+    if (m_httpServer)
+    {
+        NF_SAFE_DELETE(m_httpServer);
+        m_httpServer = nullptr;
+    }
+    if (m_httpClient)
+    {
+        NF_SAFE_DELETE(m_httpClient);
+        m_httpClient = nullptr;
+    }
+
     if (m_connectionThreadPool)
     {
         m_connectionThreadPool->Stop(true);
         NF_ASSERT(m_connectionThreadPool->IsStopped());
         m_connectionThreadPool->Join();
         m_connectionThreadPool.reset();
+    }
+
+    for (auto iter = m_netObjectMap.begin(); iter != m_netObjectMap.end(); ++iter)
+    {
+        auto pObject = iter->second;
+        if (pObject)
+        {
+            m_netObjectPool.FreeObj(pObject);
+        }
+    }
+    m_netObjectMap.clear();
+    for (size_t i = 1; i < m_netObjectArray.size(); i++)
+    {
+        m_netObjectArray[i] = nullptr;
     }
 
     m_recvCodeQueueList.clear();

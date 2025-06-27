@@ -30,6 +30,7 @@ int NFIDescStoreEx::CreateInit()
     m_bValid = false;
     m_bIsLoaded = false;
     m_bIsChecked = false;
+    m_bIsReLoading = false;
     return 0;
 }
 

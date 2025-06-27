@@ -197,7 +197,7 @@ int ExcelSheet::ParseIndex(const std::string& indexStr, bool unique)
             excelSheetIndex.m_key = key;
             excelSheetIndex.m_unique = unique;
             excelSheetIndex.m_colIndex = -1;
-            excelSheetIndex.m_varName = "m_" + NFStringUtility::Capitalize(key) + "IndexMap";
+            excelSheetIndex.m_varName = "m_" + NFStringUtility::ToChangeVarNameGood(key) + "IndexMap";
 
             NFLogInfo(NF_LOG_DEFAULT, 0, "excel:{} sheet:{} add index:{}", m_excelName, m_sheetName, key);
         }
@@ -221,12 +221,19 @@ int ExcelSheet::ParseIndex(const std::string& indexStr, bool unique)
                 excelSheetIndex.m_key = key;
                 excelSheetIndex.m_unique = unique;
                 excelSheetIndex.m_colIndex = -1;
-                tempName += NFStringUtility::Capitalize(key);
+                if (x == 0)
+                {
+                    tempName += NFStringUtility::ToChangeVarNameGood(key);
+                }
+                else
+                {
+                    tempName += NFStringUtility::ToFirstUpperChangeVarNameGood(key);
+                }
                 excelSheetComIndex.m_index.push_back(excelSheetIndex);
             }
 
             excelSheetComIndex.m_varName += tempName + "ComIndexMap";
-            excelSheetComIndex.m_structComName += m_otherName + tempName;
+            excelSheetComIndex.m_structComName += m_otherName + NFStringUtility::FirstUpper(tempName);
             NFLogInfo(NF_LOG_DEFAULT, 0, "excel:{} sheet:{} add com_index:{}", m_excelName, m_sheetName, col_index_str_list_str);
         }
     }
@@ -381,7 +388,7 @@ int ExcelSheet::ParseRelation(const std::string& col_index_str)
             }
             else
             {
-                relationDst.m_descName = NFStringUtility::Capitalize(relationDst.m_excelName) + NFStringUtility::Capitalize(relationDst.m_sheetName);
+                relationDst.m_descName = NFStringUtility::FirstUpper(relationDst.m_excelName) + NFStringUtility::FirstUpper(relationDst.m_sheetName);
             }
             pLastestRelation->m_dst.push_back(relationDst);
         }
@@ -1502,7 +1509,7 @@ int ExcelParse::HandleNewColMsg(ExcelSheet* pSheet, ExcelSheetColInfo* pLastColI
             pSheet->m_colInfoMap.emplace(struct_en_name, pColInfo);
             pColInfo->m_structEnName = struct_en_name;
             pColInfo->m_structCnName = struct_cn_name;
-            pColInfo->m_pbDescTempName = NFStringUtility::Capitalize(pSheet->m_otherName) + NFStringUtility::Capitalize(GetPbName(struct_en_name));
+            pColInfo->m_pbDescTempName = NFStringUtility::FirstUpper(pSheet->m_otherName) + NFStringUtility::FirstUpper(GetPbName(struct_en_name));
             pColInfo->m_pbDescName = "E_" + pColInfo->m_pbDescTempName;
             pColInfo->m_colFullName = struct_en_name;
             if (pSheet->m_colMessageTypeMap.find(pColInfo->m_colFullName) != pSheet->m_colMessageTypeMap.end())
@@ -1569,7 +1576,7 @@ int ExcelParse::HandleNewColMsg(ExcelSheet* pSheet, ExcelSheetColInfo* pLastColI
             pLastColInfo->m_colInfoList.emplace(col_index, pColInfo);
             pColInfo->m_structEnName = struct_en_name;
             pColInfo->m_structCnName = struct_cn_name;
-            pColInfo->m_pbDescTempName = pLastColInfo->m_pbDescTempName + NFStringUtility::Capitalize(GetPbName(struct_en_name));
+            pColInfo->m_pbDescTempName = pLastColInfo->m_pbDescTempName + NFStringUtility::FirstUpper(GetPbName(struct_en_name));
             pColInfo->m_pbDescName = "E_" + pColInfo->m_pbDescTempName;
 
             pColInfo->m_colFullName = pLastColInfo->m_colFullName + "_" + struct_en_name;
@@ -2467,13 +2474,13 @@ void ExcelParse::OnHandleSheetProtoInfo(ExcelSheet& sheet)
     {
         if (sheet.m_sheetMsgNameStr.empty())
         {
-            sheet.m_protoInfo.m_sheetMsgName = "Sheet_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet.m_sheetName);
+            sheet.m_protoInfo.m_sheetMsgName = "Sheet_" + NFStringUtility::FirstUpper(m_excelName) + NFStringUtility::FirstUpper(sheet.m_sheetName);
         }
         if (sheet.m_protoMsgNameStr.empty())
         {
-            sheet.m_protoInfo.m_protoMsgName = "E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet.m_sheetName);
+            sheet.m_protoInfo.m_protoMsgName = "E_" + NFStringUtility::FirstUpper(m_excelName) + NFStringUtility::FirstUpper(sheet.m_sheetName);
         }
-        sheet.m_otherName = NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet.m_sheetName);
+        sheet.m_otherName = NFStringUtility::FirstUpper(m_excelName) + NFStringUtility::FirstUpper(sheet.m_sheetName);
     }
     else
     {
@@ -2495,7 +2502,7 @@ void ExcelParse::OnHandleSheetProtoInfo(ExcelSheet& sheet)
     {
         if (sheet.m_otherName.empty())
         {
-            sheet.m_protoInfo.m_binFileName = "E_" + NFStringUtility::Capitalize(m_excelName) + NFStringUtility::Capitalize(sheet.m_sheetName);
+            sheet.m_protoInfo.m_binFileName = "E_" + NFStringUtility::FirstUpper(m_excelName) + NFStringUtility::FirstUpper(sheet.m_sheetName);
         }
         else
         {

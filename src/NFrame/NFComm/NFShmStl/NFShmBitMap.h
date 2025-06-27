@@ -42,8 +42,6 @@ public:
     {
     }
 
-    NFShmBitMap<MaxSize> &operator =(NFShmBitMap<MaxSize> &rExBitMap);
-
     bool IsBitSetted(int iBitSeq) const
     {
         CHECK_EXPR(iBitSeq < MaxSize, false, "out of range bitset, TRACE_STACK:%s", TRACE_STACK());

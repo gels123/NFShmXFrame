@@ -66,8 +66,24 @@ public:
     {
         return 0;
     }
+
+    void SetReLoading(bool bIsLoaded)
+    {
+        m_bIsReLoading = bIsLoaded;
+    }
+
+    bool IsReloading()
+    {
+        return m_bIsReLoading;
+    }
+
+    virtual bool IsNeedReload()
+    {
+        return IsReloading();
+    }
 private:
     bool m_bValid;
     bool m_bIsLoaded;
     bool m_bIsChecked;
+    bool m_bIsReLoading;
 };

@@ -1152,6 +1152,46 @@ std::string NFStringUtility::Upper(const std::string& str)
     return dst;
 }
 
+//让变量好看
+std::string NFStringUtility::ToChangeVarNameGood(const std::string& str)
+{
+	std::string result = str;
+	if (StartsWith(result, "m_"))
+	{
+		Replace(result, "m_", "", 0, 1);
+	}
+	std::vector<std::string> vec;
+	SplitString(result, "_", vec);
+	for (int  i = 0; i < vec.size(); i++)
+	{
+		if (i != 0 && vec[i].size() > 0)
+		{
+			vec[i][0] = toupper(vec[i][0]);
+		}
+	}
+	result.clear();
+	for (int  i = 0; i < vec.size(); i++)
+	{
+		result += vec[i];
+	}
+	return result;
+}
+
+std::string NFStringUtility::FirstUpper(const std::string& str)
+{
+	std::string result = str;
+	if (result.size() > 0)
+	{
+		result[0] = toupper(result[0]);
+	}
+	return result;
+}
+
+std::string NFStringUtility::ToFirstUpperChangeVarNameGood(const std::string& str)
+{
+	return FirstUpper(ToChangeVarNameGood(str));
+}
+
 std::string NFStringUtility::Capitalize(const std::string& str)
 {
     std::string dst = str;

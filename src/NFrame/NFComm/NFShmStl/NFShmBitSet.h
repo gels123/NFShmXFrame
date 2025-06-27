@@ -76,6 +76,26 @@ public:
         }
     }
 
+    NFShmBaseBitSet(const NFShmBaseBitSet& x)
+    {
+        CopyFrom(x);
+    }
+
+    void CopyFrom(const NFShmBaseBitSet& x)
+    {
+        memcpy(&_M_w, &x._M_w, _Nw * sizeof(_WordT));
+        m_init = x.m_init;
+    }
+
+    NFShmBaseBitSet& operator=(const NFShmBaseBitSet& x)
+    {
+        if (this != &x)
+        {
+            CopyFrom(x);
+        }
+        return *this;
+    }
+
     int CreateInit()
     {
         _M_do_reset();

@@ -24,17 +24,17 @@ void WriteMakeFile(std::string& excelmmo_gen, std::string& resmetas_gen, const s
     excelmmo_gen += "\tmkdir -p ${RESDB_META_PATH}\n";
     excelmmo_gen += "\trm -rf ${PROTOCGEN_FILE_PATH}/" + file + "_xlsx_finish\n";
     excelmmo_gen += "\t${NFEXCELPROCESS} --work=\"exceltoproto\" --excel_json=${RESDB_EXCEL_JSON} --src=$^ --dst=${PROTOCGEN_FILE_PATH}/\n";
-    excelmmo_gen += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(file) + ".proto ${PROTOCGEN_FILE_PATH}/" + file + "_gen.makefile\" --dst=${RESDB_META_PATH}/\n";
+    excelmmo_gen += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".proto ${PROTOCGEN_FILE_PATH}/" + file + "_gen.makefile\" --dst=${RESDB_META_PATH}/\n";
     excelmmo_gen += "\ttouch ${PROTOCGEN_FILE_PATH}/" + file + "_xlsx_finish\n";
     excelmmo_gen += "\n\n";
 
     // 添加资源元数据处理的规则到resmetas_gen
-    resmetas_gen += "${PROTOCGEN_FILE_PATH}/" + file+"_proto_finish:${RESDB_META_PATH}/E_" + NFStringUtility::Capitalize(file) + ".proto\n";
+    resmetas_gen += "${PROTOCGEN_FILE_PATH}/" + file+"_proto_finish:${RESDB_META_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".proto\n";
     resmetas_gen += "\tmkdir -p ${PROTOCGEN_FILE_PATH}\n";
     resmetas_gen += "\tmkdir -p ${NEW_RESMETAS_FILE_PATH}\n";
     resmetas_gen += "\trm -rf ${PROTOCGEN_FILE_PATH}/" + file + "_proto_finish\n";
     resmetas_gen += "\t${PROTOC} $^ --plugin=protoc-gen-nanopb=${NANOPB_PLUGIN} -I${NANOPB_PLUGIN_PROTO} -I${THIRD_PARTY_INC_PATH} -I${PROTOCOL_PATH} -I${RESDB_META_PATH} -I${PROTOCOL_SS_LOGIC_PATH} ${ALL_COMMON_LOGIC_META_PATH} --cpp_out=${PROTOCGEN_FILE_PATH} --nanopb_out=-e.nanopb:${PROTOCGEN_FILE_PATH} --include_imports --descriptor_set_out=${PROTOCGEN_FILE_PATH}/" + file + ".proto.ds\n";
-    resmetas_gen += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(file) + ".pb.h ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(file) + ".pb.cc ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(file) + ".nanopb.h ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::Capitalize(file) + ".nanopb.cc \" --dst=${NEW_RESMETAS_FILE_PATH}/\n";
+    resmetas_gen += "\t${FILE_COPY_EXE} --work=\"filecopy\" --src=\"${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".pb.h ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".pb.cc ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".nanopb.h ${PROTOCGEN_FILE_PATH}/E_" + NFStringUtility::FirstUpper(file) + ".nanopb.cc \" --dst=${NEW_RESMETAS_FILE_PATH}/\n";
     resmetas_gen += "\ttouch ${PROTOCGEN_FILE_PATH}/" + file + "_proto_finish\n";
     resmetas_gen += "\n\n";
 }

@@ -201,6 +201,9 @@ public:
     static std::string Lower(const std::string& str);
     static std::string Upper(const std::string& str);
     static std::string Capitalize(const std::string& str);
+	static std::string ToChangeVarNameGood(const std::string& str);
+	static std::string ToFirstUpperChangeVarNameGood(const std::string& str);
+	static std::string FirstUpper(const std::string& str);
 
 	// string compare
 	// @param case_sensitive true If we compare the string with case sensitively
