@@ -908,7 +908,7 @@ void ExcelToProto::WriteSheetDescStoreExH()
     desc_file += "#include \"NFComm/NFShmStl/NFShmVector.h\"\n";
     desc_file += "#include \"NFLogicCommon/NFDescStoreTypeDefines.h\"\n";
 
-    desc_file += "\nclass " + NFStringUtility::FirstUpper(m_excelName) + "DescEx : public NFShmObjGlobalTemplate<" +
+    desc_file += "\nclass " + NFStringUtility::FirstUpper(m_excelName) + "DescEx : public NFObjectGlobalTemplate<" +
         NFStringUtility::FirstUpper(m_excelName) + "DescEx, EOT_CONST_" +
         NFStringUtility::Upper(m_excelName) + "_DESC_EX_ID, NFIDescStoreEx>\n";
     desc_file += "{\n";
@@ -934,12 +934,17 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet* pSheet)
     desc_file += "#pragma once\n\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescStore.h\"\n";
     desc_file += "#include \"NFServerComm/NFServerCommon/NFIDescTemplate.h\"\n";
+    desc_file += "#include \"NFLogicCommon/NFDescStoreDefine.h\"\n";
     desc_file += "#include \"NFLogicCommon/NFDescStoreTypeDefines.h\"\n";
     desc_file += "#include \"E_" + NFStringUtility::FirstUpper(m_excelName) + ".nanopb.h\"\n";
 
     pSheet->m_define_max_rows = "MAX_" + NFStringUtility::Upper(m_excelName) + "_" + NFStringUtility::Upper(sheet_name) + "_NUM";
 
+    desc_file += "#ifndef " + pSheet->m_define_max_rows + "\n";
     desc_file += "#define " + pSheet->m_define_max_rows + " " + NFCommon::tostr(get_max_num(pSheet->m_rows)) + "\n";
+    desc_file += "#else\n";
+    desc_file += "static_assert(" + pSheet->m_define_max_rows + " >= " + NFCommon::tostr(get_max_num(pSheet->m_rows)) + ", \"the define max rows < desc has rows\");\n";
+    desc_file += "#endif\n";
 
     for (auto iter = pSheet->m_comIndexMap.begin(); iter != pSheet->m_comIndexMap.end(); iter++)
     {
@@ -1053,6 +1058,7 @@ void ExcelToProto::WriteSheetDescStoreH(ExcelSheet* pSheet)
     }
     desc_file += "public:\n";
     desc_file += "\tvirtual int Load(NFResDb *pDB) override;\n";
+    desc_file += "\tvirtual int LoadDB(NFResDb *pDB) override;\n";
     desc_file += "\tvirtual int CheckWhenAllDataLoaded() override;\n";
     if (pSheet->m_protoMsgNameStr.size() > 0)
     {
@@ -1247,6 +1253,7 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet* pSheet)
     }
 
     desc_file += "#include \"NFComm/NFPluginModule/NFCheck.h\"\n";
+    desc_file += "#include \"NFComm/NFCore/NFFileUtility.h\"\n";
     desc_file += "#include \"" + NFStringUtility::FirstUpper(pSheet->m_excelName) + "DescEx.h\"\n\n";
 
     //////////////////////////////////////////////////////////////
@@ -1276,9 +1283,42 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet* pSheet)
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
     ////////////////////////////////////////////////////////////////
+    desc_file += "int " + pSheet->m_otherName + "Desc::LoadDB(NFResDb *pDB)\n";
+    desc_file += "{\n";
+    desc_file += "\tCHECK_EXPR(pDB != NULL, -1, \"pDB == NULL\");\n";
+    desc_file += "\n";
+    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"" + pSheet->m_otherName +
+        "Desc::LoadDB() strFileName = {}\", GetFileName());\n";
+    desc_file += "\n";
+    desc_file += "\tproto_ff::Sheet_" + pSheet->m_otherName + " table;\n";
+    desc_file += "\tNFResTable* pResTable = pDB->GetTable(GetFileName());\n";
+    desc_file += "\tCHECK_EXPR(pResTable != NULL, -1, \"pTable == NULL, GetTable:{} Error\", GetFileName());\n";
+    desc_file += "\n";
+    desc_file += "\tint iRet = 0;\n";
+    desc_file += "\tiRet = pResTable->FindAllRecord(GetDBName(), &table);\n";
+    desc_file += "\tCHECK_EXPR(iRet == 0, -1, \"FindAllRecord Error:{}\", GetFileName());\n";
+    desc_file += "\n";
+    desc_file += "\t//NFLogTrace(NF_LOG_DEFAULT, 0, \"Load From DB:{}\", table.Utf8DebugString());\n";
+    desc_file += "\n";
+    desc_file += "\tstd::string bin_file = GetFilePathName();\n\n";
+    desc_file += "\tstd::string content = table.SerializePartialAsString();\n\n";
+    desc_file += "\tNFFileUtility::WriteFile(bin_file, content);\n\n";
+    desc_file += "\tNFJson2PB::Pb2JsonOptions options;\n";
+    desc_file += "\toptions.pretty_json = true;\n";
+    desc_file += "\tstd::string excelJson;\n";
+    desc_file += "\tstd::string excelJsonError;\n";
+    desc_file += "\tif (!NFProtobufCommon::ProtoMessageToJson(options, table, &excelJson, &excelJsonError))\n";
+    desc_file += "\t{\n";
+    desc_file += "\t\tCHECK_ERR(0, -1, \"ProtoMessageToJson Failed table:{} errorJson:{}\", GetFileName(), excelJsonError);\n";
+    desc_file += "\t}\n";
+    desc_file += "\tstd::string debug_file = NFFileUtility::GetExcludeFileExt(bin_file) + \"_debug.json\";\n\n";
+    desc_file += "\tNFFileUtility::WriteFile(debug_file, excelJson);\n\n";
+    desc_file += "\tSetDBLoaded(true);\n";
+    desc_file += "\treturn 0;\n";
+    desc_file += "}\n\n";
+    ////////////////////////////////////////////////////////////////
     desc_file += "int " + pSheet->m_otherName + "Desc::Load(NFResDb *pDB)\n";
     desc_file += "{\n";
-    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"--begin--\");\n";
     desc_file += "\tCHECK_EXPR(pDB != NULL, -1, \"pDB == NULL\");\n";
     desc_file += "\n";
     desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"" + pSheet->m_otherName +
@@ -1303,8 +1343,34 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet* pSheet)
     desc_file += "\t\treturn -2;\n";
     desc_file += "\t}\n";
     desc_file += "\n";
-    desc_file +=
-        "\tfor (int i = 0; i < (int)table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size(); i++)\n";
+    desc_file += "\tif (IsReloading())\n";
+    desc_file += "\t{\n";
+    desc_file += "\t\tstd::set<int64_t> newKeys;\n";
+    desc_file += "\t\tfor (int i = 0; i < (int)table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size(); i++)\n";
+    desc_file += "\t\t{\n";
+    desc_file += "\t\t\tconst proto_ff::" + pSheet->m_protoInfo.m_protoMsgName + "& desc = table.e_" +
+        NFStringUtility::Lower(pSheet->m_otherName) + "_list(i);\n";
+    desc_file += "\t\t\tif (desc.has_" + key_en_name + "() == false && desc.ByteSize() == 0)\n";
+    desc_file += "\t\t\t{\n";
+    desc_file += "\t\t\t\tcontinue;\n";
+    desc_file += "\t\t\t}\n";
+    desc_file += "\t\t\tnewKeys.insert(desc." + key_en_name + "());\n";
+    desc_file += "\t\t\tif (m_astDescMap.find(desc." + key_en_name + "()) == m_astDescMap.end())\n";
+    desc_file += "\t\t\t{\n";
+    desc_file += "\t\t\t\tNFLogInfo(NF_LOG_DEFAULT, 0, \"reload add new col, id:{}\",  desc." + key_en_name + "());\n";
+    desc_file += "\t\t\t}\n";
+    desc_file += "\t\t}\n";
+    desc_file += "\t\tfor (auto iter = m_astDescMap.begin(); iter != m_astDescMap.end(); iter++)\n";
+    desc_file += "\t\t{\n";
+    desc_file += "\t\t\tif (newKeys.find(iter->first) == newKeys.end())\n";
+    desc_file += "\t\t\t{\n";
+    desc_file += "\t\t\t\tNFLogError(NF_LOG_DEFAULT, 0, \"reload del old col, id:{}\", iter->first);\n";
+    desc_file += "\t\t\t}\n";
+    desc_file += "\t\t}\n";
+    desc_file += "\t}\n\n";
+    desc_file += "\tm_astDescVec.clear();\n";
+    desc_file += "\tm_astDescMap.clear();\n";
+    desc_file += "\tfor (int i = 0; i < (int)table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size(); i++)\n";
     desc_file += "\t{\n";
     desc_file += "\t\tconst proto_ff::" + pSheet->m_protoInfo.m_protoMsgName + "& desc = table.e_" +
         NFStringUtility::Lower(pSheet->m_otherName) + "_list(i);\n";
@@ -1414,7 +1480,6 @@ void ExcelToProto::WriteSheetDescStoreCpp(ExcelSheet* pSheet)
     desc_file += "\t}\n";
     desc_file += "\n";
     desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"load {}, num={}\", iRet, table.e_" + NFStringUtility::Lower(pSheet->m_otherName) + "_list_size());\n";
-    desc_file += "\tNFLogTrace(NF_LOG_DEFAULT, 0, \"--end--\");\n";
     desc_file += "\treturn 0;\n";
     desc_file += "}\n\n";
     ////////////////////////////////////////////////////////////////

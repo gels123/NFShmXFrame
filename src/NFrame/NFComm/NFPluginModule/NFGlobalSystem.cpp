@@ -21,7 +21,14 @@ NFGlobalSystem::NFGlobalSystem() : m_gIsMoreServer(false), m_reloadApp(false), m
     mSpecialMsgMap.resize(NF_MODULE_MAX);
     for(int i = 0; i < NF_MODULE_MAX; i++)
     {
-        mSpecialMsgMap[i].resize(NF_NET_MAX_MSG_ID);
+        if (i <= NF_MODULE_CLIENT)
+        {
+            mSpecialMsgMap[i].resize(NF_NET_MAX_MSG_ID);
+        }
+        else
+        {
+            mSpecialMsgMap[i].resize(NF_NET_OTHER_MAX_MSG_ID);
+        }
     }
     RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_HEART_BEAT);
     RegisterSpecialMsg(NF_MODULE_FRAME, NFrame::NF_SERVER_TO_SERVER_HEART_BEAT_RSP);
@@ -145,7 +152,7 @@ bool NFGlobalSystem::RegisterSpecialMsg(uint32_t moduleId, uint32_t msgId)
 
 bool NFGlobalSystem::IsSpecialMsg(uint32_t moduleId, uint32_t msgId)
 {
-    if (moduleId < NF_MODULE_MAX && msgId < NF_NET_MAX_MSG_ID)
+    if ((moduleId <= NF_MODULE_CLIENT && msgId < NF_NET_MAX_MSG_ID) || ((moduleId > NF_MODULE_CLIENT && moduleId < NF_MODULE_MAX && msgId < NF_NET_OTHER_MAX_MSG_ID)))
     {
         return mSpecialMsgMap[moduleId][msgId];
     }

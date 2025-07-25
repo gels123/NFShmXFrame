@@ -147,6 +147,11 @@ public:
         return true;
     }
 
+    virtual bool AfterAllConnectAndAllDescStore()
+    {
+        return true;
+    }
+
     /**
      * @brief 从db加载全局数据, 这个加载一定在完成连接后，有可能依赖descstore数据，也可能不依赖
      * @return
@@ -170,6 +175,60 @@ public:
      * @return
      */
     virtual bool AfterAppInitFinish()
+    {
+        return true;
+    }
+
+    /**
+     * @brief 服务器连接完成后调用。
+     * @return 成功返回 true，失败返回 false。
+     */
+    virtual bool AfterAllConnectFinish(NF_SERVER_TYPE serverType)
+    {
+        return true;
+    }
+
+    /**
+     * @brief 加载完服务器数据（如 Excel 和数据库数据）后调用。
+     * @return 成功返回 true，失败返回 false。
+     */
+    virtual bool AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType)
+    {
+        return true;
+    }
+
+    /**
+     * @brief
+     * @return AfterAllConnectFinish 和 AfterAllDescStoreLoaded 都完成后
+     */
+    virtual bool AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType)
+    {
+        return true;
+    }
+
+    /**
+     * @brief 从数据库加载全局数据后调用。
+     * @return 成功返回 true，失败返回 false。
+     */
+    virtual bool AfterObjFromDBLoaded(NF_SERVER_TYPE serverType)
+    {
+        return true;
+    }
+
+    /**
+     * @brief 完成服务器之间的注册后调用。
+     * @return 成功返回 true，失败返回 false。
+     */
+    virtual bool AfterServerRegisterFinish(NF_SERVER_TYPE serverType)
+    {
+        return true;
+    }
+
+    /**
+     * @brief 服务器完成初始化后调用。
+     * @return 成功返回 true，失败返回 false。
+     */
+    virtual bool AfterAppInitFinish(NF_SERVER_TYPE serverType)
     {
         return true;
     }

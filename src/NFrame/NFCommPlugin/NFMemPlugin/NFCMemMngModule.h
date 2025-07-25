@@ -27,6 +27,17 @@ class NFMemObjSegSwapCounter
 public:
     NFMemObjSegSwapCounter()
     {
+        clear();
+    }
+
+    void SetObjSeg(NFMemObjSeg* pObjSeg);
+
+    /**
+     * @brief 清理计数器对象，重置所有成员变量为默认值
+     * @note 用于对象类型反注册时释放相关资源
+     */
+    void clear()
+    {
         m_nObjSize = 0;
         m_iItemCount = 0;
         m_iObjType = 0;
@@ -38,9 +49,6 @@ public:
         m_pObjSeg = nullptr;
         m_pParent = nullptr;
     }
-
-    void SetObjSeg(NFMemObjSeg* pObjSeg);
-
 public:
     std::string m_szClassName;
     size_t m_nObjSize;
@@ -69,21 +77,12 @@ public:
 public:
     bool AfterLoadAllPlugin() override;
 
-    bool ReadyExecute() override;
-
     bool Execute() override;
 
     /**
     * 创建共享内存
     */
     bool Finalize() override;
-
-    /**
-    * 创建共享内存
-    */
-    bool OnReloadConfig() override;
-
-    bool AfterOnReloadConfig() override;
 
     /**
     * 共享内存模式
@@ -462,6 +461,8 @@ public:
                                NFObject*(*pCreateFn)(),
                                void (*pDestroy)(NFObject*), int parentType, const std::string& pszClassName,
                                bool useHash = false, bool singleton = false) override;
+
+    void UnRegisterClassToObjSeg(int bType) override;
 
     size_t GetAllObjSize() const;
 

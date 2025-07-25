@@ -35,8 +35,6 @@ public:
         return NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<T>();
     }
 
-    virtual int AfterOnReloadConfig();
-
     //must be virtual
     virtual int OnTimer(int timeId, int callCount);
 

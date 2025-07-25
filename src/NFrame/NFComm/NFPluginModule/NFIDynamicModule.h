@@ -63,7 +63,7 @@ public:
 	 */
 	virtual bool RegisterClientMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo = false);
 
-	virtual bool RegisterClientMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo = false);
+	virtual bool RegisterClientMessageWithModule(NF_SERVER_TYPE eType, uint32_t nModuleId, uint32_t nMsgID, bool createCo = false);
 
 	/**
 	 * @brief 注册服务器信息处理函数
@@ -73,7 +73,7 @@ public:
 	 */
 	virtual bool RegisterServerMessage(NF_SERVER_TYPE eType, uint32_t nMsgID, bool createCo = false);
 
-	virtual bool RegisterServerMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo = false);
+	virtual bool RegisterServerMessageWithModule(NF_SERVER_TYPE eType, uint32_t nModuleId, uint32_t nMsgID, bool createCo = false);
 
 	/**
 	 * @brief 处理客户端消息

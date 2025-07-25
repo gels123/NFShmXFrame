@@ -17,7 +17,7 @@
 
 #if NF_PLATFORM == NF_PLATFORM_WIN
 
-char *strsep(char **stringp, const char *delim)
+char* strsep(char** stringp, const char* delim)
 {
     char *begin, *end;
 
@@ -64,7 +64,7 @@ char *strsep(char **stringp, const char *delim)
 int GetAbsDayOffSet()
 {
     time_t tTime = 0;
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_hour * 60 * 60;
 }
 
@@ -72,7 +72,7 @@ int GetAbsDayOffSet()
 int GetAbsWeekOffSet()
 {
     time_t tTime = 0;
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return (ptm->tm_wday - 1) * 60 * 60 * 24 + ptm->tm_hour * 60 * 60; //这里减1 是因为: 周四就是值4, 如果按周一为每周的起点的话, 要减1.
 }
 
@@ -114,7 +114,7 @@ bool NFTimeUtil::IsSameMonth(time_t tTimeA, time_t tTimeB)
 
 uint32_t NFTimeUtil::GetAbsWeek(time_t tTime) //从1970-01-05日开始计算,当前时间为第几周
 {
-    int iBaseTime = (int) tTime;
+    int iBaseTime = (int)tTime;
     //基准时间0  是 1970-01-01 08:00:00 , 目前不考虑其他时区的情况
     //1970-01-05 才是周一, 所以还要减 4天
     iBaseTime = iBaseTime + s_iTimeAbsWeekOffSet;
@@ -140,7 +140,7 @@ uint32_t NFTimeUtil::GetAbsTimeByWeekDayAndTime(time_t tNow, uint8_t bWeekDay, u
 
 uint32_t NFTimeUtil::GetThisWeekStartTime(time_t tTime) //从1970-01-05日开始计算,获取当前周开始时的绝对时间值.
 {
-    int iBaseTime = (int) tTime;
+    int iBaseTime = (int)tTime;
     iBaseTime = iBaseTime + s_iTimeAbsWeekOffSet;
 
     uint32_t dwWeekIndex = iBaseTime / (7 * 60 * 60 * 24);
@@ -155,8 +155,14 @@ uint32_t NFTimeUtil::GetThisWeekStartTime(time_t tTime) //从1970-01-05日开始
     return dwAbsTime;
 }
 
+uint32_t NFTimeUtil::GetThisWeekEndTime(time_t tTime)
+{
+    uint32_t dwStartTime = GetThisWeekStartTime(tTime);
+    return dwStartTime + SECONDS_AWEEK;
+}
 
-char *NFTimeUtil::DateTimeToStr_R(time_t *mytime, char *s, int *pio, bool bOnlyDay)
+
+char* NFTimeUtil::DateTimeToStr_R(time_t* mytime, char* s, int* pio, bool bOnlyDay)
 {
     int len = 0;
     struct tm curr;
@@ -185,17 +191,17 @@ char *NFTimeUtil::DateTimeToStr_R(time_t *mytime, char *s, int *pio, bool bOnlyD
     return s;
 }
 
-char *NFTimeUtil::SecondToStr(time_t mytime)
+char* NFTimeUtil::SecondToStr(time_t mytime)
 {
     static char s[50];
 
     snprintf(s, sizeof(s), "%02d:%02d:%02d",
-             (int) mytime / 3600, (int) (mytime % 3600) / 60, (int) (mytime % 3600) % 60);
+             (int)mytime / 3600, (int)(mytime % 3600) / 60, (int)(mytime % 3600) % 60);
 
     return s;
 }
 
-const char *NFTimeUtil::DateTimeToStrSimCN_R(time_t *mytime, char *s, int *pio)
+const char* NFTimeUtil::DateTimeToStrSimCN_R(time_t* mytime, char* s, int* pio)
 {
     int len = 0;
     struct tm curr;
@@ -231,14 +237,14 @@ const char *NFTimeUtil::DateTimeToStrSimCN_R(time_t *mytime, char *s, int *pio)
 }
 
 
-const char *NFTimeUtil::DataTimeToStrSimCN(time_t tmytime)
+const char* NFTimeUtil::DataTimeToStrSimCN(time_t tmytime)
 {
     static char s[50];
     int len = 50;
     return DateTimeToStrSimCN_R(&tmytime, s, &len);
 }
 
-char *NFTimeUtil::USecondTimeToStr(const TTimeVal &tvTime, char *pszOut, int iOutLen)
+char* NFTimeUtil::USecondTimeToStr(const TTimeVal& tvTime, char* pszOut, int iOutLen)
 {
     static char szTime[128];
 
@@ -253,14 +259,14 @@ char *NFTimeUtil::USecondTimeToStr(const TTimeVal &tvTime, char *pszOut, int iOu
     return pszOut;
 }
 
-char *NFTimeUtil::DateTimeToStr(time_t mytime, bool bOnlyDay)
+char* NFTimeUtil::DateTimeToStr(time_t mytime, bool bOnlyDay)
 {
     static char s[50];
     int len = 50;
     return DateTimeToStr_R(&mytime, s, &len, bOnlyDay);
 }
 
-char *NFTimeUtil::DateTimeToStrDw(uint32_t dwMytime)
+char* NFTimeUtil::DateTimeToStrDw(uint32_t dwMytime)
 {
     time_t mytime = dwMytime;
     static char s[50];
@@ -269,7 +275,7 @@ char *NFTimeUtil::DateTimeToStrDw(uint32_t dwMytime)
 }
 
 
-char *NFTimeUtil::DateTimeToStr(int imytime)
+char* NFTimeUtil::DateTimeToStr(int imytime)
 {
     time_t mytime = imytime;
 
@@ -280,7 +286,7 @@ char *NFTimeUtil::DateTimeToStr(int imytime)
 }
 
 
-char *NFTimeUtil::DateTimeToStr(time_t *mytime)
+char* NFTimeUtil::DateTimeToStr(time_t* mytime)
 {
     static char s[50];
     int len = 50;
@@ -288,26 +294,26 @@ char *NFTimeUtil::DateTimeToStr(time_t *mytime)
     return DateTimeToStr_R(mytime, s, &len);
 }
 
-char *NFTimeUtil::DateTimeToStr(time_t *mytime, char *piIn)
+char* NFTimeUtil::DateTimeToStr(time_t* mytime, char* piIn)
 {
     int len = 50;
 
     return DateTimeToStr_R(mytime, piIn, &len);
 }
 
-char *NFTimeUtil::CurTimeToStr(time_t tNow)
+char* NFTimeUtil::CurTimeToStr(time_t tNow)
 {
     return DateTimeToStr(&tNow);
 }
 
-char *NFTimeUtil::CurTimeToStr_R(time_t tNow, char *pszDateTime, int *piInOutLen)
+char* NFTimeUtil::CurTimeToStr_R(time_t tNow, char* pszDateTime, int* piInOutLen)
 {
     assert(pszDateTime && piInOutLen);
 
     return DateTimeToStr_R(&tNow, pszDateTime, piInOutLen);
 }
 
-time_t NFTimeUtil::StrToTimePure(const char *psztime)
+time_t NFTimeUtil::StrToTimePure(const char* psztime)
 {
     time_t tTime = 0;
 
@@ -322,7 +328,7 @@ time_t NFTimeUtil::StrToTimePure(const char *psztime)
 }
 
 
-int NFTimeUtil::StrToTime(const char *psztime, time_t *ptime)
+int NFTimeUtil::StrToTime(const char* psztime, time_t* ptime)
 {
     if (!psztime || !ptime)
     {
@@ -361,7 +367,7 @@ int NFTimeUtil::StrToTime(const char *psztime, time_t *ptime)
     return 0;
 }
 
-int NFTimeUtil::SysTime(char *pszBuff, int iBuff)
+int NFTimeUtil::SysTime(char* pszBuff, int iBuff)
 {
 #ifdef WIN32
     SYSTEMTIME stSys;
@@ -406,7 +412,7 @@ uint64_t NFTimeUtil::GetCurrTimeUs()
     return NFGetMicroSecondTime();
 }
 
-char *NFTimeUtil::TimeToStr(const TTimeVal *pstCurr, char *pszString, int iMaxLen)
+char* NFTimeUtil::TimeToStr(const TTimeVal* pstCurr, char* pszString, int iMaxLen)
 {
     static char szBuff[64];
 
@@ -416,32 +422,32 @@ char *NFTimeUtil::TimeToStr(const TTimeVal *pstCurr, char *pszString, int iMaxLe
         iMaxLen = sizeof(szBuff);
     }
 
-    struct tm *pszTime = localtime((time_t *) &pstCurr->tv_sec);
+    struct tm* pszTime = localtime((time_t*)&pstCurr->tv_sec);
 
     size_t iLen = ::strftime(pszString, iMaxLen, "%Y-%m-%d %H:%M:%S", pszTime);
 
-    NFSafeSnprintf(pszString + iLen, iMaxLen - iLen, ".%06d", (int) pstCurr->tv_usec);
+    NFSafeSnprintf(pszString + iLen, iMaxLen - iLen, ".%06d", (int)pstCurr->tv_usec);
 
     return pszString;
 }
 
-char *NFTimeUtil::CurrTimeStr(const TTimeVal *pstCurr)
+char* NFTimeUtil::CurrTimeStr(const TTimeVal* pstCurr)
 {
     static char szBuff[64];
 
-    struct tm *pszTime = localtime((time_t *) &pstCurr->tv_sec);
+    struct tm* pszTime = localtime((time_t*)&pstCurr->tv_sec);
     ::strftime(szBuff, sizeof(szBuff), "%Y-%m-%d %H:%M:%S", pszTime);
 
     size_t iLen = ::strlen(szBuff);
-    NFSafeSnprintf(szBuff + iLen, sizeof(szBuff) - iLen, ".%06d", (int) pstCurr->tv_usec);
+    NFSafeSnprintf(szBuff + iLen, sizeof(szBuff) - iLen, ".%06d", (int)pstCurr->tv_usec);
 
     return szBuff;
 }
 
 unsigned short NFTimeUtil::MakeShortTime(time_t tTime)
 {
-    tm *ptmCur = localtime(&tTime);
-    return (((unsigned short) (1900 + ptmCur->tm_year - 2000)) << 9) | (((unsigned short) (ptmCur->tm_mon + 1)) << 5) | ((unsigned short) ptmCur->tm_mday);
+    tm* ptmCur = localtime(&tTime);
+    return (((unsigned short)(1900 + ptmCur->tm_year - 2000)) << 9) | (((unsigned short)(ptmCur->tm_mon + 1)) << 5) | ((unsigned short)ptmCur->tm_mday);
 }
 
 bool NFTimeUtil::IsSameDayByGameResetTime(time_t tCur, time_t tBefore)
@@ -472,45 +478,45 @@ uint32_t GetAbsWeek( time_t tTime ) //从1970-01-05日开始计算,当前时间�
 
 uint16_t NFTimeUtil::GetTimeYear(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_year + 1970;
 }
 
 uint16_t NFTimeUtil::GetWeekDay(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_wday;
 }
 
 uint16_t NFTimeUtil::GetWeekDay()
 {
     time_t tTime = time(NULL);
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_wday;
 }
 
 uint16_t NFTimeUtil::GetWeekDay127(time_t tTime)
 {
     time_t iLocalTime = tTime + LOCAL_TIME_CORRECTION;
-    time_t iWeekDay = ( ( iLocalTime / SECONDS_ADAY + 3 ) % 7 ) + 1;
+    time_t iWeekDay = ((iLocalTime / SECONDS_ADAY + 3) % 7) + 1;
     return iWeekDay;
 }
 
 uint16_t NFTimeUtil::GetMonthDay(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_mday;
 }
 
 uint16_t NFTimeUtil::GetHour(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_hour;
 }
 
 uint32_t NFTimeUtil::GetDayAbsSec(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_hour * 3600 + ptm->tm_min * 60 + ptm->tm_sec;
 }
 
@@ -518,17 +524,17 @@ uint32_t NFTimeUtil::GetDayAbsSec(time_t tTime)
 uint16_t NFTimeUtil::GetMonthDay()
 {
     time_t tTime = time(NULL);
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_mday;
 }
 
 uint16_t NFTimeUtil::GetMonth(time_t tTime)
 {
-    tm *ptm = localtime(&tTime);
+    tm* ptm = localtime(&tTime);
     return ptm->tm_mon;
 }
 
-time_t NFTimeUtil::__DATE__TIME_toTime(const char *sz__DATE__, const char *sz__TIME__)
+time_t NFTimeUtil::__DATE__TIME_toTime(const char* sz__DATE__, const char* sz__TIME__)
 {
     char s_month[5];
     int month, day, year;
@@ -554,14 +560,14 @@ time_t NFTimeUtil::__DATE__TIME_toTime(const char *sz__DATE__, const char *sz__T
     return mktime(&_Tm);
 }
 
-time_t NFTimeUtil::time_str_to_utc(char *szInput)
+time_t NFTimeUtil::time_str_to_utc(char* szInput)
 {
     if (!szInput)
     {
         return 0;
     }
 
-    char *szNumber = NULL;
+    char* szNumber = NULL;
     struct tm tmTime;
 
     // ---年---
@@ -626,7 +632,7 @@ time_t NFTimeUtil::GetTodayStartTime(time_t tTimeNow, int iHour)
     return tNowDayStart;
 }
 
-int NFTimeUtil::DataStrToLocalTimeNew(const char *pStr, time_t *pTime)
+int NFTimeUtil::DataStrToLocalTimeNew(const char* pStr, time_t* pTime)
 {
     if (!pStr || !pTime)
     {
@@ -653,7 +659,7 @@ int NFTimeUtil::DataStrToLocalTimeNew(const char *pStr, time_t *pTime)
     return 0;
 }
 
-int NFTimeUtil::DateStrToLocalTime(const char *pStr, time_t *pTime)
+int NFTimeUtil::DateStrToLocalTime(const char* pStr, time_t* pTime)
 {
     if (!pStr || !pTime)
         return -1;
@@ -695,7 +701,7 @@ int NFTimeUtil::DateStrToLocalTime(const char *pStr, time_t *pTime)
     return 0;
 }
 
-int NFTimeUtil::GetTimeSecEx(const char *pStr, time_t *pTime)
+int NFTimeUtil::GetTimeSecEx(const char* pStr, time_t* pTime)
 {
     if (!pStr || !pTime)
     {
@@ -718,7 +724,7 @@ int NFTimeUtil::GetTimeSecEx(const char *pStr, time_t *pTime)
     return 0;
 }
 
-int NFTimeUtil::GetTimeSec(const char *pStr, time_t *pTime)
+int NFTimeUtil::GetTimeSec(const char* pStr, time_t* pTime)
 {
     if (!pStr || !pTime)
     {
@@ -740,4 +746,90 @@ int NFTimeUtil::GetTimeSec(const char *pStr, time_t *pTime)
     *pTime = 3600 * iHour + 60 * iMin + iSec;
 
     return 0;
+}
+
+uint32_t NFTimeUtil::GetDayStartUnixSec(uint32_t dwUnixSec)
+{
+    // 在本日的秒数
+    uint32_t const dwCurDaySec = GetCurDaySec(dwUnixSec);
+    uint32_t const dwDayBeginUnixSec = dwUnixSec - dwCurDaySec;
+    return dwDayBeginUnixSec;
+}
+
+uint32_t NFTimeUtil::GetMonthStartUnixSec(uint32_t dwUnixSec)
+{
+    // 当日0点时间
+    uint32_t dwDayBeginUnixSec = GetDayStartUnixSec(dwUnixSec);
+    // 当月第几天
+    uint32_t const dwMonthDay = GetMonthDay(dwUnixSec);
+    if (dwMonthDay > 1) // 不是1号 是(2,3 ..号)
+    {
+        // 减去过去的整天
+        dwDayBeginUnixSec = dwDayBeginUnixSec - (dwMonthDay - 1) * SECONDS_ADAY;
+    }
+
+    return dwDayBeginUnixSec;
+}
+
+uint32_t NFTimeUtil::GetYearStartUnixSec(uint32_t dwUnixSec)
+{
+    // 当日0点时间
+    uint32_t dwDayBeginUnixSec = GetDayStartUnixSec(dwUnixSec);
+
+    // 当年第几年
+    uint32_t const dwYearDay = GetYearDay(dwUnixSec);
+    if (dwYearDay > 0) // 不是1月1 是(1.2, ...号)
+    {
+        // 减去过去的整天
+        dwDayBeginUnixSec = dwDayBeginUnixSec - dwYearDay * SECONDS_ADAY;
+    }
+
+    return dwDayBeginUnixSec;
+}
+
+uint32_t NFTimeUtil::GetCurDaySec(uint32_t dwUnixSec)
+{
+    //基准时间0  是 1970-01-01 08:00:00
+    // 1970-01-02 00:00:00 整点时刻
+    uint32_t const dwSecondDayZeroUnixSec = SECONDS_AHOUR * (24 - 8);
+    if (dwUnixSec < dwSecondDayZeroUnixSec) // 1970-01-02 00:00:00 之前
+    {
+        return 0;
+    }
+
+    // 时间调整为 1970-01-02 00:00:00 开始时刻
+    dwUnixSec -= dwSecondDayZeroUnixSec;
+    // 在本日的秒数 00:00:00=0 00:00:01=1
+    uint32_t const dwDaySec = dwUnixSec % SECONDS_ADAY;
+
+    return dwDaySec;
+}
+
+uint32_t NFTimeUtil::GetCurDay04(uint32_t dwUnixSec)
+{
+    // 1970-01-01 08:00:00 UnixSec = 0
+    // 1970-01-02 04:00:00 UnixSec = 20 * 3600
+    uint32_t const dwSecondDayZeroUnixSec = SECONDS_AHOUR * 20;
+    // 第0天
+    if (dwUnixSec < dwSecondDayZeroUnixSec) // 1970-01-02 00:04:00 之前
+    {
+        return 0;
+    }
+    // 第一天开始 1970-01-02 04:00:00
+    uint32_t dwDay = (dwUnixSec + 4 * SECONDS_AHOUR) / SECONDS_ADAY;
+    return dwDay;
+}
+
+uint16_t NFTimeUtil::GetYearDay(time_t tTime)
+{
+#ifdef I18N_GLOBAL
+    tTime += iStaticTimeOffset;
+#endif
+    tm* ptm = localtime(&tTime);
+    if (ptm == nullptr)
+    {
+        return 0;
+    }
+
+    return ptm->tm_yday;
 }

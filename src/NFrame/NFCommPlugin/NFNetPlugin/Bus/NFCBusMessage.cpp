@@ -100,6 +100,7 @@ uint64_t NFCBusMessage::BindServer(const NFMessageFlag& flag)
     }
 
     m_bindConnect = pServer;
+    ResumeConnect();
     return pServer->GetLinkId();
 }
 

@@ -14,6 +14,7 @@
 
 #include "NFLogMgr.h"
 #include "NFCheck.h"
+#include "../../../../game/LieRen/NFLogicComm/NFServerLogicMessage/proto_svr_common.pb.h"
 #include "NFComm/NFPluginModule/NFJson2PB/NFPbToJson.h"
 #include "NFComm/NFPluginModule/NFJson2PB/NFJsonToPb.h"
 #include "NFComm/NFCore/NFStringUtility.h"
@@ -813,22 +814,36 @@ int NFProtobufCommon::GetMacroTypeFromMessage(const google::protobuf::Descriptor
     {
         const google::protobuf::FieldDescriptor* pFieldDesc = pDesc->field(i);
         if (pFieldDesc == NULL) continue;
-        if (pFieldDesc->options().GetExtension(nanopb).macro_type().empty()) continue;
-
-        std::string strName = base;
-        if (!strName.empty())
+        if (!pFieldDesc->options().GetExtension(nanopb).macro_type().empty())
         {
-            strName += "_";
-        }
-        strName += pFieldDesc->name();
-        if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
-        {
-            auto pNewDesc = pFieldDesc->message_type();
-            GetMacroTypeFromMessage(pNewDesc, strName, fieldMap);
+            std::string strName = base;
+            if (!strName.empty())
+            {
+                strName += "_";
+            }
+            strName += pFieldDesc->name();
+            if (pFieldDesc->cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE)
+            {
+                auto pNewDesc = pFieldDesc->message_type();
+                GetMacroTypeFromMessage(pNewDesc, strName, fieldMap);
+            }
+            else
+            {
+                fieldMap.emplace(strName, pFieldDesc->options().GetExtension(nanopb).macro_type());
+            }
         }
         else
         {
-            fieldMap.emplace(strName, pFieldDesc->options().GetExtension(nanopb).macro_type());
+            if (pFieldDesc->type() == google::protobuf::FieldDescriptor::Type::TYPE_ENUM && pFieldDesc->enum_type())
+            {
+                std::string strName = base;
+                if (!strName.empty())
+                {
+                    strName += "_";
+                }
+                strName += pFieldDesc->name();
+                fieldMap.emplace(strName, pFieldDesc->enum_type()->full_name());
+            }
         }
     }
 
@@ -2240,6 +2255,11 @@ int NFProtobufCommon::GetFieldsDBMaxCount(const google::protobuf::FieldDescripto
         }
         else
         {
+            pDesc = FindEnumValueByName(DEFINE_DEFAULT_PROTO_PACKAGE_ADD + db_max_count_enum);
+            if (pDesc)
+            {
+                return pDesc->number();
+            }
             NFLogError(NF_LOG_DEFAULT, 0, "error can't find the db_max_count_enum:{}", db_max_count_enum);
             return 0;
         }
@@ -2264,6 +2284,11 @@ int NFProtobufCommon::GetFieldsDBMaxSize(const google::protobuf::FieldDescriptor
         }
         else
         {
+            pDesc = FindEnumValueByName(DEFINE_DEFAULT_PROTO_PACKAGE_ADD + db_max_size_enum);
+            if (pDesc)
+            {
+                return pDesc->number();
+            }
             NFLogError(NF_LOG_DEFAULT, 0, "error can't find the db_max_size_enum:{}", db_max_size_enum);
             return 0;
         }
@@ -2288,6 +2313,11 @@ int NFProtobufCommon::GetFieldsMaxCount(const google::protobuf::FieldDescriptor*
         }
         else
         {
+            pDesc = FindEnumValueByName(DEFINE_DEFAULT_PROTO_PACKAGE_ADD + max_count_enum);
+            if (pDesc)
+            {
+                return pDesc->number();
+            }
             NFLogError(NF_LOG_DEFAULT, 0, "error can't find the max_count_enum:{}", max_count_enum);
             return 0;
         }
@@ -2312,6 +2342,11 @@ int NFProtobufCommon::GetFieldsMaxSize(const google::protobuf::FieldDescriptor* 
         }
         else
         {
+            pDesc = FindEnumValueByName(DEFINE_DEFAULT_PROTO_PACKAGE_ADD + max_size_enum);
+            if (pDesc)
+            {
+                return pDesc->number();
+            }
             NFLogError(NF_LOG_DEFAULT, 0, "error can't find the max_size_enum:{}", max_size_enum);
             return 0;
         }

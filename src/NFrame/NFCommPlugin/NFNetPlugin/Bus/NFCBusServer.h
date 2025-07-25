@@ -48,4 +48,5 @@ private:
      * @brief 服务器每一帧处理的消息数
      */
     uint32_t m_handleMsgNumPerFrame;
+    bool m_isFinishConnect;
 };

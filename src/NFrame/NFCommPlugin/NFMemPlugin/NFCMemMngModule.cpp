@@ -69,11 +69,6 @@ bool NFCMemMngModule::AfterLoadAllPlugin()
     return true;
 }
 
-bool NFCMemMngModule::ReadyExecute()
-{
-    return true;
-}
-
 bool NFCMemMngModule::Execute()
 {
     auto pTimerMng = dynamic_cast<NFMemTimerMng*>(GetHeadObj(EOT_TYPE_TIMER_MNG));
@@ -91,27 +86,6 @@ bool NFCMemMngModule::Execute()
 
 bool NFCMemMngModule::Finalize()
 {
-    return true;
-}
-
-bool NFCMemMngModule::OnReloadConfig()
-{
-    return true;
-}
-
-bool NFCMemMngModule::AfterOnReloadConfig()
-{
-    for (int i = 0; i < static_cast<int>(m_nObjSegSwapCounter.size()); i++)
-    {
-        NFMemObjSeg* pObjSeg = m_nObjSegSwapCounter[i].m_pObjSeg;
-        if (pObjSeg)
-        {
-            for (auto iter = IterBegin(i); iter != IterEnd(i); ++iter)
-            {
-                iter->AfterOnReloadConfig();
-            }
-        }
-    }
     return true;
 }
 
@@ -286,6 +260,29 @@ NFCMemMngModule::RegisterClassToObjSeg(int bType, size_t nObjSize, int iItemCoun
     pCounter->m_pObjSeg = nullptr;
     pCounter->m_szClassName = pszClassName;
     pCounter->m_iUseHash = useHash;
+}
+
+void NFCMemMngModule::UnRegisterClassToObjSeg(int bType)
+{
+    // 获取对象类型对应的计数器
+    NFMemObjSegSwapCounter* pCounter = CreateCounterObj(bType);
+
+    // 如果存在父类关系，需要清理继承链
+    if (pCounter->m_pParent != nullptr)
+    {
+        NFMemObjSegSwapCounter* pParentClass = pCounter->m_pParent;
+        while (pParentClass)
+        {
+            // 从父类的子类列表中移除当前类型
+            pParentClass->m_childrenObjType.erase(bType);
+            // 从当前类型的父类列表中移除父类
+            pCounter->m_parentObjType.erase(pParentClass->m_iObjType);
+            pParentClass = pParentClass->m_pParent;
+        }
+    }
+    
+    // 清理计数器对象，释放相关资源
+    pCounter->clear();
 }
 
 void NFMemObjSegSwapCounter::SetObjSeg(NFMemObjSeg* pObjSeg)

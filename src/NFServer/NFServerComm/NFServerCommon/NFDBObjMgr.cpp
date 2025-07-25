@@ -202,7 +202,7 @@ int NFDBObjMgr::LoadFromDB(NFBaseDBObj* pObj)
 
 int NFDBObjMgr::OnDataLoaded(int iObjID, int32_t err_code, const google::protobuf::Message* pData)
 {
-    NFLogDebug(NF_LOG_DEFAULT, 0, "Date Loaded:{} err_code:{}", iObjID, GetErrorStr(err_code));
+    NFLogDebug(NF_LOG_DEFAULT, 0, "objId:{} Date Loaded:{} err_code:{}", iObjID, pData->GetTypeName(), GetErrorStr(err_code));
     NFBaseDBObj* pObj = GetObj(iObjID);
     CHECK_NULL(0, pObj);
 
@@ -239,6 +239,7 @@ int NFDBObjMgr::OnDataLoaded(int iObjID, int32_t err_code, const google::protobu
             {
                 pObj->SetRetryTimes(pObj->GetRetryTimes() + 1);
                 iRet = LoadFromDB(pObj);
+                CHECK_ERR(0, iRet, "LoadFromDB failed");
                 break;
             }
             case EN_DW_SHUTDOWN:
@@ -259,6 +260,7 @@ int NFDBObjMgr::OnDataLoaded(int iObjID, int32_t err_code, const google::protobu
                 }
                 pObj->SetRetryTimes(pObj->GetRetryTimes() + 1);
                 iRet = LoadFromDB(pObj);
+                CHECK_ERR(0, iRet, "LoadFromDB failed");
                 break;
             }
             default:

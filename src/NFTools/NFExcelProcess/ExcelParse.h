@@ -75,7 +75,7 @@ struct ExcelRelation
     std::string m_releationStr;
     std::vector<ExcelRelationDst> m_dst;
     std::string m_noFindError;
-    std::unordered_map<std::string, ExcelRelation*> m_relationMap;
+    std::map<std::string, ExcelRelation*> m_relationMap;
 };
 
 struct ExcelColPbEnum
@@ -155,7 +155,7 @@ struct ExcelSheetColInfo
     uint32_t m_colTypeStrMaxSize;
     std::vector<uint32_t> m_colIndexVec;
 
-    std::unordered_map<std::string, ExcelSheetColInfo*> m_colInfoMap;
+    std::map<std::string, ExcelSheetColInfo*> m_colInfoMap;
     std::map<int, ExcelSheetColInfo*> m_colInfoList;
 };
 
@@ -236,17 +236,17 @@ struct ExcelSheet
     std::map<uint32_t, ExcelSheetColIndex> m_allColInfoList;
     std::set<std::string> m_allFullEnName;
 
-    std::unordered_map<std::string, ExcelSheetIndex> m_indexMap;
-    std::unordered_map<std::string, ExcelSheetComIndex> m_comIndexMap;
-    std::unordered_map<std::string, ExcelRelation> m_colRelationMap;
-    std::unordered_map<std::string, ExcelColPbEnum> m_colEnumMap;
-    std::unordered_map<std::string, ExcelColMessageType> m_colMessageTypeMap;
+    std::map<std::string, ExcelSheetIndex> m_indexMap;
+    std::map<std::string, ExcelSheetComIndex> m_comIndexMap;
+    std::map<std::string, ExcelRelation> m_colRelationMap;
+    std::map<std::string, ExcelColPbEnum> m_colEnumMap;
+    std::map<std::string, ExcelColMessageType> m_colMessageTypeMap;
     std::unordered_set<std::string> m_protoFileMap;
     std::vector<std::string> m_addFileVec;
     bool m_createSql;
 
     ExcelSheetProtoInfo m_protoInfo;
-    std::unordered_map<std::string, int> m_firstColKeyMap;
+    std::map<std::string, int> m_firstColKeyMap;
 
     bool IsExist(const std::string& firstColKey)
     {
@@ -445,6 +445,6 @@ public:
     std::string m_outPath;
     std::string m_excel;
     std::string m_excelName;
-    std::unordered_map<std::string, ExcelSheet> m_sheets;
+    std::map<std::string, ExcelSheet> m_sheets;
     XLDocument m_excelReader;
 };

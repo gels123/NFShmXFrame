@@ -67,6 +67,14 @@ public:
                                        const std::string& pszClassName, bool useHash = false, bool singleton = false) = 0;
 
     /**
+     * @brief 反注册对象类型到内存段的映射
+     * @param bType 对象类型ID
+     * @note 用于动态卸载对象类型，释放相关内存段资源
+     * @warning 必须确保该类型的所有对象已经被正确销毁
+     */
+    virtual void UnRegisterClassToObjSeg(int bType) = 0;
+
+    /**
     * @brief  设置功能内存初始化成功
     */
     virtual void SetShmInitSuccessFlag() = 0;

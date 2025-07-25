@@ -20,6 +20,7 @@
 NFCBusServer::NFCBusServer(NFIPluginManager* p, NF_SERVER_TYPE serverType, const NFMessageFlag& flag): NFIBusConnection(p, serverType, flag)
 {
     m_handleMsgNumPerFrame = NF_NO_FIX_FAME_HANDLE_MAX_MSG_COUNT;
+    m_isFinishConnect = false;
     auto pServerConfig = FindModule<NFIConfigModule>()->GetAppConfig(m_serverType);
     if (pServerConfig)
     {
@@ -202,8 +203,11 @@ void NFCBusServer::ProcessMsgLogicThread()
         }
 
         m_buffer.Clear();
-        bool inited = m_pObjPluginManager->IsFinishAppTask(m_serverType, APP_INIT_TASK_GROUP_SERVER_CONNECT);
-        while (leftTimes-- > 0 && inited)
+        if (!m_isFinishConnect)
+        {
+            m_isFinishConnect = m_pObjPluginManager->IsFinishAppTask(m_serverType, APP_INIT_TASK_GROUP_SERVER_CONNECT);
+        }
+        while (leftTimes-- > 0 && m_isFinishConnect)
         {
             size_t recvLen = 0;
             int iRecvRet = ShmRecv(pChannel, m_buffer.WriteAddr(), m_buffer.WritableSize(), &recvLen);

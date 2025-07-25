@@ -404,6 +404,23 @@ bool NFIPlugin::AfterAllDescStoreLoaded()
     return true;
 }
 
+bool NFIPlugin::AfterAllConnectAndAllDescStore()
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterAllConnectAndAllDescStore() == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllConnectAndAllDescStore Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
 bool NFIPlugin::AfterObjFromDBLoaded()
 {
     for (size_t i = 0; i < m_vecModule.size(); i++)
@@ -453,4 +470,107 @@ bool NFIPlugin::AfterAppInitFinish()
     }
 
     return true;
+}
+
+
+bool NFIPlugin::AfterAllConnectFinish(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterAllConnectFinish(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllConnectFinish Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
+bool NFIPlugin::AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterAllDescStoreLoaded(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllDescStoreLoaded Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
+bool NFIPlugin::AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterAllConnectAndAllDescStore(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAllConnectAndAllDescStore Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
+bool NFIPlugin::AfterObjFromDBLoaded(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterObjFromDBLoaded(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterObjFromDBLoaded Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
+bool NFIPlugin::AfterServerRegisterFinish(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterServerRegisterFinish(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterServerRegisterFinish Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
+}
+
+bool NFIPlugin::AfterAppInitFinish(NF_SERVER_TYPE serverType)
+{
+	for (size_t i = 0; i < m_vecModule.size(); i++)
+	{
+		NFIModule* pModule = m_vecModule[i];
+		if (pModule)
+		{
+			if (pModule->AfterAppInitFinish(serverType) == false)
+			{
+				NFLogWarning(NF_LOG_DEFAULT, 0, "Plugin:{} AfterAppInitFinish Failed", GetPluginName());
+			}
+		}
+	}
+
+	return true;
 }

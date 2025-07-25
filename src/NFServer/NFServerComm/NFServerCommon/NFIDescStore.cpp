@@ -38,6 +38,7 @@ int NFIDescStore::CreateInit()
     m_bIsChecked = false;
     m_bSaveTimer = INVALID_ID;
     m_bIsReLoading = false;
+    m_bIsDBLoaded = false;
     return 0;
 }
 

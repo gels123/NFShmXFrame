@@ -472,6 +472,16 @@ struct CompileTimeError<true>
         }\
     }while(0)
 
+#define CHECK_NULL_RET_VAL_WF(RoleID, pPointer, val, format, ...)\
+    do{\
+		if( pPointer == NULL )\
+        {\
+			std::string log_event = NF_GET_STRING(format, ##__VA_ARGS__);\
+			LOG_ERR(RoleID, -1, "{} is NULL {}", #pPointer, log_event);\
+			return val;\
+        }\
+    }while(0)
+
 #define CHECK_NULL_WARN_RET_VAL(RoleID, pPointer, val)\
     do{\
     if( pPointer == NULL )\

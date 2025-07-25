@@ -59,7 +59,7 @@ bool NFCStoreServerModule::Awake()
     FindModule<NFIMessageModule>()->AddRpcService<NF_MODULE_FRAME, NFrame::NF_STORESVR_C2S_DELETEOBJ>(NF_ST_STORE_SERVER, this,
                                                                                     &NFCStoreServerModule::OnHandleDeleteObjRpc, true);
     //////other server///////////////////////////////////
-    RegisterServerMessage(NF_ST_STORE_SERVER, NF_MODULE_FRAME, NFrame::NF_SERVER_TO_STORE_SERVER_DB_CMD);
+    RegisterServerMessageWithModule(NF_ST_STORE_SERVER, NF_MODULE_FRAME, NFrame::NF_SERVER_TO_STORE_SERVER_DB_CMD);
 
     if (!LoadPbAndCheckDB())
     {
@@ -124,7 +124,7 @@ bool NFCStoreServerModule::LoadPbAndCheckDB()
     NFServerConfig *pConfig = FindModule<NFIConfigModule>()->GetAppConfig(NF_ST_STORE_SERVER);
     CHECK_EXPR_ASSERT(pConfig, false, "GetAppConfig Failed, server type:{}", NF_ST_STORE_SERVER);
 
-    int iRet = NFProtobufCommon::Instance()->LoadProtoDsFile(m_pObjPluginManager->GetConfigPath() + "/" + pConfig->LoadProtoDs);
+    int iRet = NFProtobufCommon::Instance()->LoadProtoDsFile(m_pObjPluginManager->GetConfigPath() + "/"  + m_pObjPluginManager->GetGame() + "/" + pConfig->LoadProtoDs);
     if (iRet == 0)
     {
         NFLogInfo(NF_LOG_DEFAULT, 0, "Reload proto ds success:{}", pConfig->LoadProtoDs);

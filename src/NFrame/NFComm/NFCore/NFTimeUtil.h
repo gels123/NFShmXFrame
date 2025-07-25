@@ -33,22 +33,22 @@ enum
     GAME_RESET_SEC_EVERYDAY = 0,
 };
 
-inline bool operator<(const TTimeVal &lhs, const TTimeVal &rhs)
+inline bool operator<(const TTimeVal& lhs, const TTimeVal& rhs)
 {
     return ((lhs.tv_sec - rhs.tv_sec) * 1000000 + (lhs.tv_usec - rhs.tv_usec)) < 0;
 }
 
-inline bool operator<=(const TTimeVal &lhs, const TTimeVal &rhs)
+inline bool operator<=(const TTimeVal& lhs, const TTimeVal& rhs)
 {
     return !(rhs < lhs);
 }
 
-inline bool operator==(const TTimeVal &lhs, const TTimeVal &rhs)
+inline bool operator==(const TTimeVal& lhs, const TTimeVal& rhs)
 {
     return (!(lhs < rhs) && !(rhs < lhs));
 }
 
-inline TTimeVal operator-(const TTimeVal &lhs, const TTimeVal &rhs)
+inline TTimeVal operator-(const TTimeVal& lhs, const TTimeVal& rhs)
 {
     TTimeVal tvGap;
     tvGap.tv_sec = lhs.tv_sec - rhs.tv_sec;
@@ -74,7 +74,7 @@ public:
      * @param bOnlyDay 可选参数，若为true，则仅转换为日期格式，默认为false
      * @return 返回指向存储转换后日期时间字符串的字符数组的指针
      */
-    static char *DateTimeToStr_R(time_t *mytime, char *s, int *pio, bool bOnlyDay = false);
+    static char* DateTimeToStr_R(time_t* mytime, char* s, int* pio, bool bOnlyDay = false);
 
     /**
      * 将时间转换为简化中文日期时间字符串
@@ -83,21 +83,21 @@ public:
      * @param pio 指向整型变量的指针，用于输入输出转换过程中的信息
      * @return 返回指向存储转换后简化中文日期时间字符串的字符数组的指针
      */
-    static const char *DateTimeToStrSimCN_R(time_t *mytime, char *s, int *pio);
+    static const char* DateTimeToStrSimCN_R(time_t* mytime, char* s, int* pio);
 
     /**
      * 将秒数转换为日期时间字符串
      * @param mytime 表示需要转换的秒数
      * @return 返回指向存储转换后日期时间字符串的字符数组的指针
      */
-    static char *SecondToStr(time_t mytime);
+    static char* SecondToStr(time_t mytime);
 
     /**
      * 将时间转换为简化中文日期时间字符串
      * @param tmytime 表示需要转换的时间
      * @return 返回指向存储转换后简化中文日期时间字符串的字符数组的指针
      */
-    static const char *DataTimeToStrSimCN(time_t tmytime);
+    static const char* DataTimeToStrSimCN(time_t tmytime);
 
     /**
      * 将微秒精度的时间转换为字符串
@@ -106,14 +106,14 @@ public:
      * @param iOutLen 可选参数，表示pszOut的长度，默认为128
      * @return 返回指向存储转换后时间字符串的字符数组的指针
      */
-    static char *USecondTimeToStr(const TTimeVal &tvTime, char *pszOut = NULL, int iOutLen = 128);
+    static char* USecondTimeToStr(const TTimeVal& tvTime, char* pszOut = NULL, int iOutLen = 128);
 
     /**
      * 将时间转换为日期时间字符串
      * @param mytime 指向time_t类型的指针，表示需要转换的时间
      * @return 返回指向存储转换后日期时间字符串的字符数组的指针
      */
-    static char *DateTimeToStr(time_t *mytime);
+    static char* DateTimeToStr(time_t* mytime);
 
     /**
      * 将时间转换为日期时间字符串
@@ -121,30 +121,30 @@ public:
      * @param bOnlyDay 可选参数，若为true，则仅转换为日期格式，默认为false
      * @return 返回指向存储转换后日期时间字符串的字符数组的指针
      */
-    static char *DateTimeToStr(time_t mytime, bool bOnlyDay = false);
+    static char* DateTimeToStr(time_t mytime, bool bOnlyDay = false);
 
     /**
      * 将整型时间转换为日期时间字符串
      * @param imytime 表示需要转换的整型时间
      * @return 返回指向存储转换后日期时间字符串的字符数组的指针
      */
-    static char *DateTimeToStr(int imytime);
+    static char* DateTimeToStr(int imytime);
 
     // 将uint32_t类型的时间转换为字符串表示
     // 参数dwMytime: 代表时间的uint32_t类型变量
     // 返回值: 转换后的字符串指针
-    static char *DateTimeToStrDw(uint32_t dwMytime);
+    static char* DateTimeToStrDw(uint32_t dwMytime);
 
     // 将time_t类型的时间转换为字符串表示
     // 参数mytime: 指向time_t类型的时间变量
     // 参数piIn: 用于输出的字符数组指针
     // 返回值: 转换后的字符串指针
-    static char *DateTimeToStr(time_t *mytime, char *piIn);
+    static char* DateTimeToStr(time_t* mytime, char* piIn);
 
     // 将当前时间转换为字符串表示
     // 参数tNow: 表示当前时间的time_t类型变量
     // 返回值: 转换后的字符串指针
-    static char *CurTimeToStr(time_t tNow);
+    static char* CurTimeToStr(time_t tNow);
 
     // xxxx 20160325 修改时间由外部传入，因为时间可能不是time（NULL）取到的当前时间
     // 将当前时间转换为字符串表示，带缓冲区长度参数
@@ -152,7 +152,7 @@ public:
     // 参数pszDateTime: 用于输出的字符数组指针
     // 参数piInOutLen: 指向缓冲区长度的整型指针
     // 返回值: 转换后的字符串指针
-    static char *CurTimeToStr_R(time_t tNow, char *pszDateTime, int *piInOutLen);
+    static char* CurTimeToStr_R(time_t tNow, char* pszDateTime, int* piInOutLen);
 
 
     /*
@@ -166,7 +166,7 @@ public:
         return m_tmp;
     }
     */
-    static inline void AddMsWithPointer(TTimeVal *plhs, int iMs)
+    static inline void AddMsWithPointer(TTimeVal* plhs, int iMs)
     {
         plhs->tv_sec += (iMs / 1000);
         plhs->tv_usec += ((iMs % 1000) * 1000);
@@ -175,13 +175,13 @@ public:
     }
 
     // Adds milliseconds to a TTimeVal structure
-    static inline void AddMs(TTimeVal &lhs, int iMs)
+    static inline void AddMs(TTimeVal& lhs, int iMs)
     {
         AddMsWithPointer(&lhs, iMs);
     }
 
     // Adds microseconds to a TTimeVal structure, adjusting seconds as necessary
-    static inline void AddUsWithPointer(TTimeVal *plhs, int iUs)
+    static inline void AddUsWithPointer(TTimeVal* plhs, int iUs)
     {
         plhs->tv_usec += iUs;
         plhs->tv_sec += (plhs->tv_usec / 1000000);
@@ -189,28 +189,28 @@ public:
     }
 
     // Adds microseconds to a TTimeVal structure
-    static inline void AddUs(TTimeVal &lhs, int iUs)
+    static inline void AddUs(TTimeVal& lhs, int iUs)
     {
         AddUsWithPointer(&lhs, iUs);
     }
 
     // Converts a string in the format "YYYY-MM-DD HH:MM:SS" to a time_t value
-    static int StrToTime(const char *psztime, time_t *ptime);
+    static int StrToTime(const char* psztime, time_t* ptime);
 
     // Converts a string in the format "YYYY-MM-DD HH:MM:SS" to a time_t value without additional parameters
-    static time_t StrToTimePure(const char *psztime);
+    static time_t StrToTimePure(const char* psztime);
 
     // Retrieves the system time in a specified buffer
-    static int SysTime(char *pszBuff, int iBuff);
+    static int SysTime(char* pszBuff, int iBuff);
 
     // Converts __DATE__ and __TIME__ macros to a time_t value
-    static time_t __DATE__TIME_toTime(const char *sz__DATE__, const char *sz__TIME__);
+    static time_t __DATE__TIME_toTime(const char* sz__DATE__, const char* sz__TIME__);
 
     // Retrieves the current time in microseconds
     static uint64_t GetCurrTimeUs();
 
     // Calculates the time difference in milliseconds between two timeval structures
-    static inline unsigned int TimeMsPass(struct timeval *pstTv1, struct timeval *pstTv2)
+    static inline unsigned int TimeMsPass(struct timeval* pstTv1, struct timeval* pstTv2)
     {
         int iSec;
         iSec = pstTv1->tv_sec - pstTv2->tv_sec;
@@ -224,7 +224,7 @@ public:
     }
 
     // Calculates the time difference in microseconds between two timeval structures
-    static inline int64_t TimeUsPass(struct timeval *pstTv1, struct timeval *pstTv2)
+    static inline int64_t TimeUsPass(struct timeval* pstTv1, struct timeval* pstTv2)
     {
         int iSec;
         iSec = pstTv1->tv_sec - pstTv2->tv_sec;
@@ -247,14 +247,14 @@ public:
      * @param iMaxLen 字符数组的最大长度，默认为64
      * @return 返回指向存储时间字符串的字符数组指针
      */
-    static char *TimeToStr(const TTimeVal *pstCurr, char *pszString = NULL, int iMaxLen = 64);
+    static char* TimeToStr(const TTimeVal* pstCurr, char* pszString = NULL, int iMaxLen = 64);
 
     /**
      * 获取当前时间的字符串表示
      * @param pstCurr 指向时间结构体的指针，用于获取当前时间信息
      * @return 返回指向存储当前时间字符串的字符数组指针
      */
-    static char *CurrTimeStr(const TTimeVal *pstCurr);
+    static char* CurrTimeStr(const TTimeVal* pstCurr);
 
     /**
      * 生成一个表示时间的短整型，其中前7位表示年份（从2000年开始），中间4位表示月份，最后5位表示日期
@@ -291,6 +291,8 @@ public:
      * @return 返回给定时间所在周的开始时间（以绝对时间表示）
      */
     static uint32_t GetThisWeekStartTime(time_t tTime);
+
+    static uint32_t GetThisWeekEndTime(time_t tTime);
 
     /**
      * 判断两个时间是否为同一个月份（考虑时区偏移）
@@ -341,21 +343,36 @@ public:
 
     // 将格式化的日期时间字符串转换为UTC时间
     // 格式：YYYY-MM-DD-HH-MM-SS
-    static time_t time_str_to_utc(char *szInput);
+    static time_t time_str_to_utc(char* szInput);
 
     // 获取今天开始的时间，考虑到时区差异
     static time_t GetTodayStartTime(time_t tTimeNow, int iHour = 0);
 
     // 将日期时间字符串转换为本地时间
     // 新版本
-    static int DataStrToLocalTimeNew(const char *pStr, time_t *pTime);
+    static int DataStrToLocalTimeNew(const char* pStr, time_t* pTime);
 
     // 将日期字符串转换为本地时间
-    static int DateStrToLocalTime(const char *pStr, time_t *pTime);
+    static int DateStrToLocalTime(const char* pStr, time_t* pTime);
 
     // 获取时间的秒部分
-    static int GetTimeSec(const char *pStr, time_t *pTime);
+    static int GetTimeSec(const char* pStr, time_t* pTime);
 
     // 扩展版本，获取时间的秒部分
-    static int GetTimeSecEx(const char *pStr, time_t *pTime);
+    static int GetTimeSecEx(const char* pStr, time_t* pTime);
+
+    // dwUnixSec所在日的开始时刻
+    static uint32_t GetDayStartUnixSec(uint32_t dwUnixSec);
+    static uint32_t GetMonthStartUnixSec(uint32_t dwUnixSec);
+    static uint32_t GetYearStartUnixSec(uint32_t dwUnixSec);
+    // dwUnixSec在本日的秒数 00:00:00=0 00:00:01=1
+    static uint32_t GetCurDaySec(uint32_t dwUnixSec);
+
+    // 按4点算跨天, 获取到1970-01-01的天数
+    //                     - 1970-01-02 03:59:00 return 0
+    // 1970-01-02 04:00:00 - 1970-01-03 03:59:00 return 1
+    // ...
+    static uint32_t GetCurDay04(uint32_t dwUnixSec);
+    // 从今年1月1日到目前的天数，范围0-365
+    static uint16_t GetYearDay(time_t tTime);
 };

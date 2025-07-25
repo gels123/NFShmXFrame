@@ -92,8 +92,6 @@ public:
         int iRet = LoadFromDB(*pGlobal);
         CHECK_EXPR(iRet == 0, -1, "parse failed!");
 
-        iRet = InitConfig();
-        CHECK_EXPR(iRet == 0, -1, "InitConfig failed!");
         this->m_bDataInited = true;
         return 0;
     }

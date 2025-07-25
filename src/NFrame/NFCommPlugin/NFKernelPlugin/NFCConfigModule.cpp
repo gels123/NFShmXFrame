@@ -37,10 +37,10 @@ NFCConfigModule::~NFCConfigModule()
 
 bool NFCConfigModule::LoadConfig()
 {
-    TryAddPackagePath(m_pObjPluginManager->GetPluginPath()); //Add Search Path to Lua
+    TryAddPackagePath(m_pObjPluginManager->GetPluginPath() + "/"  + m_pObjPluginManager->GetGame()); //Add Search Path to Lua
 
     std::list<std::string> fileList;
-    NFFileUtility::GetFiles(m_pObjPluginManager->GetPluginPath(), fileList, true, "*.lua");
+    NFFileUtility::GetFiles(m_pObjPluginManager->GetPluginPath() + "/"  + m_pObjPluginManager->GetGame(), fileList, true, "*.lua");
 
     for (auto it = fileList.begin(); it != fileList.end(); ++it)
     {

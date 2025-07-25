@@ -215,6 +215,38 @@ public:
 	}
 
 	/**
+	 * @brief 加载完服务器数据，包过excel, 以及从数据拉取的数据
+	 * @return
+	 */
+	virtual bool AfterAllConnectAndAllDescStore() {
+		return true;
+	}
+
+	/**
+ * @brief 服务器连接完成后
+ * @return
+ */
+	virtual bool AfterAllConnectFinish(NF_SERVER_TYPE serverType) {
+		return true;
+	}
+
+	/**
+	 * @brief 加载完服务器数据，包过excel, 以及从数据拉取的数据
+	 * @return
+	 */
+	virtual bool AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType) {
+		return true;
+	}
+
+	/**
+	 * @brief 加载完服务器数据，包过excel, 以及从数据拉取的数据
+	 * @return
+	 */
+	virtual bool AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType) {
+		return true;
+	}
+
+	/**
 	 * @brief 从db加载全局数据, 这个加载一定在完成连接后，有可能依赖descstore数据，也可能不依赖
 	 * @return
 	 */
@@ -235,6 +267,31 @@ public:
 	 * @return
 	 */
 	virtual bool AfterAppInitFinish()
+	{
+		return true;
+	}
+
+	/**
+ * @brief 从db加载全局数据, 这个加载一定在完成连接后，有可能依赖descstore数据，也可能不依赖
+ * @return
+ */
+	virtual bool AfterObjFromDBLoaded(NF_SERVER_TYPE serverType) {
+		return true;
+	}
+
+	/**
+	 * @brief 完成服务器之间的注册
+	 * @return
+	 */
+	virtual bool AfterServerRegisterFinish(NF_SERVER_TYPE serverType) {
+		return true;
+	}
+
+	/**
+	 * @brief  服务器完成初始化之后
+	 * @return
+	 */
+	virtual bool AfterAppInitFinish(NF_SERVER_TYPE serverType)
 	{
 		return true;
 	}
@@ -412,6 +469,8 @@ public:
 	 * @return 返回当前对象的区域ID
 	 */
 	virtual int GetZoneID() const = 0;
+
+	virtual int GetZoneAreaID() const = 0;
 
 	/**
 	 * @brief 获取配置文件路径

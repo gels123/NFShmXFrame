@@ -10,18 +10,22 @@
 #include "NFServerIDUtil.h"
 #include "NFStringUtility.h"
 #include "NFCommon.h"
+#include "NFComm/NFCore/NFSocketLibFunction.h"
 
 uint32_t NFServerIDUtil::GetWorldID(uint32_t busId)
 {
-    unsigned char *pszSvrID = ( unsigned char * )&busId;
-    return ((uint32_t)(pszSvrID[WORLD_ID_POS] & 0xF0)) >> 4;
+    uint32_t dwSvrID = ntohl(busId);
+    uint32_t worldId = dwSvrID >> (ZONE_ID_BITS + SERVER_TYPE_BITS + INST_ID_BITS);
+    return worldId;
 }
 
 
 uint32_t NFServerIDUtil::GetZoneID(uint32_t busId)
 {
-    unsigned char *pszSvrID = ( unsigned char * )&busId;
-    return (((uint32_t)(pszSvrID[ZONE_ID_POS_PREFIX] & 0x0F)) << 8) + pszSvrID[ZONE_ID_POS];
+    uint32_t dwSvrID = ntohl(busId);
+    uint32_t zoneId = dwSvrID << WORLD_ID_BITS;
+    zoneId >>= (WORLD_ID_BITS + SERVER_TYPE_BITS + INST_ID_BITS);
+    return zoneId;
 }
 
 int NFServerIDUtil::GetZoneIDFromZoneAreaID(int iZoneAreaID)
@@ -31,73 +35,47 @@ int NFServerIDUtil::GetZoneIDFromZoneAreaID(int iZoneAreaID)
 
 uint32_t NFServerIDUtil::GetServerType(uint32_t busId)
 {
-    unsigned char *pszSvrID = ( unsigned char * )&busId;
-    return pszSvrID[SERVER_TYPE_POS];
+    uint32_t dwSvrID = ntohl(busId);
+    uint32_t serverType = dwSvrID << (WORLD_ID_BITS + ZONE_ID_BITS);
+    serverType >>= (WORLD_ID_BITS + ZONE_ID_BITS + INST_ID_BITS);
+    return serverType;
 }
 
 
 uint32_t NFServerIDUtil::GetInstID(uint32_t busId)
 {
-    unsigned char *pszSvrID = ( unsigned char * )&busId;
-    return pszSvrID[INST_ID_POS];
+    uint32_t dwSvrID = ntohl(busId);
+    uint32_t instId = dwSvrID << (WORLD_ID_BITS + ZONE_ID_BITS + SERVER_TYPE_BITS);
+    instId >>= (WORLD_ID_BITS + ZONE_ID_BITS + SERVER_TYPE_BITS);
+    return instId;
 }
 
 uint32_t NFServerIDUtil::GetZoneAreaID(uint32_t busId)
 {
-    return GetWorldID(busId) * 10000 + GetZoneID(busId);
+    return GetWorldID(busId) * AREA_DIGIT_BASE + GetZoneID(busId);
 }
 
-uint32_t NFServerIDUtil::MakeProcID(uint8_t world, uint16_t zone, uint8_t servertype, uint8_t inst)
+uint32_t NFServerIDUtil::MakeProcID(int world, int zone, int serverType, int inst)
 {
-    int iTmpID = 0;
-    unsigned char* pszSvrID = ( unsigned char * )&iTmpID;
-    pszSvrID[SERVER_TYPE_POS] = servertype;
-    pszSvrID[INST_ID_POS] = inst;
-    pszSvrID[WORLD_ID_POS] = (world & 0x0F) << 4;
-    pszSvrID[ZONE_ID_POS_PREFIX] = pszSvrID[ZONE_ID_POS_PREFIX] | ((zone & 0x0F00) >> 8);
-    pszSvrID[ZONE_ID_POS] = (uint8_t)zone;
+    return htonl(MakeProcIDImpl(world, zone, serverType, inst));
+}
 
-    return iTmpID;
+uint32_t NFServerIDUtil::MakeProcIDImpl(int world, int zone, int serverType, int inst)
+{
+    uint32_t procId = world << (ZONE_ID_BITS + SERVER_TYPE_BITS + INST_ID_BITS)
+        | zone << (SERVER_TYPE_BITS + INST_ID_BITS)
+        | serverType << (INST_ID_BITS)
+        | inst;
+    return procId;
 }
 
 uint32_t NFServerIDUtil::GetBusID(const std::string& busname)
-{
-	std::vector<uint32_t> vec;
-	NFStringUtility::SplitStringToUint32(busname, ".", vec);
-	uint8_t world = 0;
-	uint16_t zone = 0;
-	uint8_t servertype= 0;
-	uint8_t inst = 0;
-	if (vec.size() >= 1)
-	{
-		world = vec[0];
-	}
-
-	if (vec.size() >= 2)
-	{
-		zone = vec[1];
-	}
-
-	if (vec.size() >= 3)
-	{
-		servertype = vec[2];
-	}
-
-	if (vec.size() >= 4)
-	{
-		inst = vec[3];
-	}
-
-	return MakeProcID(world, zone, servertype, inst);
-}
-
-uint32_t NFServerIDUtil::GetShmObjKey(const std::string& busname)
 {
     std::vector<uint32_t> vec;
     NFStringUtility::SplitStringToUint32(busname, ".", vec);
     uint8_t world = 0;
     uint16_t zone = 0;
-    uint8_t servertype= 0;
+    uint8_t servertype = 0;
     uint8_t inst = 0;
     if (vec.size() >= 1)
     {
@@ -119,7 +97,38 @@ uint32_t NFServerIDUtil::GetShmObjKey(const std::string& busname)
         inst = vec[3];
     }
 
-    return world*1000000+zone*10000+servertype*100+inst;
+    return MakeProcID(world, zone, servertype, inst);
+}
+
+uint32_t NFServerIDUtil::GetShmObjKey(const std::string& busname)
+{
+    std::vector<uint32_t> vec;
+    NFStringUtility::SplitStringToUint32(busname, ".", vec);
+    int world = 0;
+    int zone = 0;
+    int serverType = 0;
+    int inst = 0;
+    if (vec.size() >= 1)
+    {
+        world = vec[0];
+    }
+
+    if (vec.size() >= 2)
+    {
+        zone = vec[1];
+    }
+
+    if (vec.size() >= 3)
+    {
+        serverType = vec[2];
+    }
+
+    if (vec.size() >= 4)
+    {
+        inst = vec[3];
+    }
+
+    return MakeProcIDImpl(world, zone, serverType, inst);
 }
 
 std::string NFServerIDUtil::GetBusNameFromBusID(uint32_t busId)
@@ -137,13 +146,14 @@ std::string NFServerIDUtil::GetBusNameFromBusID(const std::string& busId)
     return GetBusNameFromBusID(NFCommon::strto<uint32_t>(busId));
 }
 
-bool NFServerIDUtil::MakeAddress(const std::string& addrStr, NFChannelAddress &addr)
+bool NFServerIDUtil::MakeAddress(const std::string& addrStr, NFChannelAddress& addr)
 {
     addr.mAddress = addrStr;
 
     // 获取协议
     size_t scheme_end = addr.mAddress.find_first_of("://");
-    if (addr.mAddress.npos == scheme_end) {
+    if (addr.mAddress.npos == scheme_end)
+    {
         return false;
     }
 
@@ -152,7 +162,8 @@ bool NFServerIDUtil::MakeAddress(const std::string& addrStr, NFChannelAddress &a
 
     size_t port_end = addr.mAddress.find_last_of(":");
     addr.mPort = 0;
-    if (addr.mAddress.npos != port_end && port_end >= scheme_end + 3) {
+    if (addr.mAddress.npos != port_end && port_end >= scheme_end + 3)
+    {
         addr.mPort = NFCommon::strto<int>(addr.mAddress.c_str() + port_end + 1);
     }
 
@@ -162,7 +173,7 @@ bool NFServerIDUtil::MakeAddress(const std::string& addrStr, NFChannelAddress &a
     return true;
 }
 
-void NFServerIDUtil::MakeAddress(const std::string& scheme, const std::string& host, int port, NFChannelAddress &addr)
+void NFServerIDUtil::MakeAddress(const std::string& scheme, const std::string& host, int port, NFChannelAddress& addr)
 {
     addr.mScheme = scheme;
     addr.mHost = host;
@@ -170,7 +181,8 @@ void NFServerIDUtil::MakeAddress(const std::string& scheme, const std::string& h
     addr.mAddress.reserve(addr.mScheme.size() + addr.mHost.size() + 4 + 8);
     addr.mAddress = addr.mScheme + "://" + addr.mHost;
 
-    if (port > 0) {
+    if (port > 0)
+    {
         std::string portStr = NFCommon::tostr(port);
         addr.mAddress += ":";
         addr.mAddress += portStr;

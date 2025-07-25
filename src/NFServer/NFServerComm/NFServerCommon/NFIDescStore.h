@@ -35,6 +35,28 @@
     NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIDescStoreModule>()->RegisterDescStoreEx(#className, className::GetStaticClassType());\
     REGISTER_SINGLETON_SHM_OBJ_GLOBAL(className)      \
 
+/**
+ * @brief 反注册描述存储宏
+ * @param className 类名
+ * @note 用于动态卸载描述存储模块，同时释放共享内存对象
+ * @warning 必须确保类继承自NFIDescStore，且在模块卸载时调用
+ */
+#define UNREGISTER_DESCSTORE(className)  \
+    assert((TIsDerived<className, NFIDescStore>::Result)); \
+    NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIDescStoreModule>()->UnRegisterDescStore(#className);\
+    UNREGISTER_SHM_OBJ(className)      \
+
+/**
+ * @brief 反注册扩展描述存储宏
+ * @param className 类名
+ * @note 用于动态卸载扩展描述存储模块，同时释放共享内存对象
+ * @warning 必须确保类继承自NFIDescStoreEx，且在模块卸载时调用
+ */
+#define UNREGISTER_DESCSTORE_EX(className)  \
+    assert((TIsDerived<className, NFIDescStoreEx>::Result)); \
+    NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIDescStoreModule>()->UnRegisterDescStoreEx(#className);\
+    UNREGISTER_SHM_OBJ(className)      \
+
 class NFIDescStore : public NFObject
 {
 public:
@@ -47,6 +69,8 @@ public:
     int ResumeInit();
 
     virtual int Load(NFResDb *pDB) = 0;
+
+    virtual int LoadDB(NFResDb *pDB) = 0;
 
     virtual int Reload(NFResDb *pDB) = 0;
 
@@ -163,11 +187,22 @@ public:
         m_dbName = dbName;
     }
 
+    void SetDBLoaded(bool b)
+    {
+        m_bIsDBLoaded = b;
+    }
+
+    bool IsDBLoaded() const
+    {
+        return m_bIsDBLoaded;
+    }
+
 protected:
     bool m_bValid;
     bool m_bIsLoaded;
     bool m_bIsChecked;
     bool m_bIsReLoading;
+    bool m_bIsDBLoaded;
     int m_bSaveTimer;
     NFShmString<MAX_MD5_STR_LEN> m_szMD5;
     NFShmString<MAX_DESC_FILE_PATH_STR_LEN> m_filePathName;

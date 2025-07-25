@@ -103,11 +103,6 @@ int NFObject::GetFreeCount() const
     return FindModule<NFIMemMngModule>()->GetFreeCount(GetClassType());
 }
 
-int NFObject::AfterOnReloadConfig()
-{
-    return 0;
-}
-
 int NFObject::OnTimer(int timeId, int callCount)
 {
     NFLogError(NF_LOG_DEFAULT, 0, "shm obj type:{} no handle timer:{}", GetClassType(), timeId);

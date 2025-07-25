@@ -83,7 +83,7 @@ int ExcelToBin::OnHandleOtherInfo(ExcelSheet& sheet)
         const google::protobuf::Descriptor* pDesc = NFProtobufCommon::Instance()->FindDynamicMessageTypeByName(colPbMessage.m_messagePbName);
         if (pDesc == NULL)
         {
-            pDesc = NFProtobufCommon::Instance()->FindDynamicMessageTypeByName("proto_ff." + colPbMessage.m_messagePbName);
+            pDesc = NFProtobufCommon::Instance()->FindDynamicMessageTypeByName(DEFINE_DEFAULT_PROTO_PACKAGE_ADD + colPbMessage.m_messagePbName);
         }
 
         if (pDesc == NULL)
@@ -195,11 +195,42 @@ int ExcelToBin::WriteToBin(ExcelSheet& sheet)
                     if (!value.empty())
                     {
                         time_t valueTime;
-                        if (NFTimeUtil::DateStrToLocalTime(value.data(), &valueTime) != 0)
+                        std::string strValue = value.data();
+                        int count1 = std::count(strValue.begin(), strValue.end(), '-');
+                        int count2 = std::count(strValue.begin(), strValue.end(), ':');
+                        if (count1 == 2 && count2 == 2)
                         {
-                            LOG_ERR(0, -1, "Invalid value for date field: {}", value);
-                            return -1;
+                            if (NFTimeUtil::DateStrToLocalTime(value.data(), &valueTime) != 0)
+                            {
+                                LOG_ERR(0, -1, "Invalid value for date field: {}", value);
+                                return -1;
+                            }
                         }
+                        else if (count1 == 0 && count2 == 2)
+                        {
+                            if (NFTimeUtil::GetTimeSec(value.data(), &valueTime) != 0)
+                            {
+                                LOG_ERR(0, -1, "Invalid value for date field: {}", value);
+                                return -1;
+                            }
+                        }
+                        else if (count1 == 0 && count2 == 1)
+                        {
+                            if (NFTimeUtil::GetTimeSecEx(value.data(), &valueTime) != 0)
+                            {
+                                LOG_ERR(0, -1, "Invalid value for date field: {}", value);
+                                return -1;
+                            }
+                        }
+                        else
+                        {
+                            if (NFTimeUtil::GetTimeSecEx(value.data(), &valueTime) != 0)
+                            {
+                                LOG_ERR(0, -1, "Invalid value for date field: {}", value);
+                                return -1;
+                            }
+                        }
+
                         mapFields.emplace(sheelColIndex.m_fullEnName+"_t",  NFCommon::tostr(valueTime));
                     }
                 }

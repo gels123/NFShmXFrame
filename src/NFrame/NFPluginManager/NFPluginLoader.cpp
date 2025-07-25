@@ -154,7 +154,7 @@ int c_main(int argc, char* argv[])
         pPluginManager->End(); // 执行插件管理器终止逻辑
         NF_SAFE_DELETE(pPluginManager); // 安全删除插件管理器实例
     }
-
+#if NF_PLATFORM == NF_PLATFORM_WIN
     if (NFGlobalSystem::Instance()->IsServerKilling())
     {
         NFSignalHandlerMgr::Instance()->SendKillSuccess();
@@ -162,6 +162,7 @@ int c_main(int argc, char* argv[])
 
     // 释放全局系统单例
     NFSignalHandlerMgr::Instance()->ReleaseInstance();
+#endif
     NFGlobalSystem::Instance()->ReleaseSingleton();
 
     return 0;

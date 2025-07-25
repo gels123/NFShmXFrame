@@ -49,56 +49,58 @@ public:
 
 	virtual void Install() = 0;
 
-    virtual bool AfterLoadAllPlugin() override;
+	virtual void Uninstall() = 0;
+public:
+    bool AfterLoadAllPlugin() override;
 
-    virtual bool AfterInitShmMem() override;
+    bool AfterInitShmMem() override;
 
-	virtual bool Awake() override;
+	bool Awake() override;
 
-	virtual bool Init() override;
+	bool Init() override;
 
-	virtual bool CheckConfig() override;
+	bool CheckConfig() override;
 
-	virtual bool ReadyExecute() override;
+	bool ReadyExecute() override;
 
-	virtual bool Execute() override;
+	bool Execute() override;
 
-	virtual bool BeforeShut() override;
+	bool BeforeShut() override;
 
-	virtual bool Shut() override;
+	bool Shut() override;
 
-	virtual bool Finalize() override;
+	bool Finalize() override;
 
-	virtual bool OnReloadConfig() override;
+	bool OnReloadConfig() override;
 
-    virtual bool AfterOnReloadConfig() override;
+    bool AfterOnReloadConfig() override;
     /*
      * 热更退出app, 用于服务器需要热更app代码的情况，这时候会杀掉正在运行的的的app,重启新的服务器app
      * */
-    virtual bool HotfixServer() override;
+    bool HotfixServer() override;
 
     /*
      * 停服之前，检查服务器是否满足停服条件
      * */
-    virtual bool CheckStopServer() override;
+    bool CheckStopServer() override;
 
     /*
      * 停服之前，做一些操作，满足停服条件
      * */
-    virtual bool StopServer() override;
+    bool StopServer() override;
 
     /*
      * 停服之前保存需要的数据
      * */
-    virtual bool OnServerKilling() override;
+    bool OnServerKilling() override;
 
+	bool OnDynamicPlugin() override;
+public:
     virtual bool InitShmObjectRegister();
 
-	virtual void Uninstall() = 0;
 
 	virtual bool IsDynamicLoad();
 
-	virtual bool OnDynamicPlugin() override;
 
 	virtual void AddModule(const std::string& moduleName, NFIModule* pModule);
 
@@ -108,31 +110,69 @@ public:
     * @brief 服务器连接完成后
     * @return
     */
-    virtual bool AfterAllConnectFinish() override;
+    bool AfterAllConnectFinish() override;
 
     /**
      * @brief 加载完服务器数据，包过excel, 以及从数据拉取的数据
      * @return
      */
-    virtual bool AfterAllDescStoreLoaded() override;
+    bool AfterAllDescStoreLoaded() override;
+
+	bool AfterAllConnectAndAllDescStore() override;
 
     /**
      * @brief 从db加载全局数据, 这个加载一定在完成连接后，有可能依赖descstore数据，也可能不依赖
      * @return
      */
-    virtual bool AfterObjFromDBLoaded() override;
+    bool AfterObjFromDBLoaded() override;
 
     /**
      * @brief 完成服务器之间的注册
      * @return
      */
-    virtual bool AfterServerRegisterFinish() override;
+    bool AfterServerRegisterFinish() override;
 
     /**
      * @brief  服务器完成初始化之后
      * @return
      */
-    virtual bool AfterAppInitFinish() override;
+    bool AfterAppInitFinish() override;
+
+	/**
+	 * @brief 服务器连接完成后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAllConnectFinish(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 加载完服务器数据（如 Excel 和数据库数据）后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief
+	 * @return AfterAllConnectFinish 和 AfterAllDescStoreLoaded 都完成后
+	 */
+	bool AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 从数据库加载全局数据后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterObjFromDBLoaded(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 完成服务器之间的注册后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterServerRegisterFinish(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 服务器完成初始化后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAppInitFinish(NF_SERVER_TYPE serverType) override;
 protected:
 	std::map<std::string, NFIModule*> m_mapModule;
 	std::vector<NFIModule*> m_vecModule;

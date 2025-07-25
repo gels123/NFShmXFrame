@@ -11,11 +11,14 @@
 
 #include "NFPlatform.h"
 
-#define WORLD_ID_POS 0
-#define ZONE_ID_POS_PREFIX 0
-#define ZONE_ID_POS 1
-#define SERVER_TYPE_POS 2
-#define INST_ID_POS 3
+#define PUB_ZONE_BITS_BASE 1000
+#define AREA_DIGIT_BASE 10000
+
+// 服务器ID位数定义
+#define WORLD_ID_BITS 4        // 世界服ID位数：4位，支持0-15
+#define ZONE_ID_BITS 12        // 分区ID位数：12位，支持0-4095
+#define SERVER_TYPE_BITS 8     // 服务器类型位数：8位，支持0-255
+#define INST_ID_BITS 8         // 实例ID位数：8位，支持0-255（修复了原来的拼写错误INST_ID_BIS）
 
 struct NFChannelAddress
 {
@@ -96,11 +99,12 @@ public:
 	*
 	* @param world				世界服ID 占用4位，0-15
 	* @param zone				分区ID 暂用12位，0-4095
-	* @param servertype		服务器类型 暂用6位，0-255
+	* @param servertype		服务器类型 暂用8位，0-255
 	* @param inst				索引 暂用8位，0-255
 	* @return uint32_t 区域服务器ID
 	*/
-	static uint32_t MakeProcID(uint8_t world, uint16_t zone, uint8_t servertype, uint8_t inst);
+	static uint32_t MakeProcID(int world, int zone, int serverType, int inst);
+	static uint32_t MakeProcIDImpl(int world, int zone, int serverType, int inst);
 
 	/**
 	* @brief 通过busid(15.50.5.1)获得世界服ID, 15是世界服ID， 50是分区ID， 5是服务器类型, 1是索引

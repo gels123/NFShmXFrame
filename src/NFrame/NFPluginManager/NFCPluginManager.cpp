@@ -529,6 +529,11 @@ int NFCPluginManager::GetZoneID() const
 	return static_cast<int>(NFServerIDUtil::GetZoneID(m_nAppID));
 }
 
+int NFCPluginManager::GetZoneAreaID() const
+{
+	return static_cast<int>(NFServerIDUtil::GetZoneAreaID(m_nAppID));
+}
+
 
 const std::string& NFCPluginManager::GetConfigPath() const
 {
@@ -1852,6 +1857,17 @@ bool NFCPluginManager::AfterAllDescStoreLoaded()
 	return true;
 }
 
+bool NFCPluginManager::AfterAllConnectAndAllDescStore()
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "NFPluginManager AfterAllConnectAndAllDescStore................");
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterAllConnectAndAllDescStore();
+	}
+
+	return true;
+}
+
 bool NFCPluginManager::AfterObjFromDBLoaded()
 {
 	NFLogInfo(NF_LOG_DEFAULT, 0, "NFPluginManager AfterObjFromDBLoaded................");
@@ -1880,6 +1896,72 @@ bool NFCPluginManager::AfterAppInitFinish()
 	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
 	{
 		(*iter)->AfterAppInitFinish();
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterAllConnectFinish(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterAllConnectFinish................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterAllConnectFinish(serverType);
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterAllDescStoreLoaded................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterAllDescStoreLoaded(serverType);
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterAllConnectAndAllDescStore................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterAllConnectAndAllDescStore(serverType);
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterObjFromDBLoaded(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterObjFromDBLoaded................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterObjFromDBLoaded(serverType);
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterServerRegisterFinish(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterServerRegisterFinish................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterServerRegisterFinish(serverType);
+	}
+
+	return true;
+}
+
+bool NFCPluginManager::AfterAppInitFinish(NF_SERVER_TYPE serverType)
+{
+	NFLogInfo(NF_LOG_DEFAULT, 0, "{} AfterAppInitFinish................", NF_SERVER_TYPE_name(serverType));
+	for (auto iter = m_nPluginInstanceList.begin(); iter != m_nPluginInstanceList.end(); ++iter)
+	{
+		(*iter)->AfterAppInitFinish(serverType);
 	}
 
 	return true;

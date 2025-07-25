@@ -20,7 +20,7 @@
 #include "NFComm/NFCore/NFStringUtility.h"
 
 template <typename className, typename className_s, int classType, int DescNum>
-class NFIDescTemplate : public NFShmObjGlobalTemplate<className, classType, NFIDescStore>
+class NFIDescTemplate : public NFObjectGlobalTemplate<className, classType, NFIDescStore>
 {
 public:
     NFIDescTemplate()
@@ -80,6 +80,8 @@ public:
     virtual int Initialize() override { return 0; }
 
     virtual int Load(NFResDb* pDB) override { return 0; }
+
+    virtual int LoadDB(NFResDb *pDB)  override { return 0; }
 
     virtual int CheckWhenAllDataLoaded() override { return 0; }
 

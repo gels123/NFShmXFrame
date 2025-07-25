@@ -129,6 +129,12 @@ public:
 	bool AfterAllDescStoreLoaded() override;
 
 	/**
+	 * @brief
+	 * @return AfterAllConnectFinish 和 AfterAllDescStoreLoaded 都完成后
+	 */
+	bool AfterAllConnectAndAllDescStore() override;
+
+	/**
 	 * @brief 从数据库加载全局数据后调用。
 	 * @return 成功返回 true，失败返回 false。
 	 */
@@ -145,6 +151,42 @@ public:
 	 * @return 成功返回 true，失败返回 false。
 	 */
 	bool AfterAppInitFinish() override;
+
+	/**
+	 * @brief 服务器连接完成后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAllConnectFinish(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 加载完服务器数据（如 Excel 和数据库数据）后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAllDescStoreLoaded(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief
+	 * @return AfterAllConnectFinish 和 AfterAllDescStoreLoaded 都完成后
+	 */
+	bool AfterAllConnectAndAllDescStore(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 从数据库加载全局数据后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterObjFromDBLoaded(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 完成服务器之间的注册后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterServerRegisterFinish(NF_SERVER_TYPE serverType) override;
+
+	/**
+	 * @brief 服务器完成初始化后调用。
+	 * @return 成功返回 true，失败返回 false。
+	 */
+	bool AfterAppInitFinish(NF_SERVER_TYPE serverType) override;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -248,6 +290,8 @@ public:
 	 * @return 返回区域 ID。
 	 */
 	int GetZoneID() const override;
+
+	int GetZoneAreaID() const override;
 
 	/**
 	 * @brief 获取配置文件路径。

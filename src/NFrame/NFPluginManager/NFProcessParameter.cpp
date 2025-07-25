@@ -87,14 +87,13 @@ void ProcessParameter(int argc, char* argv[])
 		NFCmdLine::NFParser cmdParser;
 
 		// 添加命令行参数选项
-		cmdParser.Add<std::string>("Server", 0, "Server Name", false, "xxAllServer or AllMoreServer(more server, must use different loaded server)");
-		cmdParser.Add<std::string>("ID", 0, "Server ID", false, "1.1.1.1");
-		cmdParser.Add<std::string>("Config", 0, "Config Path", false, "../../Config");
-		cmdParser.Add<std::string>("Path", 0, "Config Path", false, "../../Config");
-		cmdParser.Add<std::string>("Plugin", 0, "Config Path", false, "../../Plugin");
-		cmdParser.Add<std::string>("LogPath", 0, "Log Path", false, "logs");
+		cmdParser.Add<std::string>("Server", 0, "Server Name", true, "xxAllServer or AllMoreServer(more server, must use different loaded server)");
+		cmdParser.Add<std::string>("ID", 0, "Server ID", true, "1.1.1.1");
+		cmdParser.Add<std::string>("Config", 0, "Config Path", true, "../../Config");
+		cmdParser.Add<std::string>("Plugin", 0, "Plugin Path", false, "../../Plugin");
+		cmdParser.Add<std::string>("Log", 0, "Log Path", false, "logs");
 		cmdParser.Add<std::string>("LuaScript", 0, "Lua Script Path", false, "../LuaScript");
-		cmdParser.Add<std::string>("Game", 0, "Game", false, "MMO");
+		cmdParser.Add<std::string>("Game", 0, "Game", true, "MMO");
 		cmdParser.Add("XButton", 'x', "Close the 'X' button, only on windows");
 		cmdParser.Add("Daemon", 'd', "Run it as daemon mode, only on linux");
 		cmdParser.Add("Stop", 0, "Stop the run server, only on linux");
@@ -126,6 +125,7 @@ void ProcessParameter(int argc, char* argv[])
 			auto strBusName = cmdParser.Get<std::string>("ID");
 			auto strConfigPath = cmdParser.Get<std::string>("Config");
 			auto strPlugin = cmdParser.Get<std::string>("Plugin");
+			auto strGame = cmdParser.Get<std::string>("Game");
 
 			// 加载配置文件
 			NFGlobalSystem::Instance()->LoadConfig(strPlugin);
@@ -143,6 +143,7 @@ void ProcessParameter(int argc, char* argv[])
 				vecParam.push_back("--ID=" + serverConfig.id());
 				vecParam.push_back("--Config=" + strConfigPath);
 				vecParam.push_back("--Plugin=" + strPlugin);
+				vecParam.push_back("--Game=" + strGame);
 				vecParam.push_back("--restart");
 
 				// 创建新的插件管理器并处理参数
@@ -212,14 +213,13 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		NFCmdLine::NFParser cmdParser;
 
 		// 添加命令行选项
-		cmdParser.Add<std::string>("Server", 0, "Server Name", false, "AllServer");
-		cmdParser.Add<std::string>("ID", 0, "Server ID", false, "1.1.1.1");
-		cmdParser.Add<std::string>("Config", 0, "Config Path", false, "../../Config");
-		cmdParser.Add<std::string>("Path", 0, "Config Path", false, "../../Config");
-		cmdParser.Add<std::string>("Plugin", 0, "Config Path", false, "../../Plugin");
-		cmdParser.Add<std::string>("LogPath", 0, "Log Path", false, "logs");
+		cmdParser.Add<std::string>("Server", 0, "Server Name", true, "AllServer");
+		cmdParser.Add<std::string>("ID", 0, "Server ID", true, "1.1.1.1");
+		cmdParser.Add<std::string>("Config", 0, "Config Path", true, "../../Config");
+		cmdParser.Add<std::string>("Plugin", 0, "Plugin Path", true, "../../Plugin");
+		cmdParser.Add<std::string>("Log", 0, "Log Path", false, "logs");
 		cmdParser.Add<std::string>("LuaScript", 0, "Lua Script Path", false, "../../LuaScript");
-		cmdParser.Add<std::string>("Game", 0, "Game", false, "MMO");
+		cmdParser.Add<std::string>("Game", 0, "Game", true, "MMO");
 		cmdParser.Add("XButton", 'x', "Close the 'X' button, only on windows");
 		cmdParser.Add("Daemon", 'd', "Run it as daemon mode, only on linux");
 		cmdParser.Add("Stop", 0, "Stop the run server, only on linux");
@@ -230,9 +230,6 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		cmdParser.Add("Init", 0, "Change shm mode to init, only on linux");
 		cmdParser.Add("Kill", 0, "Kill the run server, only on linux");
 		cmdParser.Add<std::string>("Param", 0, "Temp Param, You love to use it", false, "Param");
-
-		// 打印命令行使用说明
-		std::cout << cmdParser.Usage() << std::endl;
 
 		// 解析并检查命令行参数
 		cmdParser.ParseCheck(vecParam);
@@ -276,16 +273,6 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 			auto strDataPath = cmdParser.Get<std::string>("Config");
 			pPluginManager->SetConfigPath(strDataPath);
 		}
-		else if (cmdParser.Exist("Path"))
-		{
-			auto strDataPath = cmdParser.Get<std::string>("Path");
-			pPluginManager->SetConfigPath(strDataPath);
-		}
-		else
-		{
-			auto strDataPath = cmdParser.Get<std::string>("Config");
-			pPluginManager->SetConfigPath(strDataPath);
-		}
 
 		// 设置插件路径
 		auto strPlugin = cmdParser.Get<std::string>("Plugin");
@@ -294,7 +281,7 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		// 设置Lua脚本路径
 		auto luaScript = cmdParser.Get<std::string>("LuaScript");
 		pPluginManager->SetLuaScriptPath(luaScript);
-		auto logPath = cmdParser.Get<std::string>("LogPath");
+		auto logPath = cmdParser.Get<std::string>("Log");
 		pPluginManager->SetLogPath(logPath);
 
 		auto gameStr = cmdParser.Get<std::string>("Game");
@@ -542,7 +529,7 @@ void ProcessParameter(NFIPluginManager* pPluginManager, const std::vector<std::s
 		std::string strTitleName = "NF" + strAppName + NFCommon::tostr(strBusName); // +" PID" + NFGetPID();
 #if NF_PLATFORM == NF_PLATFORM_WIN
         // 在 Windows 平台设置控制台窗口标题
-		//SetConsoleTitle(NFStringUtility::char2wchar(strTitleName.c_str(), NULL));
+		SetConsoleTitle(NFStringUtility::char2wchar(strTitleName.c_str(), NULL));
 
 #elif NF_PLATFORM == NF_PLATFORM_LINUX
         // 在 Linux 平台设置进程名称

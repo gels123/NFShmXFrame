@@ -307,7 +307,7 @@ TEST_F(NFShmHashMapTest, IteratorOperations)
     for (const auto& pair : test_data)
     {
         auto found = std::find_if(iterated_data.begin(), iterated_data.end(),
-                                  [&pair](const auto& p) { return p.first == pair.first && p.second == pair.second; });
+                                  [&pair](const std::pair<int, std::string>& p) { return p.first == pair.first && p.second == pair.second; });
         EXPECT_NE(found, iterated_data.end());
     }
 

@@ -187,13 +187,27 @@ struct CallBack
 		mxReceiveCallBack.resize(NF_MODULE_MAX);
 		for (int i = 0; i < (int)mxReceiveCallBack.size(); i++)
 		{
-			mxReceiveCallBack[i].resize(NF_NET_MAX_MSG_ID);
+			if (i <= NF_MODULE_CLIENT)
+			{
+				mxReceiveCallBack[i].resize(NF_NET_MAX_MSG_ID);
+			}
+			else
+			{
+				mxReceiveCallBack[i].resize(NF_NET_OTHER_MAX_MSG_ID);
+			}
 		}
 
 		mxRpcCallBack.resize(NF_MODULE_MAX);
 		for (int i = 0; i < (int)mxRpcCallBack.size(); i++)
 		{
-			mxRpcCallBack[i].resize(NF_NET_MAX_MSG_ID);
+			if (i <= NF_MODULE_CLIENT)
+			{
+				mxRpcCallBack[i].resize(NF_NET_MAX_MSG_ID);
+			}
+			else
+			{
+				mxRpcCallBack[i].resize(NF_NET_OTHER_MAX_MSG_ID);
+			}
 		}
 	}
 

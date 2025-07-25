@@ -21,7 +21,7 @@
 #include "NFComm/NFCore/NFStringUtility.h"
 
 template<typename className, typename className_s, int classType, int DescNum>
-class NFIDescStoreTemplate : public NFShmObjGlobalTemplate<className, classType, NFIDescStore>
+class NFIDescStoreTemplate : public NFObjectGlobalTemplate<className, classType, NFIDescStore>
 {
 public:
     NFIDescStoreTemplate()

@@ -96,14 +96,11 @@ int NFServerTime::GmSetTime(uint64_t tTime)
 {
     if (tTime < m_unixSec)
     {
-        NFLogError(NF_LOG_DEFAULT, 0, "cant not set server time before now.");
         return 1;
     }
     else
     {
         m_iSecOffSet = tTime - m_unixSec;
-        NFLogWarning(NF_LOG_DEFAULT, 0, "cur server time {}", NFTime(m_unixSec, 0).GetFormatTime());
-        NFLogWarning(NF_LOG_DEFAULT, 0, "set server time {}", NFTime::Now().GetFormatTime());
     }
     return 0;
 }

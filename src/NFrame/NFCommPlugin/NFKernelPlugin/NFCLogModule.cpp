@@ -217,7 +217,7 @@ std::shared_ptr<spdlog::logger> NFCLogModule::CreateLogger(uint32_t logId, const
 	}
 
 	std::vector<spdlog::sink_ptr> sinks_vec;
-	std::string log_name = NF_FORMAT("{}{}{}{}{}.log", m_pObjPluginManager->GetLogPath(), spdlog::details::os::folder_sep, m_pObjPluginManager->GetAppName() + "_" + m_pObjPluginManager->GetBusName(), spdlog::details::os::folder_sep, m_pObjPluginManager->GetAppName() + "_" + m_pObjPluginManager->GetBusName() + "_" + logName);
+	std::string log_name = NF_FORMAT("{}{}{}{}{}{}{}.log", m_pObjPluginManager->GetLogPath(), spdlog::details::os::folder_sep, m_pObjPluginManager->GetGame(), spdlog::details::os::folder_sep, m_pObjPluginManager->GetAppName() + "_" + m_pObjPluginManager->GetBusName(), spdlog::details::os::folder_sep, m_pObjPluginManager->GetAppName() + "_" + m_pObjPluginManager->GetBusName() + "_" + logName);
 	auto date_and_hour_sink = std::make_shared<spdlog::sinks::my_date_and_hour_file_sink_mt>(log_name);
 
 #if NF_PLATFORM == NF_PLATFORM_WIN

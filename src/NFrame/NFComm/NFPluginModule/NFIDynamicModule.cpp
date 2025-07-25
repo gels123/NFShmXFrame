@@ -75,7 +75,7 @@ bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPE eType, uint32_t nMsg
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, NF_MODULE_CLIENT, nMsgID, this, functor, createCo);
 }
 
-bool NFIDynamicModule::RegisterClientMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModleId, uint32_t nMsgID, bool createCo)
+bool NFIDynamicModule::RegisterClientMessageWithModule(NF_SERVER_TYPE eType, uint32_t nModleId, uint32_t nMsgID, bool createCo)
 {
     NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))(&NFIDynamicModule::OnHandleClientMessage), this, std::placeholders::_1, std::placeholders::_2);
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, nModleId, nMsgID, this, functor, createCo);
@@ -93,7 +93,7 @@ bool NFIDynamicModule::RegisterServerMessage(NF_SERVER_TYPE eType, uint32_t nMsg
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, NF_MODULE_SERVER, nMsgID, this, functor, createCo);
 }
 
-bool NFIDynamicModule::RegisterServerMessage(NF_SERVER_TYPE eType, NF_MODULE_TYPE nModuleId, uint32_t nMsgID, bool createCo)
+bool NFIDynamicModule::RegisterServerMessageWithModule(NF_SERVER_TYPE eType, uint32_t nModuleId, uint32_t nMsgID, bool createCo)
 {
     NET_RECEIVE_FUNCTOR functor = std::bind((int(NFIDynamicModule::*)(uint64_t, NFDataPackage&))&NFIDynamicModule::OnHandleServerMessage, this, std::placeholders::_1, std::placeholders::_2);
     return FindModule<NFIMessageModule>()->AddMessageCallBack(eType, nModuleId, nMsgID, this, functor, createCo);

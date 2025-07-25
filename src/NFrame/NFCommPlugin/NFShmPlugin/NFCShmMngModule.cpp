@@ -79,11 +79,6 @@ bool NFCShmMngModule::AfterLoadAllPlugin()
     return true;
 }
 
-bool NFCShmMngModule::ReadyExecute()
-{
-    return true;
-}
-
 bool NFCShmMngModule::Execute()
 {
     auto pTimerMng = dynamic_cast<NFShmTimerMng*>(GetHeadObj(EOT_TYPE_TIMER_MNG));
@@ -102,27 +97,6 @@ bool NFCShmMngModule::Execute()
 bool NFCShmMngModule::Finalize()
 {
     DestroyShareMem();
-    return true;
-}
-
-bool NFCShmMngModule::OnReloadConfig()
-{
-    return true;
-}
-
-bool NFCShmMngModule::AfterOnReloadConfig()
-{
-    for (int i = 0; i < static_cast<int>(m_nObjSegSwapCounter.size()); i++)
-    {
-        NFShmObjSeg* pObjSeg = m_nObjSegSwapCounter[i].m_pObjSeg;
-        if (pObjSeg)
-        {
-            for (auto iter = IterBegin(i); iter != IterEnd(i); ++iter)
-            {
-                iter->AfterOnReloadConfig();
-            }
-        }
-    }
     return true;
 }
 
@@ -566,11 +540,10 @@ int NFCShmMngModule::InitAllObjSeg()
     return 0;
 }
 
-void
-NFCShmMngModule::RegisterClassToObjSeg(int bType, size_t nObjSize, int iItemCount, NFObject*(*pfResumeObj)(void*),
-                                       NFObject*(*pCreateFn)(),
-                                       void (*pDestroy)(NFObject*), int parentType, const std::string& pszClassName,
-                                       bool useHash, bool singleton)
+void NFCShmMngModule::RegisterClassToObjSeg(int bType, size_t nObjSize, int iItemCount, NFObject*(*pfResumeObj)(void*),
+                                            NFObject*(*pCreateFn)(),
+                                            void (*pDestroy)(NFObject*), int parentType, const std::string& pszClassName,
+                                            bool useHash, bool singleton)
 {
     NFShmObjSegSwapCounter* pCounter = CreateCounterObj(bType);
     bool add = false;
@@ -704,6 +677,66 @@ NFCShmMngModule::RegisterClassToObjSeg(int bType, size_t nObjSize, int iItemCoun
 
     CHECK_EXPR_RE_VOID(m_iTotalObjCount < MAX_GLOBALID_NUM * 0.8, "the shm obj too much, m_iTotalObjCount:{} < MAX_GLOBALID_NUM:{}*0.8",
                        m_iTotalObjCount, MAX_GLOBALID_NUM);
+}
+
+void NFCShmMngModule::UnRegisterClassToObjSeg(int bType)
+{
+    // 获取对象类型对应的计数器
+    NFShmObjSegSwapCounter* pCounter = CreateCounterObj(bType);
+
+    // 如果存在父类关系，需要清理继承链
+    if (pCounter->m_pParent != nullptr)
+    {
+        NFShmObjSegSwapCounter* pParentClass = pCounter->m_pParent;
+        while (pParentClass)
+        {
+            // 从父类的子类列表中移除当前类型
+            pParentClass->m_childrenObjType.erase(bType);
+            // 从当前类型的父类列表中移除父类
+            pCounter->m_parentObjType.erase(pParentClass->m_iObjType);
+            pParentClass = pParentClass->m_pParent;
+        }
+    }
+
+    // 计算并回收该对象类型占用的内存大小
+    size_t siThisObjSegTotal = 0;
+    {
+#ifdef SHM_OBJ_SEQ_USE_VECTOR_INDEX
+        siThisObjSegTotal += NFShmDyVector<NFShmIdx>::CountSize(pCounter->m_iItemCount);
+        siThisObjSegTotal += NFShmDyList<int>::CountSize(pCounter->m_iItemCount);
+#else
+        siThisObjSegTotal += NFShmDyList<NFShmIdx>::CountSize(pCounter->m_iItemCount);
+#endif
+        // 如果使用了哈希表，计算哈希表大小
+        if (pCounter->m_iUseHash)
+        {
+            siThisObjSegTotal += NFShmObjSeg::GetHashSize(pCounter->m_iItemCount);
+        }
+#ifdef SHM_OBJ_SEQ_USE_VECTOR_INDEX
+        siThisObjSegTotal += (sizeof(int) + pCounter->m_nObjSize) * pCounter->m_iItemCount;
+#else
+        siThisObjSegTotal += pCounter->m_nObjSize * pCounter->m_iItemCount;
+#endif
+
+        // 从总内存统计中减去该对象类型占用的内存
+        m_iObjSegSizeTotal -= siThisObjSegTotal;
+        m_iTotalObjCount -= pCounter->m_iItemCount;
+
+        // 根据内存大小输出不同级别的日志信息
+        if (siThisObjSegTotal / 1024.0 / 1024.0 >= 10)
+        {
+            NFLogWarning(NF_LOG_DEFAULT, 0, "unregister class {} objsize {} M count {} tablesize {} M total obj count {}", pCounter->m_szClassName,
+                         pCounter->m_nObjSize / 1024.0 / 1024.0, pCounter->m_iItemCount, siThisObjSegTotal / 1024.0 / 1024.0, m_iTotalObjCount);
+        }
+        else
+        {
+            NFLogInfo(NF_LOG_DEFAULT, 0, "unregister class {} objsize {} byte count {} tablesize {} M total obj count {}", pCounter->m_szClassName,
+                      pCounter->m_nObjSize, pCounter->m_iItemCount, siThisObjSegTotal / 1024.0 / 1024.0, m_iTotalObjCount);
+        }
+    }
+    
+    // 清理计数器对象，释放相关资源
+    pCounter->clear();
 }
 
 void NFShmObjSegSwapCounter::SetObjSeg(NFShmObjSeg* pObjSeg)

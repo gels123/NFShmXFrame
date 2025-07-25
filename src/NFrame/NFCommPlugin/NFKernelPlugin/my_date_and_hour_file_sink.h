@@ -17,6 +17,8 @@
 #include <mutex>
 #include <string>
 
+#include "NFComm/NFPluginModule/NFCheck.h"
+
 namespace spdlog
 {
 	namespace sinks
@@ -86,25 +88,8 @@ namespace spdlog
 				std::tie(pre_dir, basename, ext) = split_by_dir_and_extenstion(filename);
 				std::conditional<std::is_same<filename_t::value_type, char>::value, fmt::memory_buffer, fmt::wmemory_buffer>::type w;
 				auto dir_path = fmt::format(SPDLOG_FILENAME_T("{}{}{:04d}{:02d}{:02d}{}"), pre_dir, spdlog::details::os::folder_sep, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, spdlog::details::os::folder_sep);
-
-				//CHECK if directory is already existed
-				char tmp_dir_path[MAX_PATH] = { 0 };
-				for (size_t i = 0; i < dir_path.length(); ++i)
-				{
-					tmp_dir_path[i] = dir_path[i];
-					if (tmp_dir_path[i] == spdlog::details::os::folder_sep)
-					{
-						if (ACCESS(tmp_dir_path, 0) == -1)
-						{
-							int32_t ret = MKDIR(tmp_dir_path);
-							if (ret != 0)
-							{
-								assert(0);
-							}
-						}
-					}
-				}
-
+				dir_path = NFFileUtility::NormalizePath(dir_path);
+				NF_ASSERT(NFFileUtility::Mkdir(dir_path));
 				fmt::format_to(
 					w, SPDLOG_FILENAME_T("{}{}_{:04d}_{:02d}_{:02d}_{:02d}{}"), dir_path, basename, tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, ext);
 				return fmt::to_string(w);
@@ -118,24 +103,8 @@ namespace spdlog
 				std::tie(pre_dir, basename, ext) = split_by_dir_and_extenstion(filename);
 				std::conditional<std::is_same<filename_t::value_type, char>::value, fmt::memory_buffer, fmt::wmemory_buffer>::type w;
 				auto dir_path = fmt::format(SPDLOG_FILENAME_T("{}{}"), pre_dir, spdlog::details::os::folder_sep);
-
-				//CHECK if directory is already existed
-				char tmp_dir_path[MAX_PATH] = { 0 };
-				for (size_t i = 0; i < dir_path.length(); ++i)
-				{
-					tmp_dir_path[i] = dir_path[i];
-					if (tmp_dir_path[i] == spdlog::details::os::folder_sep)
-					{
-						if (ACCESS(tmp_dir_path, 0) == -1)
-						{
-							int32_t ret = MKDIR(tmp_dir_path);
-							if (ret != 0)
-							{
-								assert(0);
-							}
-						}
-					}
-				}
+				dir_path = NFFileUtility::NormalizePath(dir_path);
+				NF_ASSERT(NFFileUtility::Mkdir(dir_path));
 
 				fmt::format_to(
 					w, SPDLOG_FILENAME_T("{}{}{}"), dir_path, basename, ext);

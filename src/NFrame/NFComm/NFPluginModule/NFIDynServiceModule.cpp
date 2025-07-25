@@ -35,7 +35,7 @@ int NFIDysServiceModule::OnHandleRpcMessage(uint32_t msgId, google::protobuf::Me
     return NFIDynamicModule::OnHandleRpcMessage(msgId, request, respone, param1, param2);
 }
 
-int NFIDysServiceModule::RegisterClientMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo)
+int NFIDysServiceModule::RegisterClientServiceMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo)
 {
     CHECK_EXPR_ASSERT(nMsgID < m_clientMsgToServiceMap.size(), -1, "");
     NFIDynamicModule::RegisterClientMessage(serverType, nMsgID, createCo);
@@ -43,7 +43,7 @@ int NFIDysServiceModule::RegisterClientMessage(NF_SERVER_TYPE serverType, uint32
     return 0;
 }
 
-int NFIDysServiceModule::RegisterServerMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo)
+int NFIDysServiceModule::RegisterServerServiceMessage(NF_SERVER_TYPE serverType, uint32_t nMsgID, uint32_t serviceId, bool createCo)
 {
     CHECK_EXPR_ASSERT(nMsgID < m_serverMsgToServiceMap.size(), -1, "");
     NFIDynamicModule::RegisterServerMessage(serverType, nMsgID, createCo);

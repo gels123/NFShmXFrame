@@ -91,10 +91,11 @@ enum NF_MODULE_TYPE
 	NF_MODULE_FRAME = 0,
 	NF_MODULE_SERVER = 1, //服务器内网通讯
 	NF_MODULE_CLIENT = 2, //客户端外部协议
-	NF_MODULE_MAX    = 3,
+	NF_MODULE_MAX    = 100,
 };
 
 #define NF_NET_MAX_MSG_ID 20000
+#define NF_NET_OTHER_MAX_MSG_ID 200
 
 enum PacketParseType
 {

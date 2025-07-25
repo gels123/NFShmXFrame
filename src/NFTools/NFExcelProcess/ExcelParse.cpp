@@ -576,6 +576,7 @@ int ExcelParse::HandleSheetList(const XLWorksheet sheet)
             excelSheet.m_sheetMsgNameStr = pExcelSheetInfo->sheetMsgName;
             excelSheet.m_protoMsgNameStr = pExcelSheetInfo->protoMsgName;
             OnHandleSheetProtoInfo(excelSheet);
+            excelSheet.m_createSql = pExcelSheetInfo->createSql;
             int iRetCode = excelSheet.ParseUniqueIndex(pExcelSheetInfo->unique_index);
             CHECK_RET(iRetCode, "ParseUniqueIndex:{} Failed, From jsonfile", pExcelSheetInfo->unique_index);
 
@@ -2381,8 +2382,8 @@ void ExcelParse::SplitColHead(const std::string& enName, const std::string& cnNa
         {
             if (NFStringUtility::IsDigital(enNameTemp))
             {
-                if (i - 1 >= 0 && i - 1 < (int)vecStructNum.size())
-                    vecStructNum[i - 1] = NFCommon::strto<int>(enNameTemp);
+                if ((i - 1)/2 >= 0 && (i - 1)/2 < (int)vecStructNum.size())
+                    vecStructNum[(i - 1)/2] = NFCommon::strto<int>(enNameTemp);
             }
         }
     }

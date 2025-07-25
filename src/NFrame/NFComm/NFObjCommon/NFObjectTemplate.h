@@ -183,6 +183,18 @@ public:
 		return 0;
 	}
 
+	/**
+	 * @brief 反注册对象类型到内存段的映射
+	 * @param bType 对象类型ID
+	 * @return 总是返回0
+	 * @note 用于从内存管理器中移除对象类型的注册信息
+	 */
+	static int UnRegisterClassToObjSeg(int bType)
+	{
+		NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIMemMngModule>()->UnRegisterClassToObjSeg(bType);
+		return 0;
+	}
+
 	void* operator new(size_t, void* pBuffer) throw()
 	{
 		return pBuffer;
@@ -389,6 +401,18 @@ public:
 		return 0;
 	}
 
+	/**
+	 * @brief 反注册对象类型到内存段的映射
+	 * @param bType 对象类型ID
+	 * @return 总是返回0
+	 * @note 用于从内存管理器中移除对象类型的注册信息
+	 */
+	static int UnRegisterClassToObjSeg(int bType)
+	{
+		NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIMemMngModule>()->UnRegisterClassToObjSeg(bType);
+		return 0;
+	}
+
 	void* operator new(size_t, void* pBuffer) throw()
 	{
 		return pBuffer;
@@ -430,7 +454,7 @@ public:
 };
 
 template <typename ClassName, int ClassType, typename ParentClassName>
-class NFShmObjGlobalTemplate : public ParentClassName
+class NFObjectGlobalTemplate : public ParentClassName
 {
 public:
 	typedef NFObjectIterator<ClassName, ClassName &, ClassName*, NFIMemMngModule> iterator;
@@ -438,7 +462,7 @@ public:
 	typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 	typedef std::reverse_iterator<iterator>                                                       reverse_iterator;
 public:
-	NFShmObjGlobalTemplate()
+	NFObjectGlobalTemplate()
 	{
 		if (EN_OBJ_MODE_INIT == NFShmMgr::Instance()->GetCreateMode())
 		{
@@ -460,7 +484,7 @@ public:
 		return 0;
 	}
 
-	virtual ~NFShmObjGlobalTemplate()
+	virtual ~NFObjectGlobalTemplate()
 	{
 	}
 
@@ -592,6 +616,18 @@ public:
 		NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIMemMngModule>()->RegisterClassToObjSeg(bType, siObjSize, iObjCount, ClassName::ResumeObjectRegisterFunction,
 		                                                                                                           ClassName::CreateObjectRegisterFunction, ClassName::DestroyObjectRegisterFunction, ParentClassName::GetStaticClassType(),
 		                                                                                                           strClassName, useHash, singleton);
+		return 0;
+	}
+
+	/**
+	 * @brief 反注册对象类型到内存段的映射
+	 * @param bType 对象类型ID
+	 * @return 总是返回0
+	 * @note 用于从内存管理器中移除对象类型的注册信息
+	 */
+	static int UnRegisterClassToObjSeg(int bType)
+	{
+		NFGlobalSystem::Instance()->GetGlobalPluginManager()->FindModule<NFIMemMngModule>()->UnRegisterClassToObjSeg(bType);
 		return 0;
 	}
 
