@@ -41,7 +41,6 @@ int NFCLoginServerModule::OnHandleServerMessage(uint64_t unLinkId, NFDataPackage
             NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) not handle", packet.ToString());
             break;
     }
-
     if (retCode != 0)
     {
         NFLogError(NF_LOG_DEFAULT, 0, "msg:({}) handle exist error", packet.ToString());

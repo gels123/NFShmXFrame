@@ -16,12 +16,10 @@ class NFILoginServerModule : public NFWorkServerModule
 public:
 	NFILoginServerModule(NFIPluginManager* p) :NFWorkServerModule(p, NF_ST_LOGIN_SERVER)
 	{
-
 	}
 
 	virtual ~NFILoginServerModule()
 	{
-
 	}
 };
 

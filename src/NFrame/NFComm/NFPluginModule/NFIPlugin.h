@@ -50,6 +50,7 @@ public:
 	virtual void Install() = 0;
 
 	virtual void Uninstall() = 0;
+
 public:
     bool AfterLoadAllPlugin() override;
 
@@ -95,12 +96,11 @@ public:
     bool OnServerKilling() override;
 
 	bool OnDynamicPlugin() override;
+
 public:
     virtual bool InitShmObjectRegister();
 
-
 	virtual bool IsDynamicLoad();
-
 
 	virtual void AddModule(const std::string& moduleName, NFIModule* pModule);
 
@@ -173,6 +173,7 @@ public:
 	 * @return 成功返回 true，失败返回 false。
 	 */
 	bool AfterAppInitFinish(NF_SERVER_TYPE serverType) override;
+
 protected:
 	std::map<std::string, NFIModule*> m_mapModule;
 	std::vector<NFIModule*> m_vecModule;
