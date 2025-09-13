@@ -26,6 +26,7 @@ if (CMAKE_BUILD_TOOLS)
 else()
     set(CMAKE_CXX_STANDARD 11)
 endif()
+message("CMAKE_BUILD_TOOLS: ${CMAKE_BUILD_TOOLS} ")
 
 if (UNIX)
     # 初始化变量
@@ -442,7 +443,6 @@ if (WIN32)
         add_compile_options(/wd4005)
         add_compile_options(/wd4200)
         add_compile_options(/wd4065)
-
         add_compile_options(/wd4091)
         add_compile_options(/wd4251)
         add_compile_options(/wd4996)
@@ -471,7 +471,7 @@ if (WIN32)
     endif()
 endif ()
 
-
+message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE} ")
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_BUILD_TYPE "Release")
     if (UNIX)
